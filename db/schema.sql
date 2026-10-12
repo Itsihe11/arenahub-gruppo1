@@ -1,5 +1,5 @@
 CREATE TABLE utente (
-  id INT PRIMARY KEY AUTO_INCREMENT,
+  id SERIAL PRIMARY KEY,
   nome VARCHAR(100) NOT NULL,
   cognome VARCHAR(100) NOT NULL,
   email VARCHAR(255) NOT NULL UNIQUE,
@@ -9,7 +9,7 @@ CREATE TABLE utente (
 
 
 CREATE TABLE torneo (
-  id INT PRIMARY KEY AUTO_INCREMENT,
+  id SERIAL PRIMARY KEY,
   nome VARCHAR(150) NOT NULL,
   gioco VARCHAR(100) NOT NULL,
   descrizione TEXT,
@@ -24,33 +24,32 @@ CREATE TABLE torneo (
 
 
 CREATE TABLE iscrizione (
-  id INT PRIMARY KEY AUTO_INCREMENT,
+  id SERIAL PRIMARY KEY,
   utente_id INT NOT NULL,
   torneo_id INT NOT NULL,
   data_iscrizione TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
   stato VARCHAR(50) NOT NULL DEFAULT 'confermata' CHECK (stato IN ('confermata', 'in_attesa', 'annullata')),
-  UNIQUE (utente_id, torneo_id),
-  FOREIGN KEY (utente_id) REFERENCES utente(id) ON DELETE CASCADE,
-  FOREIGN KEY (torneo_id) REFERENCES torneo(id) ON DELETE CASCADE
+  CONSTRAINT unique_utente_torneo UNIQUE (utente_id, torneo_id),
+  CONSTRAINT fk_iscrizione_utente FOREIGN KEY (utente_id) REFERENCES utente(id) ON DELETE CASCADE,
+  CONSTRAINT fk_iscrizione_torneo FOREIGN KEY (torneo_id) REFERENCES torneo(id) ON DELETE CASCADE
 );
 
 
 CREATE TABLE partita (
-  id INT PRIMARY KEY AUTO_INCREMENT,
+  id SERIAL PRIMARY KEY,
   torneo_id INT NOT NULL,
   giocatore1 INT NOT NULL,
   giocatore2 INT NOT NULL,
   turno INT NOT NULL DEFAULT 1,
-  dataora DATETIME,
+  dataora TIMESTAMP,
   punteggio1 INT DEFAULT NULL,
   punteggio2 INT DEFAULT NULL,
   stato VARCHAR(50) NOT NULL DEFAULT 'da_giocare' CHECK (stato IN ('da_giocare', 'in_corso', 'completata')),
   vincitore_id INT DEFAULT NULL,
-  FOREIGN KEY (torneo_id) REFERENCES torneo(id) ON DELETE CASCADE,
-  FOREIGN KEY (giocatore1) REFERENCES utente(id) ON DELETE CASCADE,
-  FOREIGN KEY (giocatore2) REFERENCES utente(id) ON DELETE CASCADE,
-  FOREIGN KEY (vincitore_id) REFERENCES utente(id) ON DELETE SET NULL,
-  CHECK (giocatore1 <> giocatore2)
+  CONSTRAINT fk_partita_torneo FOREIGN KEY (torneo_id) REFERENCES torneo(id) ON DELETE CASCADE,
+  CONSTRAINT fk_partita_giocatore1 FOREIGN KEY (giocatore1) REFERENCES utente(id) ON DELETE CASCADE,
+  CONSTRAINT fk_partita_giocatore2 FOREIGN KEY (giocatore2) REFERENCES utente(id) ON DELETE CASCADE,
+  CONSTRAINT fk_partita_vincitore FOREIGN KEY (vincitore_id) REFERENCES utente(id) ON DELETE SET NULL,
+  CONSTRAINT check_giocatori_diversi CHECK (giocatore1 <> giocatore2)
 );
-
 
