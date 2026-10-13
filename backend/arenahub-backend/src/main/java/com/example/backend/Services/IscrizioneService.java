@@ -1,5 +1,6 @@
 package com.example.backend.Services;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
@@ -17,61 +18,75 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class IscrizioneService {
-	private final TorneoRepository tornei;
-	private final IscrizioneRepository iscrizioni;
-	private final UtenteRepository utentiRepo;
-	private final UtenteService utenti;
-	private final TorneoService torneoService;
+    private final TorneoRepository tornei;
+    private final IscrizioneRepository iscrizioni;
+    private final UtenteRepository utentiRepo;
+    private final UtenteService utenti;
+    private final TorneoService torneoService;
 
-	public IscrizioneService(TorneoRepository tornei, IscrizioneRepository iscrizioni, UtenteRepository utentiRepo,
-			UtenteService utenti, TorneoService torneoService) {
-		this.tornei = tornei;
-		this.iscrizioni = iscrizioni;
-		this.utentiRepo = utentiRepo;
-		this.utenti = utenti;
-		this.torneoService = torneoService;
-	}
+    public IscrizioneService(TorneoRepository tornei, IscrizioneRepository iscrizioni, UtenteRepository utentiRepo,
+            UtenteService utenti, TorneoService torneoService) {
+        this.tornei = tornei;
+        this.iscrizioni = iscrizioni;
+        this.utentiRepo = utentiRepo;
+        this.utenti = utenti;
+        this.torneoService = torneoService;
+    }
 
-	@Transactional
-	public Iscrizione iscrivi(int uid, int torneoId) {
-		Utente u = utenti.utenteCorrente(uid);
-		Torneo t = tornei.findById(torneoId)
-				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Torneo non trovato"));
-		if (!t.getStato().equals("aperto"))
-			throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_CONTENT, "Torneo chiuso");
-		if (iscrizioni.countByTorneoId(torneoId) >= t.getMaxPartecipanti())
-			throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_CONTENT, "Torneo pieno");
-		if (iscrizioni.existsByTorneoIdAndUtenteId(torneoId, u.getId()))
-			throw new ResponseStatusException(HttpStatus.CONFLICT, "Utente già iscritto");
+    @Transactional
+    public Iscrizione iscrivi(int uid, int torneoId) {
+        Utente u = utenti.utenteCorrente(uid);
+        Torneo t = tornei.findById(torneoId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Torneo non trovato"));
 
-		Iscrizione i = new Iscrizione();
-		i.setTorneo(t);
-		i.setUtente(u);
-		return iscrizioni.save(i);
-	}
+        if (!"aperto".equalsIgnoreCase(t.getStato())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Torneo chiuso");
+        }
+        if (iscrizioni.countByTorneoId(torneoId) >= t.getMaxPartecipanti()) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Torneo pieno");
+        }
+        if (iscrizioni.existsByTorneoIdAndUtenteId(torneoId, u.getId())) {
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Utente già iscritto");
+        }
 
-	@Transactional
-	public void annulla(int uid, int torneoId) {
-		Utente u = utenti.utenteCorrente(uid);
-		Torneo t = torneoService.trova(torneoId);
-		if (!t.getStato().equals("aperto"))
-			throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_CONTENT, "Torneo non più aperto");
-		if (iscrizioni.deleteByTorneoIdAndUtenteId(torneoId, u.getId()) == 0)
-			throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Iscrizione non trovata");
-	}
+        Iscrizione i = new Iscrizione();
+        i.setTorneo(t);
+        i.setUtente(u);
+        i.setData(LocalDate.now());
+        i.setStato("confermata");
 
-	public List<Torneo> mieIscrizioni(int uid) {
-	    Utente u = utenti.utenteCorrente(uid);
-	    List<Torneo> lista = tornei.torneiDellUtente(u.getId());
-	    for (Torneo t : lista) {
-	        torneoService.conIscritti(t);
-	    }
-	    return lista;
-	}
+        return iscrizioni.save(i);
+    }
 
-	public List<Utente> iscritti(int uid, int torneoId) {
-		utenti.richiediAdmin(uid);
-		torneoService.trova(torneoId);
-		return utentiRepo.iscrittiDelTorneo(torneoId);
-	}
+    @Transactional
+    public void annulla(int uid, int torneoId) {
+        Utente u = utenti.utenteCorrente(uid);
+        Torneo t = torneoService.trova(torneoId);
+
+        if (!"aperto".equalsIgnoreCase(t.getStato())) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Torneo non più aperto");
+        }
+
+        iscrizioni.deleteByTorneoIdAndUtenteId(torneoId, u.getId());
+    }
+    
+    @Transactional
+    public void disiscrivi(int torneoId, int utenteId) {
+        iscrizioni.deleteByTorneoIdAndUtenteId(torneoId, utenteId);
+    }
+
+    public List<Torneo> mieIscrizioni(int uid) {
+        Utente u = utenti.utenteCorrente(uid);
+        List<Torneo> lista = tornei.torneiDellUtente(u.getId());
+        for (Torneo t : lista) {
+            torneoService.conIscritti(t);
+        }
+        return lista;
+    }
+
+    public List<Utente> iscritti(int uid, int torneoId) {
+        utenti.richiediAdmin(uid);
+        torneoService.trova(torneoId);
+        return utentiRepo.iscrittiDelTorneo(torneoId);
+    }
 }

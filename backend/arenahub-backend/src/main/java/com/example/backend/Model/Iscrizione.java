@@ -1,8 +1,8 @@
 package com.example.backend.Model;
 
-import java.time.LocalDateTime;
+import java.time.LocalDate;
 
-
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -19,16 +19,25 @@ public class Iscrizione {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	@Id 
 	private int id;
-	@ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "torneo_id") private Torneo torneo;
-	@ManyToOne(fetch = FetchType.LAZY) @JoinColumn(name = "utente_id") private Utente utente;
-	private LocalDateTime data = LocalDateTime.now();
+	
+	@ManyToOne(fetch = FetchType.LAZY) 
+	@JoinColumn(name = "torneo_id") 
+	private Torneo torneo;
+	
+	@ManyToOne(fetch = FetchType.LAZY) 
+	@JoinColumn(name = "utente_id") 
+	private Utente utente;
+	
+	@Column(name = "data_iscrizione")
+	private LocalDate data = LocalDate.now();
+	
 	private String stato;
 	
 	public Iscrizione() {
 		
 	}
 
-	public Iscrizione(Torneo torneo, Utente utente, LocalDateTime data, String stato) {
+	public Iscrizione(Torneo torneo, Utente utente, LocalDate data, String stato) {
 		this.torneo = torneo;
 		this.utente = utente;
 		this.data = data;
@@ -38,7 +47,6 @@ public class Iscrizione {
 	public int getId() {
 		return id;
 	}
-
 
 	public Torneo getTorneo() {
 		return torneo;
@@ -56,11 +64,11 @@ public class Iscrizione {
 		this.utente = utente;
 	}
 
-	public LocalDateTime getData() {
+	public LocalDate getData() {
 		return data;
 	}
 
-	public void setData(LocalDateTime data) {
+	public void setData(LocalDate data) {
 		this.data = data;
 	}
 
@@ -72,4 +80,11 @@ public class Iscrizione {
 		this.stato = stato;
 	}
 
+	public Integer getTorneoId() {
+		return torneo != null ? torneo.getId() : null;
+	}
+
+	public Integer getUtenteId() {
+		return utente != null ? utente.getId() : null;
+	}
 }

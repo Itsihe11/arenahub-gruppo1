@@ -134,6 +134,51 @@
         </span>
       </section>
     </div>
+
+    <!-- SEZIONE CLASSIFICA TORNEO -->
+    <section class="sezione-scheda" style="margin-top: 32px;">
+      <span class="sovratitolo">POSIZIONI & STATISTICHE</span>
+      <h2>🏆 Classifica Torneo</h2>
+
+      @if (classifica().length > 0) {
+        <div class="contenitore-tabella-scrollabile">
+          <table class="tabella-classifica">
+            <thead>
+              <tr>
+                <th>POS</th>
+                <th>GIOCATORE</th>
+                <th>VITTORIE</th>
+                <th>SCONFITTE</th>
+                <th>PUNTI FATTI</th>
+                <th>DIFF. PUNTI</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (voce of classifica(); track voce.giocatoreId; let idx = $index) {
+                <tr [class.podio]="idx < 3">
+                  <td class="col-pos">
+                    @if (idx === 0) { 🥇 1 }
+                    @else if (idx === 1) { 🥈 2 }
+                    @else if (idx === 2) { 🥉 3 }
+                    @else { {{ idx + 1 }} }
+                  </td>
+                  <td class="col-nome">
+                    <strong>{{ voce.nomeCompleto }}</strong>
+                  </td>
+                  <td class="col-vittorie">{{ voce.vittorie }}</td>
+                  <td class="col-sconfitte">{{ voce.sconfitte }}</td>
+                  <td>{{ voce.puntiFatti }}</td>
+                  <td>{{ voce.differenzaPunti > 0 ? '+' + voce.differenzaPunti : voce.differenzaPunti }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <p class="messaggio-vuoto">Nessun dato in classifica disponibile. Le partite non sono ancora iniziate o completate.</p>
+      }
+    </section>
+
   } @else {
     <div class="torneo-non-trovato">
       <span class="icona-errore">⚠️</span>

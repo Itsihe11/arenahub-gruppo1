@@ -10,7 +10,7 @@
   box-sizing: border-box;
 }
 
-/* ---------- HEADER ---------- */
+
 
 .header {
   display: flex;
@@ -678,3 +678,4 @@ nav a.attivo {
     grid-template-columns: 1fr;
   }
 }
+

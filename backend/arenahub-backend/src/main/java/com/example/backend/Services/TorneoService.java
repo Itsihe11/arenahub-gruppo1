@@ -1,6 +1,7 @@
 package com.example.backend.Services;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -10,23 +11,35 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example.backend.Model.Iscrizione;
 import com.example.backend.Model.Torneo;
 import com.example.backend.Repository.IscrizioneRepository;
 import com.example.backend.Repository.TorneoRepository;
 
+import jakarta.transaction.Transactional;
+
 @Service
 public class TorneoService {
-	private static final Set<String> STATI = Set.of("aperto", "chiuso", "concluso");
-	private final TorneoRepository tornei;
-	private final IscrizioneRepository iscrizioni;
-	private final UtenteService utenti;
+    private static final Set<String> STATI = Set.of("aperto", "chiuso", "concluso");
+    private final TorneoRepository tornei;
+    private final IscrizioneRepository iscrizioni;
+    private final UtenteService utenti;
 
-	public TorneoService(TorneoRepository tornei, IscrizioneRepository iscrizioni, UtenteService utenti) {
-		this.tornei = tornei;
-		this.iscrizioni = iscrizioni;
-		this.utenti = utenti;
-	}
+    public TorneoService(TorneoRepository tornei, IscrizioneRepository iscrizioni, UtenteService utenti) {
+        this.tornei = tornei;
+        this.iscrizioni = iscrizioni;
+        this.utenti = utenti;
+    }
+    
+    @Transactional
+    public void elimina(Integer uid, int id) {
+        utenti.richiediAdmin(uid);
+        Torneo t = trova(id);
+
+        iscrizioni.deleteByTorneoId(id);
+
+   
+        tornei.delete(t);
+    }
 
     public List<Map<String, Object>> elenco(String stato) {
         if (stato != null && !STATI.contains(stato))
@@ -65,18 +78,22 @@ public class TorneoService {
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Torneo non trovato"));
     }
 
-	public List<Map<String, Object>> conIscritti(List<Torneo> lista) {
-        List<Iscrizione> tutte = iscrizioni.findAll();   
-        List<Map<String, Object>> risultato = new ArrayList<>();
-
-        for (Torneo t : lista) {
-            int conteggio = 0;
-            for (Iscrizione i : tutte) {
-                if (i.getTorneo().getId() == t.getId()) {
-                    conteggio++;
-                }
+    public List<Map<String, Object>> conIscritti(List<Torneo> lista) {
+  
+        List<Object[]> conteggi = iscrizioni.countIscrittiPerTorneo();
+        Map<Integer, Long> mappaConteggi = new HashMap<>();
+        for (Object[] riga : conteggi) {
+            Integer tId = (Integer) riga[0];
+            Long count = (Long) riga[1];
+            if (tId != null) {
+                mappaConteggi.put(tId, count);
             }
-            risultato.add(creaMappa(t, conteggio));
+        }
+
+        List<Map<String, Object>> risultato = new ArrayList<>();
+        for (Torneo t : lista) {
+            long count = mappaConteggi.getOrDefault(t.getId(), 0L);
+            risultato.add(creaMappa(t, (int) count));
         }
         return risultato;
     }
@@ -92,7 +109,9 @@ public class TorneoService {
         m.put("descrizione", t.getDescrizione());
         m.put("gioco", t.getGioco());
         m.put("stato", t.getStato());
-        m.put("dataInizioTorneo", t.getDataInizioTorneo());
+        m.put("dataInizioIscrizione", t.getDataInizioIscrizione());
+        m.put("dataFineIscrizione", t.getDataFineIscrizione());
+        m.put("dataTorneo", t.getDataInizioTorneo());
         m.put("postiMax", t.getMaxPartecipanti());
         m.put("iscritti", iscritti);
         return m;

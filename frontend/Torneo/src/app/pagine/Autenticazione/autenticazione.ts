@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { Router, RouterLink, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 
-import { AutenticazioneMockService } from '../../services/autenticazione-mock.service';
+import { AutenticazioneMockService } from '../../services/autenticazione.service';
 
 @Component({
   selector: 'app-autenticazione',
@@ -54,38 +54,39 @@ export class Autenticazione implements OnInit {
         return;
       }
 
-      const esito = this.autenticazioneService.registra(
+      this.autenticazioneService.registra(
         this.nome,
         this.cognome || '',
         this.email,
         this.password
-      );
+      ).subscribe(esito => {
+        if (esito) {
+          this.messaggio = 'Registrazione completata con successo!';
+          setTimeout(() => this.router.navigate(['/area-utente']), 600);
+        } else {
+          this.errore = 'Impossibile completare la registrazione. Email già in uso o errore server.';
+        }
+      });
 
-      if (esito) {
-        this.messaggio = 'Registrazione completata con successo!';
-        setTimeout(() => this.router.navigate(['/area-utente']), 600);
-      } else {
-        this.errore = 'Impossibile completare la registrazione. Email già in uso.';
-      }
     } else {
       if (!this.email || !this.password) {
         this.errore = 'Inserisci email e password.';
         return;
       }
 
-      const esitoLogin = this.autenticazioneService.accedi(
+      this.autenticazioneService.accedi(
         this.email,
         this.password
-      );
-
-      if (esitoLogin) {
-        const utente = this.autenticazioneService.utenteCorrente();
-        this.messaggio = `Bentornato, ${utente?.nome}!`;
-        const rotta = utente?.ruolo === 'admin' ? '/admin' : '/area-utente';
-        setTimeout(() => this.router.navigate([rotta]), 600);
-      } else {
-        this.errore = 'Credenziali non valide. Controlla email e password.';
-      }
+      ).subscribe(esitoLogin => {
+        if (esitoLogin) {
+          const utente = this.autenticazioneService.utenteCorrente();
+          this.messaggio = `Bentornato, ${utente?.nome}!`;
+          const rotta = utente?.ruolo === 'admin' ? '/admin' : '/area-utente';
+          setTimeout(() => this.router.navigate([rotta]), 600);
+        } else {
+          this.errore = 'Credenziali non valide. Controlla email e password.';
+        }
+      });
     }
   }
 }

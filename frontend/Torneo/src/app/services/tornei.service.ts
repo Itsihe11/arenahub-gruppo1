@@ -1,6 +1,6 @@
-
 import { Injectable, signal, inject } from '@angular/core';
-import { AutenticazioneMockService } from './autenticazione-mock.service';
+import { HttpClient } from '@angular/common/http';
+import { AutenticazioneMockService } from './autenticazione.service';
 
 export interface Torneo {
   id: number;
@@ -23,73 +23,21 @@ export interface Torneo {
   providedIn: 'root'
 })
 export class TorneiService {
+  private readonly http = inject(HttpClient);
   private readonly authService = inject(AutenticazioneMockService);
-  private readonly chiaveTornei = 'mock_tornei';
+  private readonly apiUrl = 'http://localhost:8080/api/tornei';
 
-  readonly tornei = signal<Torneo[]>(this.caricaTornei());
+  readonly tornei = signal<Torneo[]>([]);
 
-  private caricaTornei(): Torneo[] {
-    try {
-      const salvati = localStorage.getItem(this.chiaveTornei);
-
-      if (salvati) {
-        const tornei = JSON.parse(salvati) as Torneo[];
-        return tornei.map(t => this.normalizzaTorneo(t));
-      }
-    } catch {
-      // Se i dati salvati non sono validi, vengono inizializzati.
-    }
-
-    const iniziali: Torneo[] = [
-      {
-        id: 1,
-        nome: 'Torneo d\'Autunno',
-        gioco: 'Calcio Virtuale',
-        descrizione: 'Sfida 1v1 ITS',
-        dataTorneo: '2026-10-16',
-        postiMax: 16,
-        iscritti: 7,
-        stato: 'aperto',
-        partecipantiIds: [1, 101, 102, 103, 104, 105, 106],
-        classificaFinale: []
-      },
-      {
-        id: 2,
-        nome: 'Sfida di Natale',
-        gioco: 'Corse',
-        descrizione: 'Gara finale',
-        dataTorneo: '2026-12-18',
-        postiMax: 12,
-        iscritti: 2,
-        stato: 'chiuso',
-        partecipantiIds: [101, 102],
-        classificaFinale: []
-      }
-    ];
-
-    this.salvaTornei(iniziali);
-    return iniziali;
+  constructor() {
+    this.caricaTornei();
   }
 
-  private normalizzaTorneo(torneo: Torneo): Torneo {
-    const partecipantiIds = [...new Set(torneo.partecipantiIds ?? [])];
-
-    return {
-      ...torneo,
-      partecipantiIds,
-      iscritti: partecipantiIds.length,
-      classificaFinale: torneo.classificaFinale ?? []
-    };
-  }
-
-  private salvaTornei(tornei: Torneo[]): void {
-    localStorage.setItem(this.chiaveTornei, JSON.stringify(tornei));
-  }
-
-  private aggiornaTornei(aggiornamento: (tornei: Torneo[]) => Torneo[]): void {
-    const aggiornati = aggiornamento(this.tornei());
-    this.tornei.set(aggiornati);
-    this.salvaTornei(aggiornati);
+  caricaTornei(): void {
+    this.http.get<Torneo[]>(this.apiUrl).subscribe({
+      next: (data) => this.tornei.set(data),
+      error: (err) => console.error('Errore nel caricamento dei tornei dal backend:', err)
+    });
   }
 
   getTorneoById(id: number): Torneo | undefined {
@@ -97,109 +45,59 @@ export class TorneiService {
   }
 
   creaTorneo(
-    nuovo: Omit<
-      Torneo,
-      'id' | 'iscritti' | 'stato' | 'partecipantiIds' | 'classificaFinale'
-    >
+    nuovo: Omit<Torneo, 'id' | 'iscritti' | 'stato' | 'partecipantiIds' | 'classificaFinale'>
   ): void {
-    const listaCorrente = this.tornei();
-
-    const nuovoId = listaCorrente.length > 0
-      ? Math.max(...listaCorrente.map(t => t.id)) + 1
-      : 1;
-
-    const torneoCompleto: Torneo = {
+    const torneoPayload = {
       ...nuovo,
-      id: nuovoId,
-      iscritti: 0,
-      stato: 'aperto',
-      partecipantiIds: [],
-      classificaFinale: []
+      stato: 'aperto'
     };
 
-    this.aggiornaTornei(lista => [torneoCompleto, ...lista]);
+    this.http.post<Torneo>(this.apiUrl, torneoPayload).subscribe({
+      next: () => this.caricaTornei(),
+      error: (err) => console.error('Errore durante la creazione del torneo:', err)
+    });
   }
 
-  cambiaStatoTorneo(
-    id: number,
-    nuovoStato: 'aperto' | 'chiuso' | 'concluso'
-  ): void {
-    this.aggiornaTornei(lista =>
-      lista.map(t =>
-        t.id === id ? { ...t, stato: nuovoStato } : t
-      )
-    );
+  cambiaStatoTorneo(id: number, nuovoStato: 'aperto' | 'chiuso' | 'concluso'): void {
+    const torneoCorrente = this.getTorneoById(id);
+    if (!torneoCorrente) return;
+
+    const torneoAggiornato = { ...torneoCorrente, stato: nuovoStato };
+
+    this.http.put<Torneo>(`${this.apiUrl}/${id}`, torneoAggiornato).subscribe({
+      next: () => this.caricaTornei(),
+      error: (err) => console.error('Errore durante l\'aggiornamento dello stato:', err)
+    });
   }
 
   eliminaTorneo(id: number): void {
-    this.aggiornaTornei(lista =>
-      lista.filter(t => t.id !== id)
-    );
-
-    // Aggiorna l'utente corrente solo se è autenticato.
-    this.authService.aggiornaIscrizioniTornei(id, false);
+    this.http.delete<void>(`${this.apiUrl}/${id}`).subscribe({
+      next: () => {
+        this.caricaTornei();
+        this.authService.aggiornaIscrizioniTornei(id, false);
+      },
+      error: (err) => console.error('Errore durante l\'eliminazione del torneo:', err)
+    });
   }
 
-  iscriviUtente(torneoId: number, utenteId: number): boolean {
-    const torneo = this.getTorneoById(torneoId);
-
-    if (!torneo || torneo.stato !== 'aperto') return false;
-    if (torneo.partecipantiIds?.includes(utenteId)) return false;
-    if ((torneo.partecipantiIds?.length ?? 0) >= torneo.postiMax) {
-      return false;
-    }
-
-    this.aggiornaTornei(lista =>
-      lista.map(t => {
-        if (t.id !== torneoId) return t;
-
-        const partecipanti = [...(t.partecipantiIds ?? []), utenteId];
-
-        return {
-          ...t,
-          partecipantiIds: partecipanti,
-          iscritti: partecipanti.length
-        };
-      })
-    );
-
-    this.aggiornaIscrizioneUtente(utenteId, torneoId, true);
-    return true;
+  iscriviUtente(torneoId: number, utenteId: number): void {
+    this.http.post<void>(`http://localhost:8080/api/iscrizioni`, { torneoId, utenteId }).subscribe({
+      next: () => {
+        this.caricaTornei();
+        this.aggiornaIscrizioneUtente(utenteId, torneoId, true);
+      },
+      error: (err) => console.error('Errore durante l\'iscrizione:', err)
+    });
   }
 
   disiscriviUtente(torneoId: number, utenteId: number): void {
-    const torneo = this.getTorneoById(torneoId);
-
-    if (!torneo?.partecipantiIds?.includes(utenteId)) return;
-
-    this.aggiornaTornei(lista =>
-      lista.map(t => {
-        if (t.id !== torneoId) return t;
-
-        const partecipanti = (t.partecipantiIds ?? [])
-          .filter(id => id !== utenteId);
-
-        return {
-          ...t,
-          partecipantiIds: partecipanti,
-          iscritti: partecipanti.length
-        };
-      })
-    );
-
-    this.aggiornaIscrizioneUtente(utenteId, torneoId, false);
-  }
-
-  private aggiornaIscrizioneUtente(
-    utenteId: number,
-    torneoId: number,
-    iscrivi: boolean
-  ): void {
-    const utente = this.authService.utenteCorrente();
-
-    if (!utente || utente.id !== utenteId) return;
-
-    this.authService.aggiornaIscrizioniTornei(torneoId, iscrivi);
+    this.http.delete<void>(`http://localhost:8080/api/iscrizioni?torneoId=${torneoId}&utenteId=${utenteId}`).subscribe({
+      next: () => {
+        this.caricaTornei();
+        this.aggiornaIscrizioneUtente(utenteId, torneoId, false);
+      },
+      error: (err) => console.error('Errore durante la disiscrizione:', err)
+    });
   }
 
   salvaRisultatoGiocatore(
@@ -208,39 +106,17 @@ export class TorneiService {
     posizione: number,
     punteggio: number
   ): void {
-    if (
-      !Number.isInteger(posizione) ||
-      posizione < 1 ||
-      !Number.isFinite(punteggio) ||
-      punteggio < 0
-    ) {
-      return;
-    }
+    const payload = { torneoId, utenteId, posizione, punteggio };
 
-    this.aggiornaTornei(lista =>
-      lista.map(t => {
-        if (t.id !== torneoId) return t;
+    this.http.post<void>(`http://localhost:8080/api/partite/risultato`, payload).subscribe({
+      next: () => this.caricaTornei(),
+      error: (err) => console.error('Errore durante il salvataggio del risultato:', err)
+    });
+  }
 
-        const classifica = [...(t.classificaFinale ?? [])];
-        const indice = classifica.findIndex(
-          risultato => risultato.utenteId === utenteId
-        );
-
-        const risultato = { utenteId, posizione, punteggio };
-
-        if (indice >= 0) {
-          classifica[indice] = risultato;
-        } else {
-          classifica.push(risultato);
-        }
-
-        return {
-          ...t,
-          classificaFinale: classifica.sort(
-            (a, b) => a.posizione - b.posizione
-          )
-        };
-      })
-    );
+  private aggiornaIscrizioneUtente(utenteId: number, torneoId: number, iscrivi: boolean): void {
+    const utente = this.authService.utenteCorrente();
+    if (!utente || utente.id !== utenteId) return;
+    this.authService.aggiornaIscrizioniTornei(torneoId, iscrivi);
   }
 }

@@ -773,3 +773,119 @@
     transition: none !important;
   }
 }
+
+.scheda-torneo-container {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 24px;
+  color: #fff;
+}
+
+.sezione-scheda {
+  background: #111827;
+  border-radius: 12px;
+  padding: 20px;
+  margin-top: 24px;
+  border: 1px solid #1f2937;
+}
+
+
+.tabella-classifica {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 16px;
+  text-align: left;
+}
+
+.tabella-classifica th,
+.tabella-classifica td {
+  padding: 12px 16px;
+  border-bottom: 1px solid #1f2937;
+}
+
+.tabella-classifica th {
+  color: #9ca3af;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+}
+
+.tr.podio {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.col-pos {
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.col-vittorie {
+  color: #10b981;
+  font-weight: bold;
+}
+
+.col-sconfitte {
+  color: #ef4444;
+}
+
+
+.blocco-turno {
+  margin-top: 20px;
+}
+
+.titolo-turno {
+  font-size: 1.1rem;
+  color: #3b82f6;
+  border-bottom: 2px solid #1d4ed8;
+  padding-bottom: 6px;
+  margin-bottom: 12px;
+}
+
+.griglia-partite {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+}
+
+.card-partita {
+  background: #1f2937;
+  border-radius: 8px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid #374151;
+}
+
+.giocatore {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: #111827;
+}
+
+.giocatore.vincitore {
+  border-left: 4px solid #10b981;
+  font-weight: bold;
+  background: rgba(16, 185, 129, 0.1);
+}
+
+.divisore-vs {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.75rem;
+  color: #9ca3af;
+  padding: 0 4px;
+}
+
+.stato-partita.completata {
+  color: #10b981;
+}
+
+.messaggio-vuoto {
+  color: #9ca3af;
+  font-style: italic;
+  margin-top: 12px;
+}

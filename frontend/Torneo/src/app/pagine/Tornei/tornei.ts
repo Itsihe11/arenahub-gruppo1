@@ -1,9 +1,8 @@
-
 import { Component, computed, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { DatePipe } from '@angular/common';
 
-import { AutenticazioneMockService } from '../../services/autenticazione-mock.service';
+import { AutenticazioneMockService } from '../../services/autenticazione.service';
 import { TorneiService } from '../../services/tornei.service';
 
 @Component({
@@ -21,19 +20,16 @@ export class Tornei {
   readonly utenteCorrente = this.autenticazioneService.utenteCorrente;
   readonly tuttiTornei = this.torneiService.tornei;
 
-  // Ricerca testuale
   readonly testoRicerca = signal<string>('');
 
-  // Filtri del catalogo
   readonly statoSelezionato = signal<string>('tutti');
   readonly giocoSelezionato = signal<string>('tutti');
   readonly dataInizio = signal<string>('');
   readonly dataFine = signal<string>('');
 
-  // Elenco dinamico dei giochi presenti nei tornei
   readonly giochiDisponibili = computed(() => {
     const giochi = this.tuttiTornei()
-      .map(torneo => torneo.gioco.trim())
+      .map(torneo => (torneo.gioco ?? '').trim())
       .filter(gioco => gioco.length > 0);
 
     return [...new Set(giochi)].sort((a, b) =>
@@ -41,14 +37,10 @@ export class Tornei {
     );
   });
 
-  // Tornei filtrati in base a ricerca, gioco, data e stato
   readonly torneiFiltrati = computed(() => {
     let tornei = this.tuttiTornei();
 
-    const ricerca = this.testoRicerca()
-      .toLowerCase()
-      .trim();
-
+    const ricerca = this.testoRicerca().toLowerCase().trim();
     const stato = this.statoSelezionato();
     const gioco = this.giocoSelezionato();
     const inizio = this.dataInizio();
@@ -56,40 +48,60 @@ export class Tornei {
 
     if (ricerca) {
       tornei = tornei.filter(torneo =>
-        torneo.nome.toLowerCase().includes(ricerca) ||
-        torneo.gioco.toLowerCase().includes(ricerca) ||
-        torneo.descrizione.toLowerCase().includes(ricerca)
+        (torneo.nome ?? '').toLowerCase().includes(ricerca) ||
+        (torneo.gioco ?? '').toLowerCase().includes(ricerca) ||
+        (torneo.descrizione ?? '').toLowerCase().includes(ricerca)
       );
     }
 
     if (gioco !== 'tutti') {
-      tornei = tornei.filter(torneo =>
-        torneo.gioco === gioco
-      );
+      tornei = tornei.filter(torneo => torneo.gioco === gioco);
     }
 
     if (stato !== 'tutti') {
-      tornei = tornei.filter(torneo =>
-        torneo.stato === stato
-      );
+      tornei = tornei.filter(torneo => torneo.stato === stato);
     }
 
     if (inizio) {
       tornei = tornei.filter(torneo =>
-        torneo.dataTorneo >= inizio
+        torneo.dataTorneo ? torneo.dataTorneo >= inizio : false
       );
     }
 
     if (fine) {
       tornei = tornei.filter(torneo =>
-        torneo.dataTorneo <= fine
+        torneo.dataTorneo ? torneo.dataTorneo <= fine : false
       );
     }
 
     return [...tornei].sort((a, b) =>
-      a.dataTorneo.localeCompare(b.dataTorneo)
+      (a.dataTorneo ?? '').localeCompare(b.dataTorneo ?? '')
     );
   });
+
+  isIscritto(torneoId: number): boolean {
+    return this.utenteCorrente()?.torneiIscrittiIds?.includes(torneoId) ?? false;
+  }
+
+  gestisciIscrizione(torneoId: number): void {
+    if (!this.utenteCorrente()) {
+      this.router.navigate(['/login']);
+      return;
+    }
+
+    const iscritto = this.isIscritto(torneoId);
+    this.autenticazioneService.aggiornaIscrizioniTornei(torneoId, !iscritto).subscribe({
+      next: (successo) => {
+        if (successo) {
+          
+          this.torneiService.caricaTornei();
+        }
+      },
+      error: (err) => {
+        console.error('Errore durante la gestione dell\'iscrizione:', err);
+      }
+    });
+  }
 
   aggiornaRicerca(event: Event): void {
     const input = event.target as HTMLInputElement;

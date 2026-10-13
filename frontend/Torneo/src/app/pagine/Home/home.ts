@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 
-import { AutenticazioneMockService } from '../../services/autenticazione-mock.service';
+import { AutenticazioneMockService } from '../../services/autenticazione.service';
 
 @Component({
   selector: 'app-home',
