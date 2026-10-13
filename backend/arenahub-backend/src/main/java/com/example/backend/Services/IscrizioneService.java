@@ -1,4 +1,4 @@
-package com.example.Services;
+package com.example.backend.Services;
 
 import java.util.List;
 
@@ -6,12 +6,12 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example.Model.Iscrizione;
-import com.example.Model.Torneo;
-import com.example.Model.Utente;
-import com.example.Repository.IscrizioneRepository;
-import com.example.Repository.TorneoRepository;
-import com.example.Repository.UtenteRepository;
+import com.example.backend.Model.Iscrizione;
+import com.example.backend.Model.Torneo;
+import com.example.backend.Model.Utente;
+import com.example.backend.Repository.IscrizioneRepository;
+import com.example.backend.Repository.TorneoRepository;
+import com.example.backend.Repository.UtenteRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -35,7 +35,7 @@ public class IscrizioneService {
 	@Transactional
 	public Iscrizione iscrivi(int uid, int torneoId) {
 		Utente u = utenti.utenteCorrente(uid);
-		Torneo t = tornei.findByIdForUpdate(torneoId)
+		Torneo t = tornei.findById(torneoId)
 				.orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Torneo non trovato"));
 		if (!t.getStato().equals("aperto"))
 			throw new ResponseStatusException(HttpStatus.UNPROCESSABLE_CONTENT, "Torneo chiuso");

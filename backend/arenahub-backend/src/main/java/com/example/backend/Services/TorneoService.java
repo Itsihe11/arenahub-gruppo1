@@ -1,4 +1,4 @@
-package com.example.Services;
+package com.example.backend.Services;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -10,10 +10,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example.Model.Iscrizione;
-import com.example.Model.Torneo;
-import com.example.Repository.IscrizioneRepository;
-import com.example.Repository.TorneoRepository;
+import com.example.backend.Model.Iscrizione;
+import com.example.backend.Model.Torneo;
+import com.example.backend.Repository.IscrizioneRepository;
+import com.example.backend.Repository.TorneoRepository;
 
 @Service
 public class TorneoService {
@@ -32,8 +32,8 @@ public class TorneoService {
         if (stato != null && !STATI.contains(stato))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Stato non valido");
         List<Torneo> lista = (stato == null)
-                ? tornei.findAllByOrderByDataOra()
-                : tornei.findByStatoOrderByDataOra(stato);
+                ? tornei.findAllByOrderByDataInizioTorneo()
+                : tornei.findByStatoOrderByDataInizioTorneo(stato);
         return conIscritti(lista);
     }
 

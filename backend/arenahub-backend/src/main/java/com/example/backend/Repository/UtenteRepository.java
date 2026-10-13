@@ -1,11 +1,11 @@
-package com.example.Repository;
+package com.example.backend.Repository;
 
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 
-import com.example.Model.Utente;
+import com.example.backend.Model.Utente;
 
 public interface UtenteRepository extends JpaRepository<Utente, Integer> {
 	Optional<Utente> findByEmail(String email);

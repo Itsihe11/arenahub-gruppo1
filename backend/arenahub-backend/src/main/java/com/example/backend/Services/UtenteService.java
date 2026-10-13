@@ -1,11 +1,11 @@
-package com.example.Services;
+package com.example.backend.Services;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
-import com.example.Model.Utente;
-import com.example.Repository.UtenteRepository;
+import com.example.backend.Model.Utente;
+import com.example.backend.Repository.UtenteRepository;
 
 @Service 
 public class UtenteService {
