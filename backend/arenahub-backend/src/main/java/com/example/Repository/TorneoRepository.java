@@ -8,8 +8,11 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import com.example.Model.Torneo;
 
 public interface TorneoRepository extends JpaRepository<Torneo, Integer> {
-    List<Torneo> findAllByOrderByDataOra();
-    List<Torneo> findByStatoOrderByDataOra(String stato);
+	List<Torneo> findAllByOrderByDataOra();
 
-    Optional<Torneo> findByIdForUpdate(Long id);
+	List<Torneo> findByStatoOrderByDataOra(String stato);
+
+	Optional<Torneo> findByIdForUpdate(int id);
+
+	List<Torneo> torneiDellUtente(int utenteId);
 }

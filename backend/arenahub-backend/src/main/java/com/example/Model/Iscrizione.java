@@ -68,7 +68,5 @@ public class Iscrizione {
 	public void setStato(String stato) {
 		this.stato = stato;
 	}
-	
-	
-	
+
 }

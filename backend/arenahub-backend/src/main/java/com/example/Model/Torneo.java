@@ -10,9 +10,11 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Table;
 
-@Entity @Table(name = "torneo")
+@Entity
+@Table(name = "torneo")
 public class Torneo {
-	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+	@Id
+	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private int id;
 	private String nome;
 	private String gioco;
@@ -22,9 +24,9 @@ public class Torneo {
 	private int maxPartecipanti;
 	private LocalDateTime dataInizioTorneo;
 	private String stato;
-	
+
 	public Torneo() {
-		
+
 	}
 
 	public Torneo(String nome, String gioco, String descrizione, LocalDate dataInizioIscrizione,
@@ -37,6 +39,14 @@ public class Torneo {
 		this.maxPartecipanti = maxPartecipanti;
 		this.dataInizioTorneo = dataInizioTorneo;
 		this.stato = stato;
+	}
+
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
 	}
 
 	public String getNome() {
@@ -102,10 +112,5 @@ public class Torneo {
 	public void setStato(String stato) {
 		this.stato = stato;
 	}
-	
-	
-	
-	
-	
-	
+
 }
