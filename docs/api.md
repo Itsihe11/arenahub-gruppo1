@@ -24,10 +24,12 @@ Lista dei tornei. Accesso: pubblico.
 | Parametro | Dove  | Tipo    | Obbligatorio |
 |-----------|-------|---------|--------------|
 | stato     | query | stringa | no           |
+| data      | query | date     | no           |
+| gioco    | query | stringa | no           |
 
 **Risposta 200**
 [ { "id": 3, "nome": "Torneo d'autunno", "gioco": "Calcio virtuale", "descrizione": "...", "stato": "aperto",
-    "dataOra": "2026-10-16T15:00:00", "postiMax": 16, "iscritti": 7 } ]
+    "dataTorneo": "2026-10-16T15:00:00", "postiMax": 16, "iscritti": 7 } ]
 
 **Errori**
 | 400 | stato non valido (ammessi: aperto, chiuso) | {"errore": "Stato non valido"} |
@@ -43,7 +45,7 @@ Dettaglio di un torneo. Accesso: pubblico.
 
 **Risposta 200**
 { "id": 3, "nome": "Torneo d'autunno", "gioco": "Calcio virtuale", "descrizione": "...",  "stato": "aperto",
-  "dataOra": "2026-10-16T15:00:00", "postiMax": 16, "iscritti": 8 }
+  "dataTorneo": "2026-10-16T15:00:00", "postiMax": 16, "iscritti": 8 }
 
 **Errori**
 | 400 | id non numerico | {"errore": "Id non valido"} |
@@ -99,15 +101,14 @@ Autentica un utente e restituisce il token. Accesso: pubblico.
 
 | Parametro | Dove | Tipo    | Obbligatorio |
 |-----------|------|---------|--------------|
-| nome      | body | stringa | si           |
-| cognome   | body | stringa | si           |
+| email    | body | stringa | si           |
 | password  | body | stringa | si           |
 
 **Risposta 200**
 { "token": "eyJhbGciOi...", "utente": { "id": 1, "nome": "mario", "cognome": "rossi", "ruolo": "utente" } }
 
 **Errori**
-| 400 | nome, cognome o password mancanti | {"errore": "Dati mancanti"} |
+| 400 | email o password mancanti | {"errore": "Dati mancanti"} |
 | 401 | credenziali errate           | {"errore": "Credenziali non valide"} |
 
 —------------------------------------------------------------------------------------------------------------------------
@@ -178,7 +179,7 @@ Dati personali dell'utente autenticato. Accesso: utente autenticato.
 | Authorization | header | stringa | si           |
 
 **Risposta 200**
-{ "id": 1, "username": "mario", "nome": "Mario", "cognome": "Rossi",
+{ "id": 1, "nome": "Mario", "cognome": "Rossi",
   "email": "mario@example.com", "ruolo": "utente" }
 
 **Errori**
@@ -231,6 +232,34 @@ Inserisce i risultati dei partecipanti di un torneo e lo porta allo stato conclu
 | 409 | risultati già inseriti per questo torneo                                  | {"errore": "Risultati già presenti"} |
 
 —------------------------------------------------------------------------------------------------------------------------
+## PUT /api/tornei/{id}/risultati
+Modifica i risultati dei partecipanti di un torneo e lo porta allo stato concluso. Accesso: admin.
+
+| Parametro              | Dove   | Tipo    | Obbligatorio |
+|------------------------|--------|---------|--------------|
+| Authorization          | header | stringa | si           |
+| id                     | path   | intero  | si           |
+| risultati              | body   | array   | si           |
+| risultati[].idUtente   | body   | intero  | si           |
+| risultati[].posizione  | body   | intero  | si           |
+
+**Risposta 201**
+{ "idTorneo": 3, "nome": "Torneo d'autunno", "stato": "concluso",
+  "risultati": [ { "idUtente": 1, "nome": "mario", "cognome": "rossi", "posizione": 1 },
+                 { "idUtente": 4, "nome": "luigi", "cognome": "bianchi", "posizione": 2 } ] }
+
+**Errori**
+| 400 | id non numerico, risultati vuoto o malformato, posizione <= 0 o duplicata | {"errore": "Dati non validi"} |
+| 400 | idUtente non iscritto al torneo                                           | {"errore": "Utente non iscritto"} |
+| 401 | token mancante o non valido                                               | {"errore": "Non autenticato"} |
+| 403 | utente senza ruolo admin                                                  | {"errore": "Accesso negato"} |
+| 404 | id torneo inesistente                                                     | {"errore": "Torneo non trovato"} |
+| 409 | risultati già inseriti per questo torneo                                  | {"errore": "Risultati già presenti"} |
+
+—------------------------------------------------------------------------------------------------------------------------
+
+
+
 
 ## DELETE /api/tornei/{id}/iscrizione
 Annulla l'iscrizione dell'utente autenticato a un torneo. Accesso: utente autenticato.
@@ -250,4 +279,51 @@ Annulla l'iscrizione dell'utente autenticato a un torneo. Accesso: utente autent
 | 404 | id torneo inesistente                                    | {"errore": "Torneo non trovato"} |
 | 404 | utente non iscritto a questo torneo                      | {"errore": "Iscrizione non trovata"} |
 | 409 | torneo concluso o già iniziato (annullamento non ammesso) | {"errore": "Annullamento non consentito"} |
+
+—------------------------------------------------------------------------------------------------------------------------
+
+## GET /api/tornei/{id}/partecipanti
+Lista degli utenti iscritti a un torneo. Accesso: pubblico.
+
+| Parametro | Dove | Tipo   | Obbligatorio |
+|-----------|------|--------|--------------|
+| id        | path | intero | si           |
+
+**Risposta 200**
+{ "idTorneo": 3, "nome": "Torneo d'autunno", "iscritti": 2, "postiMax": 16,
+  "partecipanti": [ { "idUtente": 1, "nome": "mario", “cognome”: “rossi”, "dataIscrizione": "2026-10-12T12:30:00" },
+                    { "idUtente": 4, "nome": "luigi", “cognome”: “bianchi”,  "dataIscrizione": "2026-10-13T09:10:00" } ] }
+
+**Errori**
+| 400 | id non numerico       | {"errore": "Id non valido"} |
+| 404 | id torneo inesistente | {"errore": "Torneo non trovato"} |
+
+—------------------------------------------------------------------------------------------------------------------------
+
+## PUT /api/tornei/{id}
+Modifica un torneo esistente. Accesso: admin.
+
+| Parametro     | Dove   | Tipo    | Obbligatorio |
+|---------------|--------|---------|--------------|
+| Authorization | header | stringa | si         |
+| id                 | path   | intero  | si              |
+| nome            | body   | stringa | no           |
+| gioco            | body   | stringa | no           |
+| dataTorneo   | body   | data    | no           |
+| dataInizioIscrizione   | body   | data    | no           |
+| dataFineIscrizione   | body   | data    | no           |
+| postiMax      | body   | intero  | no           |
+| stato            | body   | stringa | no           |
+
+**Risposta 200**
+{ "id": 3, "nome": "Torneo d'autunno 2026", "gioco": "Calcio virtuale", "stato": "aperto",
+  "dataTorneo": "2026-10-18T15:00:00", "postiMax": 24, "iscritti": 8 }
+
+**Errori**
+| 400 | id non numerico, campo mancante o non valido (es. postiMax <= 0, stato non ammesso) | {"errore": "Dati non validi"} |
+| 401 | token mancante o non valido                                                         | {"errore": "Non autenticato"} |
+| 403 | utente senza ruolo admin                                                            | {"errore": "Accesso negato"} |
+| 404 | id torneo inesistente                                                               | {"errore": "Torneo non trovato"} |
+| 409 | postiMax inferiore al numero di iscritti attuali                                    | {"errore": "Posti insufficienti"} |
+| 409 | torneo concluso (modifica non ammessa)                                              | {"errore": "Torneo concluso"} |
 
