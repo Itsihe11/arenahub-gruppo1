@@ -3,6 +3,7 @@ package com.example.backend.Controller;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,7 +23,7 @@ import com.example.backend.Services.PartitaServices;
 @CrossOrigin(origins = "http://localhost:4200")
 public class PartitaController {
 
-    private final PartitaServices partitaService;
+    @Autowired PartitaServices partitaService;
 
     public PartitaController(PartitaServices partitaService) {
         this.partitaService = partitaService;

@@ -4,6 +4,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -24,7 +25,7 @@ import com.example.backend.Services.TorneoService;
 @CrossOrigin(origins = "http://localhost:4200")
 public class TorneoController {
 
-    private final TorneoService torneoService;
+    @Autowired TorneoService torneoService;
 
     public TorneoController(TorneoService torneoService) {
         this.torneoService = torneoService;
