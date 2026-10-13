@@ -1,0 +1,235 @@
+
+<header class="header">
+  <div class="header-sinistra">
+    <a class="logo" routerLink="/" aria-label="ArenaHub - Home">
+      <span class="logo-icona">A</span>
+      <span class="logo-testo">ArenaHub</span>
+    </a>
+
+    <nav class="navigazione">
+      <a routerLink="/">Home</a>
+      <a routerLink="/tornei" class="attivo">Tornei</a>
+      @if (utenteCorrente()?.ruolo === 'admin') {
+        <a routerLink="/admin">Dashboard Admin</a>
+      } @else if (utenteCorrente()) {
+        <a routerLink="/area-utente">I miei tornei</a>
+      }
+    </nav>
+  </div>
+
+  <div class="azioni-header">
+    @if (utenteCorrente(); as utente) {
+      @if (utente.ruolo === 'admin') {
+        <span class="badge-ruolo-admin">ADMIN</span>
+      }
+      <span class="nome-utente-header">👤 {{ utente.nome }}</span>
+      <button type="button" class="link-esci" (click)="esci()">Esci</button>
+    } @else {
+      <a routerLink="/login" class="link-login">Accedi</a>
+      <a routerLink="/login" class="bottone-registrazione">Registrati</a>
+    }
+  </div>
+</header>
+
+<main class="pagina-tornei">
+  <section class="introduzione-catalogo">
+    <span class="sovratitolo">CATALOGO COMPETIZIONI</span>
+    <h1>TUTTI I TORNEI</h1>
+    <p>
+      Esplora i tornei disponibili, scopri i dettagli e iscriviti per conquistare la classifica.
+    </p>
+  </section>
+
+  <section class="sezione-catalogo">
+    <div class="intestazione-catalogo">
+      <div>
+        <h2>Catalogo tornei</h2>
+        <p>Filtra per gioco, data e stato per trovare la competizione che cerchi.</p>
+      </div>
+
+      <div class="conteggio">
+        Tornei trovati: <strong>{{ torneiFiltrati().length }}</strong>
+      </div>
+    </div>
+
+    <!-- Ricerca e filtri -->
+    <div class="filtri">
+      <div class="filtro-ricerca">
+        <label for="ricerca">CERCA</label>
+        <div class="campo-ricerca">
+          <span class="icona-ricerca">🔍</span>
+          <input
+            id="ricerca"
+            type="text"
+            placeholder="Cerca torneo o videogioco..."
+            [value]="testoRicerca()"
+            (input)="aggiornaRicerca($event)"
+          />
+        </div>
+      </div>
+
+      <div class="filtro-stato">
+        <label for="gioco">GIOCO</label>
+        <select
+          id="gioco"
+          [value]="giocoSelezionato()"
+          (change)="aggiornaGioco($event)"
+        >
+          <option value="tutti">Tutti i giochi</option>
+          @for (gioco of giochiDisponibili(); track gioco) {
+            <option [value]="gioco">{{ gioco }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="filtro-stato">
+        <label for="dataInizio">DATA DA</label>
+        <input
+          id="dataInizio"
+          type="date"
+          [value]="dataInizio()"
+          [max]="dataFine() || null"
+          (change)="aggiornaDataInizio($event)"
+        />
+      </div>
+
+      <div class="filtro-stato">
+        <label for="dataFine">DATA A</label>
+        <input
+          id="dataFine"
+          type="date"
+          [value]="dataFine()"
+          [min]="dataInizio() || null"
+          (change)="aggiornaDataFine($event)"
+        />
+      </div>
+
+      <div class="filtro-stato">
+        <label for="stato">STATO</label>
+        <select
+          id="stato"
+          [value]="statoSelezionato()"
+          (change)="aggiornaStato($event)"
+        >
+          <option value="tutti">Tutti gli stati</option>
+          <option value="aperto">Iscrizioni aperte</option>
+          <option value="chiuso">Iscrizioni chiuse</option>
+          <option value="concluso">Conclusi</option>
+        </select>
+      </div>
+
+      <button
+        type="button"
+        class="bottone-reset"
+        (click)="resetFiltri()"
+      >
+        Azzera filtri
+      </button>
+    </div>
+
+    <!-- Griglia tornei -->
+    @if (torneiFiltrati().length > 0) {
+      <div class="griglia-tornei">
+        @for (torneo of torneiFiltrati(); track torneo.id) {
+          <article class="scheda-torneo">
+            <div class="scheda-intestazione">
+              <span
+                class="badge-stato"
+                [class.aperto]="torneo.stato === 'aperto'"
+                [class.chiuso]="torneo.stato === 'chiuso'"
+                [class.concluso]="torneo.stato === 'concluso'"
+              >
+                {{ torneo.stato }}
+              </span>
+
+              <span class="nome-gioco">{{ torneo.gioco }}</span>
+            </div>
+
+            <h3 class="titolo-torneo">{{ torneo.nome }}</h3>
+            <p class="descrizione-torneo">{{ torneo.descrizione }}</p>
+
+            <div class="dettagli-rapidi">
+              <div class="voce-dettaglio">
+                <span class="etichetta">DATA</span>
+                <span class="valore">
+                  {{ torneo.dataTorneo | date:'dd/MM/yyyy' }}
+                </span>
+              </div>
+
+              <div class="voce-dettaglio">
+                <span class="etichetta">PARTECIPANTI</span>
+                <span class="valore">
+                  {{ torneo.iscritti }}/{{ torneo.postiMax }}
+                </span>
+              </div>
+            </div>
+
+            <div class="scheda-azioni">
+              <a
+                [routerLink]="['/tornei', torneo.id]"
+                class="bottone-dettagli"
+              >
+                SCHEDA TORNEO
+              </a>
+            </div>
+          </article>
+        }
+      </div>
+    } @else {
+      <div class="nessun-risultato">
+        <h3>Nessun torneo trovato</h3>
+        <p>Prova a modificare i filtri o il testo di ricerca.</p>
+        <button
+          type="button"
+          class="bottone-reset"
+          (click)="resetFiltri()"
+        >
+          Azzera filtri
+        </button>
+      </div>
+    }
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="footer-contenuto">
+    <div class="footer-colonna footer-brand">
+      <div class="logo logo-footer">
+        <span class="logo-icona">A</span>
+        <span class="logo-testo">ArenaHub</span>
+      </div>
+      <p>Piattaforma per la gestione di tornei di gaming e competizioni esports.</p>
+    </div>
+
+    <div class="footer-colonna">
+      <h2>Navigazione</h2>
+      <a routerLink="/">Home</a>
+      <a routerLink="/tornei">Tornei</a>
+      @if (utenteCorrente()?.ruolo === 'admin') {
+        <a routerLink="/admin">Admin Dashboard</a>
+      } @else if (utenteCorrente()) {
+        <a routerLink="/area-utente">I miei tornei</a>
+      }
+    </div>
+
+    <div class="footer-colonna">
+      <h2>Account</h2>
+      @if (utenteCorrente()) {
+        <a routerLink="/area-utente">Profilo</a>
+        <a (click)="esci()" style="cursor: pointer;">Disconnetti</a>
+      } @else {
+        <a routerLink="/login">Accedi</a>
+        <a routerLink="/login">Registrati</a>
+      }
+    </div>
+
+    <div class="footer-colonna">
+      <h2>Info</h2>
+      <p>Progetto realizzato per ITS Academy Lazio Digital.</p>
+    </div>
+  </div>
+
+  <div class="footer-fondo">
+    <p>© 2026 ArenaHub. Tutti i diritti riservati.</p>
+  </div>
+</footer>

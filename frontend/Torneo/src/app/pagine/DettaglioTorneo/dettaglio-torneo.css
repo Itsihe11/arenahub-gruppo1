@@ -1,0 +1,775 @@
+:host {
+  display: flex;
+  min-height: 100vh;
+  flex-direction: column;
+  color: #f4f8ff;
+  background: #071426;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* HEADER */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+  min-height: 78px;
+  padding: 16px 7%;
+  background: #050f1e;
+  border-bottom: 1px solid #203650;
+}
+
+.header-sinistra {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  min-width: 0;
+}
+
+/* LOGO */
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  flex-shrink: 0;
+  color: #f4f8ff;
+  text-decoration: none;
+  font-size: 20px;
+  font-weight: 800;
+  white-space: nowrap;
+}
+
+.logo-icona {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 39px;
+  height: 39px;
+  border-radius: 11px;
+  color: #06172a;
+  background: #51c8ff;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.logo-testo {
+  color: #f4f8ff;
+}
+
+/* NAVIGAZIONE E AZIONI HEADER */
+
+.navigazione {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.navigazione a,
+.link-login {
+  color: #c0cfe1;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.navigazione a:hover,
+.navigazione a.attivo,
+.link-login:hover {
+  color: #51c8ff;
+}
+
+.azioni-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 20px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.bottone-registrazione {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 18px;
+  border: 1px solid #51c8ff;
+  border-radius: 9px;
+  color: #06172a;
+  background: #51c8ff;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 800;
+  white-space: nowrap;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.bottone-registrazione:hover {
+  background: #8bdcff;
+  border-color: #8bdcff;
+  transform: translateY(-1px);
+}
+
+/* CONTENUTO PRINCIPALE */
+
+.pagina-dettaglio {
+  flex: 1;
+  width: min(1120px, 86%);
+  margin: 0 auto;
+  padding: 35px 0 80px;
+}
+
+.ritorno-catalogo,
+.pulsante-torna {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 25px;
+  color: #9fc8e9;
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 700;
+  transition: color 0.2s ease;
+}
+
+.ritorno-catalogo:hover,
+.pulsante-torna:hover {
+  color: #51c8ff;
+}
+
+/* HERO */
+
+.hero-dettaglio {
+  position: relative;
+  display: flex;
+  align-items: center;
+  min-height: 290px;
+  overflow: hidden;
+  border: 1px solid #203650;
+  border-radius: 16px;
+  background:
+    radial-gradient(
+      ellipse at 90% 100%,
+      rgba(81, 200, 255, 0.16),
+      transparent 45%
+    ),
+    linear-gradient(115deg, #10243b, #09192c 75%);
+}
+
+.hero-contenuto {
+  position: relative;
+  z-index: 2;
+  max-width: 720px;
+  padding: 42px;
+}
+
+.sovratitolo {
+  display: block;
+  margin-bottom: 15px;
+  color: #51c8ff;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+}
+
+.badge-gioco {
+  display: inline-block;
+  margin-bottom: 16px;
+  margin-right: 10px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  background: #1a3855;
+  color: #51c8ff;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.hero-dettaglio .badge-stato {
+  display: inline-block;
+  margin-bottom: 16px;
+  padding: 8px 12px;
+  border: 1px solid transparent;
+  border-radius: 7px;
+  font-size: 11px;
+  font-weight: 800;
+}
+
+.stato-aperto {
+  border-color: #b7efd0;
+  color: #176c43;
+  background: #dcf8e8;
+}
+
+.stato-in-corso {
+  border-color: #b5d8ff;
+  color: #1b5797;
+  background: #e1efff;
+}
+
+.stato-concluso {
+  border-color: #d9dfe8;
+  color: #5e6878;
+  background: #edf0f5;
+}
+
+.hero-dettaglio h1 {
+  margin: 0 0 10px;
+  color: #f4f8ff;
+  font-size: clamp(32px, 5vw, 48px);
+  line-height: 1.15;
+  letter-spacing: -1px;
+  overflow-wrap: anywhere;
+}
+
+.gioco-torneo {
+  margin: 0 0 16px;
+  color: #76d0ff;
+  font-size: 17px;
+  font-weight: 700;
+}
+
+.descrizione-torneo {
+  max-width: 540px;
+  margin: 0;
+  color: #b6c7da;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.hero-sfondo {
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: grid;
+  place-items: center;
+  width: 36%;
+  background: radial-gradient(
+    circle,
+    rgba(81, 200, 255, 0.13),
+    transparent 68%
+  );
+  pointer-events: none;
+}
+
+.hero-sfondo span {
+  font-size: clamp(70px, 10vw, 125px);
+  opacity: 0.7;
+  filter: drop-shadow(0 10px 35px rgba(64, 177, 255, 0.2));
+}
+
+/* PANNELLI INFORMATIVI */
+
+.griglia-dettagli {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(280px, 0.8fr);
+  gap: 24px;
+  margin-top: 25px;
+  align-items: start;
+}
+
+.pannello-informazioni,
+.pannello-partecipazione,
+.scheda-info,
+.scheda-azione-iscrizione {
+  padding: 28px;
+  border: 1px solid #203650;
+  border-radius: 14px;
+  background: #10243b;
+}
+
+.pannello-informazioni .sovratitolo,
+.pannello-partecipazione .sovratitolo {
+  margin-bottom: 12px;
+}
+
+.pannello-informazioni h2,
+.pannello-partecipazione h2,
+.scheda-info h2,
+.scheda-azione-iscrizione h2 {
+  margin: 0 0 10px;
+  color: #f4f8ff;
+  font-size: 22px;
+  line-height: 1.35;
+}
+
+.testo-introduttivo,
+.pannello-partecipazione p,
+.scheda-azione-iscrizione p {
+  margin: 0 0 24px;
+  color: #b6c7da;
+  font-size: 13px;
+  line-height: 1.8;
+}
+
+.lista-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.informazione-riga,
+.voce-info {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 17px 0;
+  border-bottom: 1px solid #263e59;
+}
+
+.informazione-riga:last-child,
+.voce-info:last-child {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.icona-informazione,
+.voce-info .icona {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 43px;
+  height: 43px;
+  border: 1px solid #294765;
+  border-radius: 10px;
+  background: #1a3855;
+  font-size: 20px;
+}
+
+.informazione-riga div,
+.voce-info div {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.etichetta {
+  color: #91a9c4;
+  font-size: 11px;
+}
+
+.informazione-riga strong,
+.voce-info strong {
+  color: #edf4ff;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+/* AREA PARTECIPAZIONE */
+
+.pannello-partecipazione,
+.scheda-azione-iscrizione {
+  background:
+    radial-gradient(
+      ellipse at top right,
+      rgba(81, 200, 255, 0.1),
+      transparent 60%
+    ),
+    #10243b;
+}
+
+.bottone-azione {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 46px;
+  padding: 12px 16px;
+  border: 1px solid #51c8ff;
+  border-radius: 9px;
+  color: #06172a;
+  background: #51c8ff;
+  text-align: center;
+  text-decoration: none;
+  font: inherit;
+  font-size: 12px;
+  font-weight: 800;
+  line-height: 1.5;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.bottone-azione:hover:not(:disabled) {
+  background: #8bdcff;
+}
+
+.bottone-azione.annulla {
+  background: transparent;
+  border-color: #5a2828;
+  color: #ffb9c3;
+}
+
+.bottone-azione.annulla:hover {
+  background: #482333;
+}
+
+.bottone-azione:disabled {
+  border-color: #29435b;
+  color: #a9bed1;
+  background: #29435b;
+  cursor: not-allowed;
+}
+
+.scatola-notifica {
+  padding: 12px 16px;
+  margin-bottom: 16px;
+  border-radius: 8px;
+  border: 1px solid #294765;
+  background: #1a3855;
+  color: #51c8ff;
+  font-size: 13px;
+}
+
+.stato-iscritto {
+  text-align: center;
+}
+
+.icona-spunta {
+  display: inline-grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: #123e32;
+  color: #4fe3a5;
+  font-size: 20px;
+  font-weight: 900;
+  margin-bottom: 12px;
+}
+
+.nota-azione {
+  display: block;
+  margin-top: 12px;
+  color: #91a9c4;
+  font-size: 11px;
+  line-height: 1.7;
+}
+
+/* TORNEO INESISTENTE */
+
+.torneo-non-trovato {
+  display: flex;
+  min-height: 420px;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 35px;
+  border: 1px solid #203650;
+  border-radius: 16px;
+  background: #10243b;
+  text-align: center;
+}
+
+.icona-errore {
+  display: grid;
+  place-items: center;
+  width: 58px;
+  height: 58px;
+  border-radius: 50%;
+  color: #51c8ff;
+  background: #1a3855;
+  font-size: 30px;
+  font-weight: 800;
+}
+
+.torneo-non-trovato h1,
+.torneo-non-trovato h2 {
+  margin: 20px 0 10px;
+  color: #f4f8ff;
+  font-size: 28px;
+}
+
+.torneo-non-trovato p {
+  max-width: 480px;
+  margin: 0 0 24px;
+  color: #b6c7da;
+  font-size: 14px;
+  line-height: 1.8;
+}
+
+.torneo-non-trovato .bottone-azione,
+.pulsante-torna-home {
+  display: inline-block;
+  padding: 12px 24px;
+  border-radius: 8px;
+  background: #51c8ff;
+  color: #06172a;
+  font-weight: 800;
+  text-decoration: none;
+  width: auto;
+}
+
+/* FOOTER INDIPENDENTE DELLA PAGINA */
+
+.footer {
+  width: 100%;
+  margin-top: auto;
+  padding: 38px 7% 20px;
+  border-top: 1px solid #203650;
+  background: #050f1e;
+  color: #c0cfe1;
+}
+
+.footer-contenuto {
+  display: grid;
+  grid-template-columns: 1.4fr 0.8fr 0.8fr 1fr;
+  gap: 32px;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.footer-colonna {
+  display: flex;
+  min-width: 0;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 11px;
+}
+
+.footer-colonna h2 {
+  margin: 0 0 5px;
+  color: #f4f8ff;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.footer-colonna p {
+  margin: 0;
+  color: #9fb2c8;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.footer-brand > p {
+  max-width: 260px;
+}
+
+.logo-footer {
+  margin-bottom: 5px;
+}
+
+.logo-footer .logo-icona {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  color: #06172a;
+  background: #51c8ff;
+}
+
+.logo-footer .logo-testo {
+  font-size: 17px;
+}
+
+.footer-colonna > a:not(.logo-footer) {
+  color: #9fb2c8;
+  font-size: 12px;
+  line-height: 1.6;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-colonna > a:not(.logo-footer):hover,
+.footer-fondo a:hover {
+  color: #51c8ff;
+}
+
+.footer-fondo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1100px;
+  margin: 30px auto 0;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  color: #8fa4bb;
+  font-size: 11px;
+}
+
+.footer-fondo a {
+  color: #c0cfe1;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1000px) {
+  .footer-contenuto {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 800px) {
+  .pagina-dettaglio {
+    width: 90%;
+  }
+
+  .griglia-dettagli {
+    grid-template-columns: 1fr;
+  }
+
+  .hero-contenuto {
+    padding: 30px;
+  }
+
+  .hero-sfondo {
+    width: 28%;
+    opacity: 0.45;
+  }
+
+  .header {
+    padding-right: 5%;
+    padding-left: 5%;
+  }
+
+  .header-sinistra {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 600px) {
+  .header {
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 13px 5%;
+  }
+
+  .header-sinistra {
+    gap: 16px;
+  }
+
+  .logo {
+    gap: 8px;
+    font-size: 17px;
+  }
+
+  .logo-icona {
+    width: 34px;
+    height: 34px;
+    font-size: 19px;
+  }
+
+  .logo-testo {
+    font-size: 15px;
+  }
+
+  .navigazione {
+    gap: 14px;
+  }
+
+  .navigazione a,
+  .link-login {
+    font-size: 12px;
+  }
+
+  .azioni-header {
+    gap: 12px;
+  }
+
+  .bottone-registrazione {
+    padding: 9px 11px;
+    font-size: 11px;
+  }
+
+  .pagina-dettaglio {
+    padding-top: 25px;
+    padding-bottom: 50px;
+  }
+
+  .hero-dettaglio {
+    min-height: 0;
+  }
+
+  .hero-contenuto {
+    padding: 25px 21px;
+  }
+
+  .hero-dettaglio h1 {
+    font-size: 32px;
+  }
+
+  .gioco-torneo {
+    font-size: 15px;
+  }
+
+  .descrizione-torneo {
+    font-size: 13px;
+  }
+
+  .hero-sfondo {
+    display: none;
+  }
+
+  .pannello-informazioni,
+  .pannello-partecipazione,
+  .scheda-info,
+  .scheda-azione-iscrizione {
+    padding: 21px;
+  }
+}
+
+@media (max-width: 520px) {
+  .header {
+    gap: 12px;
+  }
+
+  .footer {
+    padding: 30px 20px 18px;
+  }
+
+  .footer-contenuto {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+
+  .footer-fondo {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+    line-height: 1.7;
+  }
+}
+
+@media (max-width: 390px) {
+  .header {
+    padding-right: 4%;
+    padding-left: 4%;
+  }
+
+  .header-sinistra {
+    gap: 10px;
+  }
+
+  .logo-testo {
+    font-size: 13px;
+  }
+
+  .azioni-header {
+    gap: 8px;
+  }
+
+  .bottone-registrazione {
+    padding: 9px 10px;
+    font-size: 11px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition: none !important;
+  }
+}

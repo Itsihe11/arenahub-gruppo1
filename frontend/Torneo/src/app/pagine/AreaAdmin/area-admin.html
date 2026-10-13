@@ -1,0 +1,171 @@
+<header class="header">
+  <div class="header-sinistra">
+    <a class="logo" routerLink="/">
+      <span class="logo-icona">A</span>
+      <span class="logo-testo">ArenaHub</span>
+    </a>
+    <nav class="navigazione">
+      <a routerLink="/">Home</a>
+      <a routerLink="/tornei">Tornei</a>
+      <a routerLink="/admin" class="attivo">Dashboard Admin</a>
+    </nav>
+  </div>
+
+  <div class="azioni-header">
+    <span class="badge-ruolo-admin">ADMIN</span>
+    <span class="nome-utente-header">👤 {{ utenteCorrente()?.nome }}</span>
+    <button type="button" class="link-esci" (click)="esci()">Esci</button>
+  </div>
+</header>
+
+<main class="pagina-admin">
+  @if (utenteCorrente()?.ruolo === 'admin') {
+    <span class="sovratitolo">PANNELLO DI CONTROLLO</span>
+    <h1>Gestione Tornei & Partite</h1>
+    <p class="sottotitolo">Crea nuovi tornei, gestisci lo stato delle iscrizioni e inserisci i risultati dei match.</p>
+
+    <div class="griglia-admin">
+      <!-- PANNELLO CREAZIONE TORNEO -->
+      <section class="pannello-admin">
+        <h2>Crea Nuovo Torneo</h2>
+        <span class="sub-titolo">I nuovi tornei verranno pubblicati con iscrizioni APERTE.</span>
+
+        <form (ngSubmit)="creaTorneo()">
+          <div class="campo">
+            <label for="nome">NOME TORNEO</label>
+            <input id="nome" type="text" [(ngModel)]="nuovoNome" name="nome" placeholder="es. Torneo FIFA 2026" required />
+          </div>
+
+          <div class="campo">
+            <label for="gioco">GIOCO / DISCIPLINA</label>
+            <input id="gioco" type="text" [(ngModel)]="nuovoGioco" name="gioco" placeholder="es. FC 24, FC 25, Rocket League" required />
+          </div>
+
+          <div class="campo-doppio">
+            <div class="campo">
+              <label for="data">DATA EVENTO</label>
+              <input id="data" type="date" [(ngModel)]="nuovaData" name="data" required />
+            </div>
+
+            <div class="campo">
+              <label for="posti">POSTI MAX</label>
+              <input id="posti" type="number" [(ngModel)]="nuoviPostiMax" name="posti" min="2" max="128" required />
+            </div>
+          </div>
+
+          <div class="campo">
+            <label for="descrizione">DESCRIZIONE / REGOLAMENTO</label>
+            <textarea id="descrizione" [(ngModel)]="nuovaDescrizione" name="descrizione" rows="3" placeholder="Inserisci regole e dettagli..."></textarea>
+          </div>
+
+          <button type="submit" class="bottone-crea">PUBBLICA TORNEO</button>
+        </form>
+      </section>
+
+      <!-- TABELLA GESTIONE TORNEI -->
+      <section class="pannello-admin">
+        <h2>Elenco Tornei</h2>
+        <div class="contenitore-tabella-scrollabile">
+          <table class="tabella-admin">
+            <thead>
+              <tr>
+                <th>TORNEO</th>
+                <th>STATO</th>
+                <th>ISCRITTI</th>
+                <th style="text-align: right;">AZIONI</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (torneo of tuttiTornei(); track torneo.id) {
+                <tr [class.riga-selezionata]="torneoSelezionato()?.id === torneo.id">
+                  <td>
+                    <strong>{{ torneo.nome }}</strong>
+                    <span class="sotto-testo">{{ torneo.gioco }}</span>
+                  </td>
+                  <td>
+                    <span class="badge-stato" [class]="torneo.stato">{{ torneo.stato | uppercase }}</span>
+                  </td>
+                  <td>{{ torneo.iscritti }}/{{ torneo.postiMax }}</td>
+                  <td class="celle-azioni">
+                    <button type="button" class="btn-azione seleziona" (click)="selezionaTorneo(torneo)">
+                      Partite
+                    </button>
+
+                    @if (torneo.stato === 'aperto') {
+                      <button type="button" class="btn-azione chiudi" (click)="cambiaStato(torneo.id, 'chiuso')">
+                        Chiudi
+                      </button>
+                    } @else {
+                      <button type="button" class="btn-azione apri" (click)="cambiaStato(torneo.id, 'aperto')">
+                        Apri
+                      </button>
+                    }
+
+                    <button type="button" class="btn-azione elimina" (click)="elimina(torneo.id)">
+                      🗑️
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+
+    <!-- SEZIONE GESTIONE PARTITE E RISULTATI -->
+    @if (torneoSelezionato(); as torneo) {
+      <section class="pannello-admin sezione-risultati">
+        <div class="intestazione-risultati">
+          <div>
+            <h2>Gestione Partite & Classifica: <span class="evidenzia-torneo">{{ torneo.nome }}</span></h2>
+            <span class="sub-titolo">Inserisci le posizioni e i punti dei partecipanti.</span>
+          </div>
+          <button type="button" class="btn-chiudi-sezione" (click)="deselezionaTorneo()">Chiudi X</button>
+        </div>
+
+        @if (torneo.partecipantiIds && torneo.partecipantiIds.length > 0) {
+          <table class="tabella-admin">
+            <thead>
+              <tr>
+                <th>ID PARTECIPANTE</th>
+                <th>POSIZIONE FINALE</th>
+                <th>PUNTI ASSEGNATI</th>
+                <th>AZIONI</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (idUtente of torneo.partecipantiIds; track idUtente) {
+                <tr>
+                  <td><strong>Giocatore #{{ idUtente }}</strong></td>
+                  <td>
+                    <input type="number" class="input-tabella" #posInput placeholder="Posizione" min="1" />
+                  </td>
+                  <td>
+                    <input type="number" class="input-tabella" #puntiInput placeholder="Punti" min="0" />
+                  </td>
+                  <td>
+                    <button type="button" class="btn-salva-singolo" (click)="salvaRisultato(torneo.id, idUtente, posInput.value, puntiInput.value)">
+                      Salva Risultato
+                    </button>
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        } @else {
+          <div class="nessun-partecipante">
+            <p>Nessun partecipante iscritto a questo torneo al momento.</p>
+          </div>
+        }
+      </section>
+    }
+  } @else {
+    <div class="stato-non-autorizzato">
+      <span class="icona-divieto">🚫</span>
+      <h2>Accesso Riservato</h2>
+      <p>Devi aver effettuato l'accesso con un account Amministratore per consultare questa pagina.</p>
+      <a routerLink="/" class="pulsante-home">Torna alla Home</a>
+    </div>
+  }
+</main>

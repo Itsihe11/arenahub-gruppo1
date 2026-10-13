@@ -1,0 +1,137 @@
+<header class="header">
+  <div class="header-sinistra">
+    <a class="logo" routerLink="/" aria-label="ArenaHub - Home">
+      <span class="logo-icona">A</span>
+      <span class="logo-testo">ArenaHub</span>
+    </a>
+
+    <nav class="navigazione">
+      <a routerLink="/" class="attivo">Home</a>
+      <a routerLink="/tornei">Tornei</a>
+      @if (utenteCorrente()?.ruolo === 'admin') {
+        <a routerLink="/admin">Dashboard Admin</a>
+      } @else if (utenteCorrente()) {
+        <a routerLink="/area-utente">I miei tornei</a>
+      }
+    </nav>
+  </div>
+
+  <div class="azioni-header">
+    @if (utenteCorrente(); as utente) {
+      @if (utente.ruolo === 'admin') {
+        <span class="badge-ruolo-admin">ADMIN</span>
+      }
+      <span class="nome-utente-header">👤 {{ utente.nome }}</span>
+      <button type="button" class="link-esci" (click)="esci()">Esci</button>
+    } @else {
+      <a routerLink="/login" class="link-login">Accedi</a>
+      <a routerLink="/login" class="bottone-registrazione">Registrati</a>
+    }
+  </div>
+</header>
+
+<main>
+  <section class="benvenuto">
+    <div class="benvenuto-contenuto">
+      <div>
+        <span class="sovratitolo">ITS ACADEMY LAZIO DIGITAL</span>
+        <h1>Benvenuto su <span>LazioDigitalGame</span></h1>
+        <p class="sottotitolo">La piattaforma dedicata ai tornei di gaming.</p>
+        <p class="descrizione">
+          Scopri i tornei disponibili, consulta le competizioni e trova la tua prossima sfida.
+        </p>
+
+        <a routerLink="/tornei" class="bottone-principale">
+          Esplora i tornei →
+        </a>
+      </div>
+
+      <div class="benvenuto-visual">
+        <div class="simbolo-arena">A</div>
+        <p class="visual-titolo">LA TUA PROSSIMA SFIDA</p>
+        <p class="visual-sottotitolo">Gioca. Competi. Migliora.</p>
+      </div>
+    </div>
+  </section>
+
+  <section class="informazioni">
+    <div class="informazioni-titolo">
+      <span class="sovratitolo">LA PIATTAFORMA</span>
+      <h2>Tutto quello che ti serve per partecipare</h2>
+    </div>
+
+    <div class="informazioni-griglia">
+      <article class="informazione">
+        <span class="informazione-numero">01</span>
+        <h3>Esplora i Tornei</h3>
+        <p>Sfoglia l'elenco dei tornei attivi, scopri i giochi disponibili e controlla le date degli eventi.</p>
+        <a routerLink="/tornei">Vai al catalogo →</a>
+      </article>
+
+      <article class="informazione">
+        <span class="informazione-numero">02</span>
+        <h3>Iscriviti e Competi</h3>
+        <p>Crea il tuo profilo, registrati ai tornei in corso e assicurati un posto in classifica.</p>
+        @if (utenteCorrente()) {
+          <a routerLink="/area-utente">Gestisci iscrizioni →</a>
+        } @else {
+          <a routerLink="/login">Accedi o Registrati →</a>
+        }
+      </article>
+
+      <article class="informazione">
+        <span class="informazione-numero">03</span>
+        <h3>Gestione Admin</h3>
+        <p>Gli amministratori possono creare nuovi tornei, aggiornare le informazioni e chiudere le iscrizioni.</p>
+        @if (utenteCorrente()?.ruolo === 'admin') {
+          <a routerLink="/admin">Pannello Admin →</a>
+        } @else {
+          <a routerLink="/tornei">Consulta i tornei →</a>
+        }
+      </article>
+    </div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="footer-contenuto">
+    <div class="footer-colonna footer-brand">
+      <div class="logo logo-footer">
+        <span class="logo-icona">A</span>
+        <span class="logo-testo">ArenaHub</span>
+      </div>
+      <p>Piattaforma per la gestione di tornei di gaming e competizioni esports.</p>
+    </div>
+
+    <div class="footer-colonna">
+      <h2>Navigazione</h2>
+      <a routerLink="/">Home</a>
+      <a routerLink="/tornei">Tornei</a>
+      @if (utenteCorrente()?.ruolo === 'admin') {
+        <a routerLink="/admin">Admin Dashboard</a>
+      } @else if (utenteCorrente()) {
+        <a routerLink="/area-utente">I miei tornei</a>
+      }
+    </div>
+
+    <div class="footer-colonna">
+      <h2>Account</h2>
+      @if (utenteCorrente()) {
+        <a routerLink="/area-utente">Profilo</a>
+        <a (click)="esci()" style="cursor: pointer;">Disconnetti</a>
+      } @else {
+        <a routerLink="/login">Accedi</a>
+        <a routerLink="/login">Registrati</a>
+      }
+    </div>
+
+    <div class="footer-colonna">
+      <h2>Info</h2>
+      <p>Progetto realizzato per ITS Academy Lazio Digital.</p>
+    </div>
+  </div>
+
+  <div class="footer-fondo">
+    <p>© 2026 ArenaHub. Tutti i diritti riservati.</p>
+  </div>
+</footer>

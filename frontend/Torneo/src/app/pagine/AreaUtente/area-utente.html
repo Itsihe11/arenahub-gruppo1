@@ -1,0 +1,163 @@
+<header class="header">
+  <div class="header-sinistra">
+    <a class="logo" routerLink="/" aria-label="ArenaHub - Home">
+      <span class="logo-icona">A</span>
+      <span class="logo-testo">ArenaHub</span>
+    </a>
+
+    <nav class="navigazione">
+      <a routerLink="/">Home</a>
+      <a routerLink="/tornei">Tornei</a>
+      @if (utenteCorrente()?.ruolo === 'admin') {
+        <a routerLink="/admin">Dashboard Admin</a>
+      } @else if (utenteCorrente()) {
+        <a routerLink="/area-utente" class="attivo">I miei tornei</a>
+      }
+    </nav>
+  </div>
+
+  <div class="azioni-header">
+    @if (utenteCorrente()) {
+      @if (utenteCorrente()?.ruolo === 'admin') {
+        <span class="badge-ruolo-admin">ADMIN</span>
+      }
+      <span class="nome-utente-header">👤 {{ utenteCorrente()?.nome }}</span>
+      <button type="button" class="link-esci" (click)="esci()">Esci</button>
+    } @else {
+      <a routerLink="/login" class="link-login">Accedi</a>
+      <a routerLink="/login" class="bottone-registrazione">Registrati</a>
+    }
+  </div>
+</header>
+
+<main class="pagina-area-personale">
+  @if (utenteCorrente(); as utente) {
+    <div class="intestazione-area">
+      <span class="soprattitolo">AREA PERSONALE</span>
+      <h1>Ciao, {{ utente.nome }}!</h1>
+      <p class="sottotitolo">Benvenuto nel tuo pannello personale. Qui trovi il riepilogo delle tue iscrizioni ai tornei.</p>
+    </div>
+
+    <!-- INDICATORI KPI -->
+    <div class="indicatori-griglia">
+      <div class="indicatore-scheda">
+        <span class="indicatore-numero">{{ mieiTornei().length }}</span>
+        <span class="indicatore-etichetta">TORNEI TOTALI</span>
+      </div>
+
+      <div class="indicatore-scheda">
+        <span class="indicatore-numero">{{ torneiAttiviCount() }}</span>
+        <span class="indicatore-etichetta">IN CORSO / APERTI</span>
+      </div>
+
+      <div class="indicatore-scheda">
+        <span class="indicatore-numero">{{ torneiCompletatiCount() }}</span>
+        <span class="indicatore-etichetta">COMPLETATI</span>
+      </div>
+    </div>
+
+    <!-- TABELLA ISCRIZIONI -->
+    <section class="sezione-iscrizioni">
+      <div class="intestazione-sezione">
+        <h2>I tuoi tornei attivi</h2>
+        <p>Gestisci le iscrizioni e controlla i dettagli dei tornei a cui stai partecipando.</p>
+      </div>
+
+      @if (mieiTornei().length > 0) {
+        <div class="contenitore-tabella">
+          <table class="tabella-iscrizioni">
+            <thead>
+              <tr>
+                <th>TORNEO & DISCIPLINA</th>
+                <th>DATA EVENTO</th>
+                <th>STATO</th>
+                <th class="testo-destra">AZIONI</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (torneo of mieiTornei(); track torneo.id) {
+                <tr>
+                  <td class="celle-torneo">
+                    <strong>{{ torneo.nome }}</strong>
+                    <span class="nome-gioco">{{ torneo.gioco }}</span>
+                  </td>
+                  <td>{{ torneo.dataTorneo | date:'dd/MM/yyyy' }}</td>
+                  <td>
+                    <span class="badge-stato iscritto">
+                      {{ torneo.stato | uppercase }}
+                    </span>
+                  </td>
+                  <td class="celle-azioni">
+                    <a [routerLink]="['/tornei', torneo.id]" class="pulsante-tabella dettaglio">
+                      Scheda
+                    </a>
+                    @if (torneo.stato === 'aperto') {
+                      <button type="button" class="pulsante-tabella annulla" (click)="annullaIscrizione(torneo.id)">
+                        Annulla
+                      </button>
+                    }
+                  </td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      } @else {
+        <div class="nessuna-iscrizione">
+          <p>Non sei ancora iscritto a nessun torneo.</p>
+          <a routerLink="/tornei" class="pulsante-esplora">Esplora il catalogo tornei →</a>
+        </div>
+      }
+    </section>
+  } @else {
+    <div class="stato-non-autenticato">
+      <span class="icona-blocco">🔒</span>
+      <h2>Accesso Riservato</h2>
+      <p>Devi effettuare l'accesso per poter visualizzare la tua area personale e i tuoi tornei.</p>
+      <a routerLink="/login" class="pulsante-login">Accedi ora</a>
+    </div>
+  }
+</main>
+
+<footer class="footer">
+  <div class="footer-contenuto">
+    <div class="footer-colonna footer-brand">
+      <div class="logo logo-footer">
+        <span class="logo-icona">A</span>
+        <span class="logo-testo">ArenaHub</span>
+      </div>
+      <p>Piattaforma per la gestione di tornei di gaming e competizioni esports.</p>
+    </div>
+
+    <div class="footer-colonna">
+      <h2>Navigazione</h2>
+      <a routerLink="/">Home</a>
+      <a routerLink="/tornei">Tornei</a>
+      @if (utenteCorrente()?.ruolo === 'admin') {
+        <a routerLink="/admin">Admin Dashboard</a>
+      } @else if (utenteCorrente()) {
+        <a routerLink="/area-utente">I miei tornei</a>
+      }
+    </div>
+
+    <div class="footer-colonna">
+      <h2>Account</h2>
+      @if (utenteCorrente()) {
+        <a routerLink="/area-utente">Profilo</a>
+        <a (click)="esci()" style="cursor: pointer;">Disconnetti</a>
+      } @else {
+        <a routerLink="/login">Accedi</a>
+        <a routerLink="/login">Registrati</a>
+      }
+    </div>
+
+    <div class="footer-colonna">
+      <h2>Info</h2>
+      <p>Progetto realizzato per ITS Academy Lazio Digital.</p>
+    </div>
+  </div>
+
+  <div class="footer-fondo">
+    <p>© 2026 ArenaHub. Tutti i diritti riservati.</p>
+  </div>
+</footer>

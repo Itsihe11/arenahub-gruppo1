@@ -1,0 +1,188 @@
+<header class="header">
+  <div class="header-sinistra">
+    <a class="logo" routerLink="/" aria-label="ArenaHub - Home">
+      <span class="logo-icona">A</span>
+      <span class="logo-testo">ArenaHub</span>
+    </a>
+
+    <nav class="navigazione">
+      <a routerLink="/">Home</a>
+      <a routerLink="/tornei">Tornei</a>
+      @if (utenteCorrente()?.ruolo === 'admin') {
+        <a routerLink="/admin">Dashboard Admin</a>
+      } @else if (utenteCorrente()) {
+        <a routerLink="/area-utente">I miei tornei</a>
+      }
+    </nav>
+  </div>
+
+  <div class="azioni-header">
+    @if (utenteCorrente()) {
+      @if (utenteCorrente()?.ruolo === 'admin') {
+        <span class="badge-ruolo-admin">ADMIN</span>
+      }
+      <span class="nome-utente-header">👤 {{ utenteCorrente()?.nome }}</span>
+      <button type="button" class="link-esci" (click)="esci()">Esci</button>
+    } @else {
+      <a routerLink="/login" class="link-login">Accedi</a>
+      <a routerLink="/login" class="bottone-registrazione">Registrati</a>
+    }
+  </div>
+</header>
+
+<main class="pagina-dettaglio">
+  @if (torneo(); as t) {
+    <a routerLink="/tornei" class="ritorno-catalogo">← Torna al catalogo tornei</a>
+
+    <section class="hero-dettaglio">
+      <div class="hero-contenuto">
+        <span class="sovratitolo">SCHEDA COMPETIZIONE</span>
+
+        <div>
+          <span class="badge-gioco">{{ t.gioco }}</span>
+          <span
+            class="badge-stato"
+            [class.stato-aperto]="t.stato === 'aperto'"
+            [class.stato-in-corso]="t.stato === 'chiuso'"
+            [class.stato-concluso]="t.stato === 'concluso'"
+          >
+            {{ t.stato | uppercase }}
+          </span>
+        </div>
+
+        <h1>{{ t.nome }}</h1>
+        <p class="descrizione-torneo">{{ t.descrizione }}</p>
+      </div>
+
+      <div class="hero-sfondo">
+        <span>🎮</span>
+      </div>
+    </section>
+
+    <div class="griglia-dettagli">
+      <!-- PANNELLO INFORMAZIONI GENERALI -->
+      <section class="pannello-informazioni">
+        <span class="sovratitolo">DETTAGLI EVENTO</span>
+        <h2>Informazioni Generali</h2>
+        <p class="testo-introduttivo">
+          Controlla le date e la disponibilità prima di confermare la tua partecipazione.
+        </p>
+
+        <div class="lista-info">
+          <div class="informazione-riga">
+            <span class="icona-informazione">📅</span>
+            <div>
+              <span class="etichetta">DATA SVOLGIMENTO</span>
+              <strong>{{ t.dataTorneo | date:'dd MMMM yyyy' }}</strong>
+            </div>
+          </div>
+
+          <div class="informazione-riga">
+            <span class="icona-informazione">👥</span>
+            <div>
+              <span class="etichetta">PARTECIPANTI ISCRITTI</span>
+              <strong>{{ t.iscritti }} / {{ t.postiMax }} Giocatori</strong>
+            </div>
+          </div>
+
+          <div class="informazione-riga">
+            <span class="icona-informazione">🏆</span>
+            <div>
+              <span class="etichetta">FORMATO COMPETIZIONE</span>
+              <strong>Eliminazione Diretta 1v1</strong>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- PANNELLO AZIONI ISCRIZIONE -->
+      <section class="pannello-partecipazione">
+        <span class="sovratitolo">PARTECIPAZIONE</span>
+        <h2>Gestisci Iscrizione</h2>
+
+        @if (!utenteCorrente()) {
+          <p>Devi accedere col tuo account per poter partecipare a questo torneo.</p>
+          <a routerLink="/login" class="bottone-azione">ACCEDI PER ISCRIVERTI</a>
+        } @else if (giaIscritto()) {
+          <div class="stato-iscritto">
+            <span class="icona-spunta">✓</span>
+            <div class="scatola-notifica">Sei iscritto a questo torneo!</div>
+
+            @if (t.stato === 'aperto') {
+              <button type="button" class="bottone-azione annulla" (click)="disiscriviti()">
+                ANNULLA ISCRIZIONE
+              </button>
+            } @else {
+              <p>Le iscrizioni sono chiuse: non è più possibile annullare la partecipazione.</p>
+            }
+          </div>
+        } @else if (t.stato !== 'aperto') {
+          <p>Le iscrizioni per questo torneo sono attualmente chiuse.</p>
+          <button type="button" class="bottone-azione" disabled>ISCRIZIONI CHIUSE</button>
+        } @else if (t.iscritti >= t.postiMax) {
+          <p>Il torneo ha raggiunto il numero massimo di partecipanti.</p>
+          <button type="button" class="bottone-azione" disabled>POSTI ESAURITI</button>
+        } @else {
+          <p>Iscriviti ora per riservare il tuo slot nel tabellone di gara.</p>
+          <button type="button" class="bottone-azione" (click)="iscriviti()">
+            CONFERMA ISCRIZIONE
+          </button>
+        }
+
+        <span class="nota-azione">
+          L'iscrizione è riservata agli studenti registrati su ArenaHub.
+        </span>
+      </section>
+    </div>
+  } @else {
+    <div class="torneo-non-trovato">
+      <span class="icona-errore">⚠️</span>
+      <h1>Torneo Non Trovato</h1>
+      <p>Il torneo che stai cercando non esiste o potrebbe essere stato rimosso dall'amministratore.</p>
+      <a routerLink="/tornei" class="bottone-azione">Torna al catalogo tornei</a>
+    </div>
+  }
+</main>
+
+<footer class="footer">
+  <div class="footer-contenuto">
+    <div class="footer-colonna footer-brand">
+      <div class="logo logo-footer">
+        <span class="logo-icona">A</span>
+        <span class="logo-testo">ArenaHub</span>
+      </div>
+      <p>Piattaforma per la gestione di tornei di gaming e competizioni esports.</p>
+    </div>
+
+    <div class="footer-colonna">
+      <h2>Navigazione</h2>
+      <a routerLink="/">Home</a>
+      <a routerLink="/tornei">Tornei</a>
+      @if (utenteCorrente()?.ruolo === 'admin') {
+        <a routerLink="/admin">Admin Dashboard</a>
+      } @else if (utenteCorrente()) {
+        <a routerLink="/area-utente">I miei tornei</a>
+      }
+    </div>
+
+    <div class="footer-colonna">
+      <h2>Account</h2>
+      @if (utenteCorrente()) {
+        <a routerLink="/area-utente">Profilo</a>
+        <a (click)="esci()" style="cursor: pointer;">Disconnetti</a>
+      } @else {
+        <a routerLink="/login">Accedi</a>
+        <a routerLink="/login">Registrati</a>
+      }
+    </div>
+
+    <div class="footer-colonna">
+      <h2>Info</h2>
+      <p>Progetto realizzato per ITS Academy Lazio Digital.</p>
+    </div>
+  </div>
+
+  <div class="footer-fondo">
+    <p>© 2026 ArenaHub. Tutti i diritti riservati.</p>
+  </div>
+</footer>
