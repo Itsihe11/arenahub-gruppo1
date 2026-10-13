@@ -1,0 +1,421 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  color: #f4f8ff;
+  background-color: #071426;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* HEADER */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+  min-height: 78px;
+  padding: 16px 7%;
+  background: #050f1e;
+  border-bottom: 1px solid #203650;
+}
+
+.header-sinistra {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  color: #f4f8ff;
+  text-decoration: none;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+.logo-icona {
+  display: grid;
+  place-items: center;
+  width: 39px;
+  height: 39px;
+  border-radius: 11px;
+  color: #06172a;
+  background: #51c8ff;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.navigazione {
+  display: flex;
+  gap: 24px;
+}
+
+.navigazione a {
+  color: #c0cfe1;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.navigazione a.attivo,
+.navigazione a:hover {
+  color: #51c8ff;
+}
+
+.azioni-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin-left: auto;
+}
+
+.badge-ruolo-admin {
+  background: #e53935;
+  color: #fff;
+  font-size: 10px;
+  font-weight: 900;
+  padding: 4px 8px;
+  border-radius: 4px;
+  letter-spacing: 1px;
+}
+
+.nome-utente-header {
+  color: #e2f1ff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.link-esci {
+  background: transparent;
+  border: 1px solid #294765;
+  color: #ffb9c3;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+/* LAYOUT DASHBOARD */
+.pagina-admin {
+  flex: 1;
+  width: min(1200px, 92%);
+  margin: 0 auto;
+  padding: 40px 0 80px;
+}
+
+.sovratitolo {
+  color: #51c8ff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+h1 {
+  font-size: clamp(28px, 4vw, 38px);
+  margin: 10px 0 6px;
+}
+
+.sottotitolo {
+  color: #b6c7da;
+  font-size: 14px;
+  margin-bottom: 35px;
+}
+
+.griglia-admin {
+  display: grid;
+  grid-template-columns: minmax(320px, 1fr) minmax(420px, 1.4fr);
+  gap: 28px;
+  align-items: start;
+}
+
+.pannello-admin {
+  background: #10243b;
+  border: 1px solid #203650;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.12);
+}
+
+.pannello-admin h2 {
+  font-size: 18px;
+  margin: 0 0 16px;
+  color: #f4f8ff;
+}
+
+.sub-titolo {
+  display: block;
+  color: #8da2b9;
+  font-size: 12px;
+  margin-bottom: 15px;
+}
+
+/* LISTA TORNEI SCROLLABILE (ALTEZZA FISSA MAX) */
+.contenitore-tabella-scrollabile {
+  max-height: 420px;
+  overflow-y: auto;
+  padding-right: 4px;
+}
+
+.contenitore-tabella-scrollabile::-webkit-scrollbar {
+  width: 6px;
+}
+
+.contenitore-tabella-scrollabile::-webkit-scrollbar-thumb {
+  background: #203650;
+  border-radius: 4px;
+}
+
+/* FORM CREAZIONE TORNEO */
+form {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.campo-doppio {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 14px;
+}
+
+.campo label {
+  color: #8da2b9;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.campo input,
+.campo select,
+.campo textarea {
+  width: 100%;
+  padding: 11px 14px;
+  background: #071426;
+  border: 1px solid #203650;
+  border-radius: 8px;
+  color: #f4f8ff;
+  font-size: 13px;
+  outline: none;
+}
+
+.campo input:focus,
+.campo select:focus,
+.campo textarea:focus {
+  border-color: #51c8ff;
+}
+
+.bottone-crea {
+  margin-top: 10px;
+  padding: 13px;
+  background: #e53935;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-weight: 900;
+  font-size: 13px;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.bottone-crea:hover:not(:disabled) {
+  background: #f44336;
+}
+
+.bottone-crea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* TABELLE ADMIN */
+.tabella-admin {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+}
+
+.tabella-admin th {
+  padding: 12px 14px;
+  color: #8da2b9;
+  font-size: 11px;
+  font-weight: 800;
+  border-bottom: 1px solid #203650;
+  position: sticky;
+  top: 0;
+  background: #10243b;
+  z-index: 2;
+}
+
+.tabella-admin td {
+  padding: 14px;
+  border-bottom: 1px solid #1a2d42;
+  font-size: 13px;
+}
+
+.riga-selezionata {
+  background: #183350;
+}
+
+.sotto-testo {
+  font-size: 11px;
+  color: #51c8ff;
+  display: block;
+}
+
+.badge-stato {
+  font-size: 10px;
+  font-weight: 800;
+  padding: 4px 8px;
+  border-radius: 5px;
+  display: inline-block;
+}
+
+.badge-stato.aperto {
+  background: #123e32;
+  color: #4fe3a5;
+}
+
+.badge-stato.chiuso {
+  background: #3a2222;
+  color: #ff8a80;
+}
+
+.badge-stato.concluso {
+  background: #28283a;
+  color: #a0a0d0;
+}
+
+.celle-azioni {
+  display: flex;
+  gap: 6px;
+  justify-content: flex-end;
+}
+
+.btn-azione {
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.btn-azione.seleziona {
+  background: #1e4a75;
+  color: #51c8ff;
+  border-color: #2e6295;
+}
+
+.btn-azione.chiudi {
+  background: #3a2222;
+  color: #ff8a80;
+  border-color: #5a2828;
+}
+
+.btn-azione.apri {
+  background: #123e32;
+  color: #4fe3a5;
+  border-color: #1a6b52;
+}
+
+.btn-azione.elimina {
+  background: transparent;
+  color: #8da2b9;
+}
+
+/* SEZIONE RISULTATI TORNEO SELEZIONATO */
+.sezione-risultati {
+  margin-top: 30px;
+  border-top: 2px solid #51c8ff;
+}
+
+.intestazione-risultati {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.evidenzia-torneo {
+  color: #51c8ff;
+}
+
+.btn-chiudi-sezione {
+  background: transparent;
+  border: 1px solid #203650;
+  color: #8da2b9;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.input-tabella {
+  width: 90px;
+  padding: 6px 10px;
+  background: #071426;
+  border: 1px solid #203650;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 13px;
+}
+
+.btn-salva-singolo {
+  background: #123e32;
+  color: #4fe3a5;
+  border: 1px solid #1a6b52;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 700;
+  font-size: 11px;
+}
+
+.nessun-partecipante {
+  padding: 30px;
+  text-align: center;
+  color: #8da2b9;
+}
+
+/* STATO NON AUTORIZZATO */
+.stato-non-autorizzato {
+  text-align: center;
+  padding: 60px 20px;
+  background: #10243b;
+  border-radius: 16px;
+  border: 1px solid #203650;
+}
+
+.icona-divieto {
+  font-size: 54px;
+  display: block;
+  margin-bottom: 15px;
+}
+
+.pulsante-home {
+  display: inline-block;
+  margin-top: 15px;
+  padding: 12px 22px;
+  background: #51c8ff;
+  color: #06172a;
+  font-weight: 800;
+  border-radius: 8px;
+  text-decoration: none;
+}
+
+@media (max-width: 900px) {
+  .griglia-admin {
+    grid-template-columns: 1fr;
+  }
+}

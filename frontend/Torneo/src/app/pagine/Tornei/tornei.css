@@ -1,0 +1,680 @@
+:host {
+  display: block;
+  min-height: 100vh;
+  color: #edf4ff;
+  background: #06111f;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* ---------- HEADER ---------- */
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  padding: 20px 6%;
+  border-bottom: 1px solid #203650;
+  background: #08182b;
+}
+
+.header-sinistra {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  flex-wrap: wrap;
+}
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  color: #51c8ff;
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: 1px;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.logo-icona {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  color: #06111f;
+  background: #51c8ff;
+  font-size: 19px;
+  font-weight: 800;
+}
+
+.logo-testo {
+  color: #ffffff;
+}
+
+.navigazione,
+nav {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  flex-wrap: wrap;
+}
+
+nav a {
+  color: #c2d0e2;
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.2s ease;
+}
+
+nav a:hover,
+nav a.attivo {
+  color: #51c8ff;
+}
+
+.azioni-header {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.nome-utente-header {
+  color: #dce8f7;
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.badge-ruolo-admin {
+  padding: 5px 9px;
+  border: 1px solid rgba(255, 190, 74, 0.35);
+  border-radius: 6px;
+  color: #ffcb71;
+  background: rgba(190, 125, 22, 0.13);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
+.link-login {
+  color: #c2d0e2;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.link-login:hover {
+  color: #51c8ff;
+}
+
+.bottone-registrazione,
+.link-esci {
+  padding: 10px 17px;
+  border: 1px solid #51c8ff;
+  border-radius: 8px;
+  color: #51c8ff;
+  background: transparent;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.bottone-registrazione:hover,
+.link-esci:hover {
+  color: #06111f;
+  background: #51c8ff;
+}
+
+/* ---------- PAGINA ---------- */
+
+.pagina-tornei {
+  width: 100%;
+  max-width: 1400px;
+  min-height: calc(100vh - 160px);
+  margin: 0 auto;
+  padding: 55px 6%;
+}
+
+.introduzione-catalogo {
+  margin-bottom: 40px;
+}
+
+.sovratitolo {
+  display: block;
+  margin-bottom: 12px;
+  color: #51c8ff;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.introduzione-catalogo h1 {
+  margin: 0 0 14px;
+  color: #ffffff;
+  font-size: clamp(30px, 4vw, 44px);
+  font-weight: 800;
+}
+
+.introduzione-catalogo p {
+  max-width: 720px;
+  margin: 0;
+  color: #9eb1c9;
+  font-size: 16px;
+  line-height: 1.7;
+}
+
+.sezione-catalogo {
+  width: 100%;
+}
+
+.intestazione-catalogo {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  margin-bottom: 24px;
+  flex-wrap: wrap;
+}
+
+.intestazione-catalogo h2 {
+  margin: 0 0 8px;
+  color: #ffffff;
+  font-size: 26px;
+}
+
+.intestazione-catalogo p {
+  margin: 0;
+  color: #9eb1c9;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.conteggio {
+  padding: 9px 14px;
+  border: 1px solid #243c56;
+  border-radius: 8px;
+  color: #9eb1c9;
+  background: #09192c;
+  font-size: 13px;
+}
+
+.conteggio strong {
+  color: #51c8ff;
+}
+
+/* ---------- FILTRI ---------- */
+
+.filtri {
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-end;
+  gap: 18px;
+  margin-bottom: 30px;
+  padding: 22px;
+  border: 1px solid #243c56;
+  border-radius: 14px;
+  background: #09192c;
+  flex-wrap: wrap;
+}
+
+.filtro-ricerca,
+.filtro-stato {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filtro-ricerca {
+  flex: 1 1 260px;
+  min-width: 260px;
+}
+
+.filtro-ricerca label,
+.filtro-stato label {
+  color: #cbd8e8;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+}
+
+.campo-ricerca {
+  position: relative;
+  width: 100%;
+}
+
+.icona-ricerca {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  transform: translateY(-50%);
+  font-size: 14px;
+  line-height: 1;
+  pointer-events: none;
+}
+
+.campo-ricerca input {
+  width: 100%;
+  min-height: 47px;
+  padding: 12px 14px 12px 40px;
+  border: 1px solid #29435f;
+  border-radius: 9px;
+  outline: none;
+  color: #edf4ff;
+  background: #0b1b30;
+  font-family: inherit;
+  font-size: 14px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.campo-ricerca input::placeholder {
+  color: #7187a1;
+}
+
+.campo-ricerca input:focus,
+.filtro-stato select:focus,
+.filtro-stato input[type="date"]:focus {
+  border-color: #51c8ff;
+  box-shadow: 0 0 0 3px rgba(81, 200, 255, 0.12);
+}
+
+.filtro-stato {
+  flex: 0 1 180px;
+  min-width: 160px;
+}
+
+.filtro-stato select,
+.filtro-stato input[type="date"] {
+  width: 100%;
+  min-height: 47px;
+  padding: 12px 14px;
+  border: 1px solid #29435f;
+  border-radius: 9px;
+  outline: none;
+  color: #edf4ff;
+  background: #0b1b30;
+  font-family: inherit;
+  font-size: 13px;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.filtro-stato select {
+  cursor: pointer;
+}
+
+.filtro-stato input[type="date"] {
+  color-scheme: dark;
+  cursor: pointer;
+}
+
+.filtro-stato input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor: pointer;
+}
+
+.filtro-stato select option {
+  color: #edf4ff;
+  background: #0b1b30;
+}
+
+.bottone-reset {
+  min-height: 47px;
+  padding: 12px 18px;
+  border: 1px solid #3b5876;
+  border-radius: 9px;
+  color: #cbd8e8;
+  background: #10243b;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 700;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: border-color 0.2s ease, background 0.2s ease,
+    color 0.2s ease;
+}
+
+.bottone-reset:hover {
+  border-color: #51c8ff;
+  color: #ffffff;
+  background: #16334f;
+}
+
+/* ---------- GRIGLIA E SCHEDE ---------- */
+
+.griglia-tornei {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 24px;
+}
+
+.scheda-torneo {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  padding: 22px;
+  overflow: hidden;
+  border: 1px solid #243c56;
+  border-radius: 14px;
+  background: #0a192b;
+  transition: transform 0.2s ease, border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.scheda-torneo:hover {
+  transform: translateY(-4px);
+  border-color: #3c779d;
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
+}
+
+.scheda-intestazione {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.badge-stato {
+  display: inline-flex;
+  align-items: center;
+  padding: 7px 10px;
+  border: 1px solid #3b5876;
+  border-radius: 6px;
+  color: #aebed1;
+  background: rgba(120, 140, 165, 0.13);
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.badge-stato.aperto {
+  border-color: rgba(64, 214, 145, 0.3);
+  color: #52e5a4;
+  background: rgba(28, 150, 94, 0.13);
+}
+
+.badge-stato.chiuso {
+  border-color: rgba(255, 190, 74, 0.3);
+  color: #ffcb71;
+  background: rgba(190, 125, 22, 0.13);
+}
+
+.badge-stato.concluso {
+  border-color: rgba(150, 165, 185, 0.3);
+  color: #aebed1;
+  background: rgba(120, 140, 165, 0.13);
+}
+
+.nome-gioco {
+  display: inline-flex;
+  align-items: center;
+  max-width: 60%;
+  padding: 7px 10px;
+  overflow: hidden;
+  border: 1px solid #294b68;
+  border-radius: 6px;
+  color: #7ed8ff;
+  background: #102943;
+  font-size: 11px;
+  font-weight: 800;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.titolo-torneo {
+  margin: 0 0 12px;
+  color: #ffffff;
+  font-size: 21px;
+  line-height: 1.4;
+  overflow-wrap: anywhere;
+}
+
+.descrizione-torneo {
+  margin: 0 0 22px;
+  color: #9eb1c9;
+  font-size: 14px;
+  line-height: 1.7;
+  overflow-wrap: anywhere;
+}
+
+.dettagli-rapidi {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: auto;
+  padding: 17px 0;
+  border-top: 1px solid #203650;
+}
+
+.voce-dettaglio {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  font-size: 13px;
+}
+
+.etichetta {
+  color: #91a6bf;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.8px;
+}
+
+.valore {
+  color: #dce8f7;
+  font-weight: 700;
+  text-align: right;
+}
+
+.scheda-azioni {
+  margin-top: 4px;
+}
+
+.bottone-dettagli {
+  display: block;
+  width: 100%;
+  padding: 13px 16px;
+  border: 1px solid #51c8ff;
+  border-radius: 8px;
+  color: #06111f;
+  background: #51c8ff;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  text-align: center;
+  text-decoration: none;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.bottone-dettagli:hover {
+  border-color: #83dcff;
+  background: #83dcff;
+}
+
+/* ---------- NESSUN RISULTATO ---------- */
+
+.nessun-risultato {
+  padding: 55px 25px;
+  border: 1px dashed #29435f;
+  border-radius: 14px;
+  background: #09192c;
+  text-align: center;
+}
+
+.nessun-risultato h3 {
+  margin: 0 0 12px;
+  color: #ffffff;
+  font-size: 23px;
+}
+
+.nessun-risultato p {
+  margin: 0 0 22px;
+  color: #9eb1c9;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+/* ---------- FOOTER ---------- */
+
+.footer {
+  padding: 40px 6% 0;
+  border-top: 1px solid #203650;
+  color: #7187a1;
+  background: #08182b;
+  font-size: 13px;
+}
+
+.footer-contenuto {
+  display: grid;
+  grid-template-columns: 1.6fr 1fr 1fr 1.4fr;
+  gap: 32px;
+  padding-bottom: 32px;
+}
+
+.footer-colonna {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.footer-colonna h2 {
+  margin: 0 0 4px;
+  color: #ffffff;
+  font-size: 14px;
+  letter-spacing: 0.5px;
+}
+
+.footer-colonna p {
+  margin: 0;
+  color: #7187a1;
+  line-height: 1.6;
+}
+
+.footer-colonna a {
+  color: #9eb1c9;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-colonna a:hover {
+  color: #51c8ff;
+}
+
+.footer-brand .logo-footer {
+  margin-bottom: 4px;
+}
+
+.footer-fondo {
+  padding: 18px 0;
+  border-top: 1px solid #203650;
+  text-align: center;
+}
+
+.footer-fondo p {
+  margin: 0;
+  color: #7187a1;
+  font-size: 12px;
+}
+
+/* ---------- RESPONSIVE ---------- */
+
+@media (max-width: 1100px) {
+  .griglia-tornei {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .filtro-ricerca {
+    flex-basis: 100%;
+  }
+
+  .filtro-stato {
+    flex: 1 1 180px;
+    min-width: 0;
+  }
+
+  .footer-contenuto {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 20px 5%;
+  }
+
+  .header-sinistra {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  nav,
+  .navigazione {
+    width: 100%;
+    gap: 15px;
+  }
+
+  nav a {
+    font-size: 13px;
+  }
+
+  .pagina-tornei {
+    padding: 35px 5%;
+  }
+
+  .introduzione-catalogo h1 {
+    font-size: 30px;
+  }
+
+  .introduzione-catalogo p {
+    font-size: 14px;
+  }
+
+  .filtri {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+    padding: 15px;
+  }
+
+  .filtro-ricerca,
+  .filtro-stato {
+    flex: 1 1 auto;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .bottone-reset {
+    width: 100%;
+  }
+
+  .griglia-tornei {
+    grid-template-columns: 1fr;
+    gap: 18px;
+  }
+
+  .scheda-torneo {
+    padding: 18px;
+  }
+
+  .footer {
+    padding: 30px 5% 0;
+  }
+
+  .footer-contenuto {
+    grid-template-columns: 1fr;
+  }
+}

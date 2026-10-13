@@ -1,0 +1,198 @@
+<header class="header">
+  <div class="header-sinistra">
+    <a class="logo" routerLink="/" aria-label="ArenaHub - Home">
+      <span class="logo-icona">A</span>
+      <span class="logo-testo">Lazio Digital</span>
+    </a>
+
+    <nav class="navigazione" aria-label="Navigazione principale">
+      <a routerLink="/tornei">Tornei</a>
+    </nav>
+  </div>
+
+  <a class="link-home" routerLink="/">Torna alla Home</a>
+</header>
+
+
+<main class="pagina-autenticazione">
+  <section class="intro-autenticazione">
+    <span class="sovratitolo">LAZIO DIGITAL ARENAHUB</span>
+
+    <h1>
+      La tua prossima sfida
+      <span>inizia qui.</span>
+    </h1>
+
+    <p>
+      Accedi alla piattaforma oppure crea il tuo account
+      per prepararti a entrare nel mondo dei tornei.
+    </p>
+
+  </section>
+
+  <section class="scheda-autenticazione">
+    <div class="intestazione-scheda">
+      <span class="sovratitolo">IL TUO ACCOUNT</span>
+
+      <h2>
+        {{ modalita === 'login' ? 'Bentornato!' : 'Crea il tuo account' }}
+      </h2>
+
+      <p>
+        {{
+        modalita === 'login'
+        ? 'Inserisci i tuoi dati per continuare.'
+        : 'Compila i campi per registrarti su ArenaHub.'
+        }}
+      </p>
+    </div>
+
+    <div class="selettore-modalita">
+      <button type="button" [class.attiva]="modalita === 'login'" [attr.aria-pressed]="modalita === 'login'"
+        (click)="cambiaModalita('login')">
+        Accedi
+      </button>
+
+      <button type="button" [class.attiva]="modalita === 'registrazione'"
+        [attr.aria-pressed]="modalita === 'registrazione'" (click)="cambiaModalita('registrazione')">
+        Registrati
+      </button>
+    </div>
+
+    <form #formAuth="ngForm" (ngSubmit)="inviaModulo()">
+      @if (modalita === 'registrazione') {
+      <div class="campo">
+        <label for="nome">Nome utente</label>
+        <input id="nome" name="nome" type="text" [(ngModel)]="nome" #nomeCtrl="ngModel" placeholder="Il tuo nome"
+          autocomplete="username" required>
+
+        @if (nomeCtrl.invalid && nomeCtrl.touched) {
+        <span class="errore-campo">Inserisci il tuo nome.</span>
+        }
+      </div>
+      }
+
+      <div class="campo">
+        <label for="email">Indirizzo email</label>
+        <input id="email" name="email" type="email" [(ngModel)]="email" #emailCtrl="ngModel"
+          placeholder="nome@esempio.it" autocomplete="email" required email>
+
+        @if (emailCtrl.invalid && emailCtrl.touched) {
+        <span class="errore-campo">
+          Inserisci un indirizzo email valido.
+        </span>
+        }
+      </div>
+
+      <div class="campo">
+        <label for="password">Password</label>
+        <input id="password" name="password" type="password" [(ngModel)]="password" #passwordCtrl="ngModel"
+          placeholder="Almeno 8 caratteri" [attr.autocomplete]="
+            modalita === 'login'
+              ? 'current-password'
+              : 'new-password'
+          " required minlength="8">
+
+        @if (passwordCtrl.invalid && passwordCtrl.touched) {
+        <span class="errore-campo">
+          La password deve contenere almeno 8 caratteri.
+        </span>
+        }
+      </div>
+
+      @if (modalita === 'registrazione') {
+      <div class="campo">
+        <label for="confermaPassword">Conferma password</label>
+        <input id="confermaPassword" name="confermaPassword" type="password" [(ngModel)]="confermaPassword"
+          #confermaCtrl="ngModel" placeholder="Ripeti la password" autocomplete="new-password" required>
+
+        @if (confermaCtrl.touched && !confermaPassword) {
+        <span class="errore-campo">
+          Conferma la password.
+        </span>
+        } @else if (
+        confermaCtrl.touched &&
+        password !== confermaPassword
+        ) {
+        <span class="errore-campo">
+          Le password non coincidono.
+        </span>
+        }
+      </div>
+      }
+
+      @if (errore) {
+      <p class="messaggio messaggio-errore" role="alert">
+        {{ errore }}
+      </p>
+      }
+
+      @if (messaggio) {
+      <p class="messaggio messaggio-info" role="status">
+        {{ messaggio }}
+      </p>
+      }
+
+      <button class="bottone-invio" type="submit" [disabled]="formAuth.invalid">
+        {{
+        modalita === 'login'
+        ? 'Accedi'
+        : 'Crea account'
+        }}
+        <span aria-hidden="true">→</span>
+      </button>
+    </form>
+
+    <p class="cambio-modalita">
+      {{
+      modalita === 'login'
+      ? 'Non hai ancora un account?'
+      : 'Hai già un account?'
+      }}
+
+      <button type="button" (click)="cambiaModalita(
+          modalita === 'login' ? 'registrazione' : 'login'
+        )">
+        {{
+        modalita === 'login'
+        ? 'Registrati'
+        : 'Accedi'
+        }}
+      </button>
+    </p>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="footer-contenuto">
+    <div class="footer-brand">
+      <a class="logo logo-footer" routerLink="/">
+        <span class="logo-icona">A</span>
+        <span class="logo-testo">Lazio Digital</span>
+      </a>
+      <p>La tua arena per le competizioni gaming.</p>
+    </div>
+
+    <div class="footer-colonna">
+      <h3>Esplora</h3>
+      <a routerLink="/">Home</a>
+      <a routerLink="/tornei">Tornei</a>
+    </div>
+
+    <div class="footer-colonna">
+      <h3>Account</h3>
+      <a routerLink="/login">Accedi</a>
+      <a routerLink="/registrazione">Registrati</a>
+    </div>
+
+    <div class="footer-colonna">
+      <h3>Informazioni</h3>
+      <span>Progetto Lazio Digital</span>
+      <span>ArenaHub</span>
+    </div>
+  </div>
+
+  <div class="footer-fondo">
+    <p>© 2026 Lazio Digital ArenaHub. Tutti i diritti riservati.</p>
+  </div>
+</footer>

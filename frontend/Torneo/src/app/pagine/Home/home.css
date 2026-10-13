@@ -1,0 +1,806 @@
+:host {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  color: #f4f8ff;
+  background-color: #071426;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+/* HEADER */
+
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+  min-height: 78px;
+  padding: 16px 7%;
+  background-color: #050f1e;
+  border-bottom: 1px solid #203650;
+}
+
+.header-sinistra {
+  display: flex;
+  align-items: center;
+  gap: 36px;
+  min-width: 0;
+}
+
+/* LOGO */
+
+.logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 11px;
+  flex-shrink: 0;
+  color: #f4f8ff;
+  text-decoration: none;
+  white-space: nowrap;
+}
+
+.logo-icona {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 39px;
+  height: 39px;
+  border-radius: 11px;
+  color: #06172a;
+  background-color: #51c8ff;
+  font-size: 22px;
+  font-weight: 900;
+}
+
+.logo-testo {
+  color: #f4f8ff;
+  font-size: 20px;
+  font-weight: 800;
+}
+
+/* NAVIGAZIONE */
+
+.navigazione {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.navigazione a {
+  color: #c0cfe1;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.navigazione a:hover,
+.navigazione a.attivo {
+  color: #51c8ff;
+}
+
+/* LOGIN E REGISTRAZIONE / AZIONI HEADER */
+
+.azioni-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 20px;
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.nome-utente-header {
+  color: #e2f1ff;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.link-esci {
+  background: transparent;
+  border: 1px solid #294765;
+  color: #ffb9c3;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  transition: background 0.2s ease;
+}
+
+.link-esci:hover {
+  background: #482333;
+}
+
+.link-login,
+.bottone-login {
+  color: #c0cfe1;
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.link-login:hover,
+.bottone-login:hover {
+  color: #51c8ff;
+}
+
+.bottone-registrazione {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 18px;
+  border: 1px solid #51c8ff;
+  border-radius: 9px;
+  color: #06172a;
+  background-color: #51c8ff;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+.bottone-registrazione:hover {
+  background-color: #8bdcff;
+  border-color: #8bdcff;
+  transform: translateY(-1px);
+}
+
+/* CONTENUTO PRINCIPALE / CATALOGO TORNEI */
+
+main,
+.contenuto-principale,
+.tornei-container {
+  flex: 1 0 auto;
+}
+
+.contenuto-principale {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 24px 80px;
+}
+
+.intestazione-sezione {
+  margin-bottom: 30px;
+}
+
+.sovratitolo {
+  margin: 0 0 14px;
+  color: #51c8ff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  display: inline-block;
+}
+
+.intestazione-sezione h1 {
+  margin: 0 0 10px;
+  color: #f4f8ff;
+  font-size: clamp(30px, 4vw, 44px);
+  line-height: 1.12;
+}
+
+.sottotitolo {
+  margin: 0;
+  color: #b6c7da;
+  font-size: 14px;
+  line-height: 1.7;
+}
+
+/* BARRA FILTRI E RICERCA */
+
+.barra-filtri {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  margin-bottom: 35px;
+  flex-wrap: wrap;
+}
+
+.campo-ricerca {
+  display: flex;
+  align-items: center;
+  background: #10243b;
+  border: 1px solid #203650;
+  border-radius: 9px;
+  padding: 8px 14px;
+  flex: 1;
+  min-width: 260px;
+}
+
+.icona-ricerca {
+  font-size: 14px;
+  margin-right: 8px;
+  color: #8da2b9;
+}
+
+.campo-ricerca input {
+  background: transparent;
+  border: none;
+  color: #f4f8ff;
+  outline: none;
+  font-size: 13px;
+  width: 100%;
+}
+
+.campo-ricerca input::placeholder {
+  color: #8da2b9;
+}
+
+.filtri-stato {
+  display: flex;
+  gap: 8px;
+}
+
+.bottone-filtro {
+  background: #10243b;
+  border: 1px solid #203650;
+  color: #c0cfe1;
+  padding: 9px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 700;
+  transition: all 0.2s ease;
+}
+
+.bottone-filtro:hover {
+  background: #1a3855;
+  color: #f4f8ff;
+}
+
+.bottone-filtro.attivo {
+  background: #51c8ff;
+  color: #06172a;
+  border-color: #51c8ff;
+}
+
+/* GRIGLIA TORNEI */
+
+.griglia-tornei {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 24px;
+}
+
+.scheda-torneo {
+  background: #10243b;
+  border: 1px solid #203650;
+  border-radius: 14px;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  transition: transform 0.2s ease, border-color 0.2s ease;
+}
+
+.scheda-torneo:hover {
+  transform: translateY(-3px);
+  border-color: #51c8ff;
+}
+
+.scheda-intestazione {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.badge-stato {
+  padding: 5px 10px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.badge-stato.stato-aperto,
+.badge-stato.aperto {
+  background: #123e32;
+  color: #4fe3a5;
+  border: 1px solid #1a6b52;
+}
+
+.badge-stato.stato-concluso,
+.badge-stato.concluso {
+  background: #28283a;
+  color: #a0a0d0;
+  border: 1px solid #3d3d5c;
+}
+
+.badge-stato.chiuso {
+  background: #3a2222;
+  color: #ff8a80;
+  border: 1px solid #5a2828;
+}
+
+.nome-gioco {
+  color: #51c8ff;
+  font-size: 12px;
+  font-weight: 700;
+}
+
+.titolo-torneo {
+  font-size: 18px;
+  color: #f4f8ff;
+  margin: 0;
+}
+
+.descrizione-torneo {
+  color: #b6c7da;
+  font-size: 13px;
+  line-height: 1.6;
+  margin: 0;
+}
+
+.dettagli-rapidi {
+  display: flex;
+  justify-content: space-between;
+  background: #071426;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1px solid #1a2d42;
+}
+
+.voce-dettaglio {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.voce-dettaglio .etichetta {
+  font-size: 10px;
+  color: #8da2b9;
+  font-weight: 800;
+}
+
+.voce-dettaglio .valore {
+  font-size: 13px;
+  color: #f4f8ff;
+  font-weight: 700;
+}
+
+.scheda-azioni {
+  margin-top: auto;
+  padding-top: 6px;
+}
+
+.bottone-dettagli {
+  display: block;
+  width: 100%;
+  background: #1a3855;
+  color: #51c8ff;
+  border: 1px solid #294765;
+  text-decoration: none;
+  text-align: center;
+  padding: 10px;
+  border-radius: 8px;
+  font-weight: 800;
+  font-size: 12px;
+  transition: background 0.2s ease;
+}
+
+.bottone-dettagli:hover {
+  background: #254d75;
+}
+
+.nessun-risultato {
+  text-align: center;
+  padding: 50px 20px;
+  background: #10243b;
+  border: 1px dashed #203650;
+  border-radius: 14px;
+  color: #8da2b9;
+}
+
+/* BENVENUTO E INFORMAZIONI (PER LA STRUTTURA HOME) */
+
+.benvenuto {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 42px 24px 36px;
+}
+
+.benvenuto-contenuto {
+  display: grid;
+  grid-template-columns: 1.3fr 0.9fr;
+  align-items: center;
+  gap: 36px;
+  padding: 38px 32px;
+  border: 1px solid #203650;
+  border-radius: 12px;
+  background-color: #10243b;
+}
+
+.benvenuto h1 {
+  margin: 0 0 14px;
+  color: #f4f8ff;
+  font-size: clamp(30px, 4vw, 44px);
+  line-height: 1.12;
+}
+
+.descrizione {
+  margin: 0 0 22px;
+  color: #b6c7da;
+  font-size: 13px;
+  line-height: 1.7;
+}
+
+.bottone-principale {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 12px 17px;
+  border: 1px solid #51c8ff;
+  border-radius: 9px;
+  color: #06172a;
+  background-color: #51c8ff;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+  transition: background-color 0.2s ease, transform 0.2s ease;
+}
+
+.bottone-principale:hover {
+  background-color: #8bdcff;
+  transform: translateY(-2px);
+}
+
+.benvenuto-visual {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 190px;
+  padding: 24px;
+  border: 1px solid #203650;
+  border-radius: 10px;
+  background-color: #071426;
+  text-align: center;
+}
+
+.simbolo-arena {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 78px;
+  height: 78px;
+  margin-bottom: 14px;
+  border: 1px solid #51c8ff;
+  border-radius: 50%;
+  box-shadow: 0 0 0 5px rgba(81, 200, 255, 0.08);
+  color: #f4f8ff;
+  font-size: 40px;
+  font-weight: 800;
+}
+
+.visual-titolo {
+  margin: 0 0 8px;
+  color: #f4f8ff;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.visual-sottotitolo {
+  margin: 0;
+  color: #b6c7da;
+  font-size: 12px;
+}
+
+.informazioni {
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 16px 24px 64px;
+}
+
+.informazioni-titolo {
+  margin-bottom: 28px;
+  text-align: center;
+}
+
+.informazioni-titolo h2 {
+  max-width: 550px;
+  margin: 0 auto;
+  color: #f4f8ff;
+  font-size: clamp(23px, 3vw, 30px);
+  line-height: 1.25;
+}
+
+.informazioni-griglia {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.informazione {
+  padding: 22px 20px;
+  border: 1px solid #203650;
+  border-top: 2px solid #51c8ff;
+  border-radius: 10px;
+  color: #f4f8ff;
+  background-color: #10243b;
+}
+
+.informazione-numero {
+  display: block;
+  margin-bottom: 18px;
+  color: #51c8ff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 1px;
+}
+
+.informazione h3 {
+  margin: 0 0 12px;
+  color: #f4f8ff;
+  font-size: 15px;
+}
+
+.informazione p {
+  margin: 0 0 16px;
+  color: #b6c7da;
+  font-size: 12px;
+  line-height: 1.7;
+}
+
+.informazione a {
+  color: #51c8ff;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.informazione a:hover {
+  color: #8bdcff;
+}
+
+/* FOOTER DELLA HOME */
+
+.footer {
+  width: 100%;
+  margin-top: auto;
+  padding: 38px 24px 20px;
+  border-top: 1px solid #203650;
+  background-color: #050f1e;
+  color: #c0cfe1;
+}
+
+.footer-contenuto {
+  display: grid;
+  grid-template-columns: 1.4fr 0.8fr 0.8fr 1fr;
+  gap: 32px;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.footer-colonna {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 11px;
+  min-width: 0;
+}
+
+.footer-colonna h2 {
+  margin: 0 0 5px;
+  color: #f4f8ff;
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.footer-colonna p {
+  margin: 0;
+  color: #9fb2c8;
+  font-size: 12px;
+  line-height: 1.8;
+}
+
+.footer-brand > p {
+  max-width: 260px;
+}
+
+.logo-footer {
+  margin-bottom: 5px;
+}
+
+.logo-footer .logo-icona {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  color: #06172a;
+  background-color: #51c8ff;
+}
+
+.logo-footer .logo-testo {
+  font-size: 17px;
+}
+
+.footer-colonna > a:not(.logo-footer) {
+  color: #9fb2c8;
+  font-size: 12px;
+  line-height: 1.6;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.footer-colonna > a:not(.logo-footer):hover,
+.footer-fondo a:hover {
+  color: #51c8ff;
+}
+
+.footer-fondo {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  max-width: 1100px;
+  margin: 30px auto 0;
+  padding-top: 16px;
+  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  color: #8fa4bb;
+  font-size: 11px;
+}
+
+.footer-fondo a {
+  color: #c0cfe1;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 850px) {
+  .footer-contenuto {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px;
+  }
+
+  .benvenuto-contenuto {
+    gap: 24px;
+  }
+}
+
+@media (max-width: 700px) {
+  .header {
+    padding: 13px 5%;
+    gap: 12px;
+  }
+
+  .header-sinistra {
+    gap: 16px;
+  }
+
+  .logo {
+    gap: 8px;
+  }
+
+  .logo-icona {
+    width: 34px;
+    height: 34px;
+    font-size: 19px;
+  }
+
+  .logo-testo {
+    font-size: 15px;
+  }
+
+  .navigazione {
+    gap: 14px;
+  }
+
+  .navigazione a,
+  .link-login {
+    font-size: 12px;
+  }
+
+  .azioni-header {
+    gap: 12px;
+  }
+
+  .bottone-registrazione {
+    padding: 9px 11px;
+    font-size: 11px;
+  }
+
+  .benvenuto {
+    padding: 28px 16px;
+  }
+
+  .benvenuto-contenuto {
+    grid-template-columns: 1fr;
+    gap: 28px;
+    padding: 26px 22px;
+  }
+
+  .benvenuto-visual {
+    min-height: 170px;
+  }
+
+  .informazioni {
+    padding: 16px 16px 40px;
+  }
+
+  .informazioni-griglia {
+    grid-template-columns: 1fr;
+  }
+
+  .barra-filtri {
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
+@media (max-width: 520px) {
+  .header {
+    flex-wrap: wrap;
+  }
+
+  .header-sinistra {
+    gap: 12px;
+  }
+
+  .azioni-header {
+    gap: 10px;
+  }
+
+  .footer {
+    padding: 30px 20px 18px;
+  }
+
+  .footer-contenuto {
+    grid-template-columns: 1fr;
+    gap: 25px;
+  }
+
+  .footer-fondo {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 12px;
+    line-height: 1.7;
+  }
+}
+
+@media (max-width: 390px) {
+  .header {
+    padding: 12px 4%;
+  }
+
+  .header-sinistra {
+    gap: 10px;
+  }
+
+  .logo-testo {
+    font-size: 13px;
+  }
+
+  .azioni-header {
+    gap: 8px;
+  }
+
+  .link-login {
+    font-size: 12px;
+  }
+
+  .bottone-registrazione {
+    padding: 9px 10px;
+    font-size: 11px;
+  }
+}
