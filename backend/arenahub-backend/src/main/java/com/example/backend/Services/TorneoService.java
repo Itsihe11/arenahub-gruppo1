@@ -64,7 +64,7 @@ public class TorneoService {
                 throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dati non validi");
         }
         Torneo t = new Torneo();
-        applica(t, p);                       // converte e valida i valori presenti
+        applica(t, p);                       
         if (t.getMaxPartecipanti() <= 0 || t.getDataTorneo().isBefore(LocalDate.now()))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dati non validi");
         t.setStato("aperto");
@@ -73,10 +73,10 @@ public class TorneoService {
 
     public Map<String, Object> modifica(Integer uid, int id, Map<String, Object> p) {
         utenti.richiediAdmin(uid);
-        Torneo t = trova(id);                // parte dal torneo esistente
+        Torneo t = trova(id);                
         if (t.getStato().equals("concluso"))
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Torneo concluso");
-        applica(t, p);                       // sovrascrive SOLO i campi presenti nel body
+        applica(t, p);                       
         if (t.getMaxPartecipanti() <= 0 || !STATI.contains(t.getStato()))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dati non validi");
         if (t.getMaxPartecipanti() < iscrizioni.countByTorneoId(id))
