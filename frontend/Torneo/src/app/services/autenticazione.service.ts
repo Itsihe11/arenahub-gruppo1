@@ -9,7 +9,7 @@ import { Utente } from '../interfaces/utente.interface';
 })
 export class AutenticazioneMockService {
   private readonly http = inject(HttpClient);
-  private readonly apiUrl = 'http://localhost:8080/api/utenti';
+  private readonly apiUrl = 'http://localhost:8080/api';
   private readonly iscrizioniUrl = 'http://localhost:8080/api/iscrizioni';
 
   private readonly chiaveUtenteLoggato = 'utente_loggato';
@@ -43,24 +43,28 @@ export class AutenticazioneMockService {
   }
 
   accedi(email: string, password: string): Observable<boolean> {
-    const payload = {
-      email: email.trim().toLowerCase(),
-      password
-    };
+  const payload = {
+    email: email.trim().toLowerCase(),
+    password
+  };
 
-    return this.http.post<Utente>(`${this.apiUrl}/login`, payload).pipe(
-      tap(utente => {
-        if (utente) {
-          this.salvaSessione(utente);
-        }
-      }),
-      map(utente => !!utente),
-      catchError(err => {
-        console.error('Errore durante il login:', err);
-        return of(false);
-      })
-    );
-  }
+  return this.http.post<any>(`${this.apiUrl}/login`, payload).pipe(
+    tap(res => {
+      
+      const utente: Utente = res.utente ?? res.user ?? res;
+      const token = res.token;
+
+      if (utente) {
+        this.salvaSessione(utente, token);
+      }
+    }),
+    map(res => !!res),
+    catchError(err => {
+      console.error('Errore durante il login:', err);
+      return of(false);
+    })
+  );
+}
 
   registra(
     nome: string,
