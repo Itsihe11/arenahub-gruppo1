@@ -1,9 +1,11 @@
+
 :host {
-  display: flex;
-  flex-direction: column;
+  display: block;
   min-height: 100vh;
   color: #f4f8ff;
-  background-color: #071426;
+  background:
+    radial-gradient(ellipse at 10% 0%, rgba(31, 91, 132, 0.16), transparent 40%),
+    #071426;
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -11,29 +13,63 @@
   box-sizing: border-box;
 }
 
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+  transition: background-color 0.2s ease, border-color 0.2s ease,
+    transform 0.2s ease;
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
+  transform: none;
+}
+
+/* CONTENITORE PRINCIPALE */
+
+.pagina-admin {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  width: 100%;
+}
+
 /* HEADER */
-.header {
+
+.header,
+.header-admin {
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 24px;
   width: 100%;
   min-height: 78px;
-  padding: 16px 7%;
+  padding: 16px 5%;
   background: #050f1e;
   border-bottom: 1px solid #203650;
+  position: relative;
+  z-index: 10;
 }
 
 .header-sinistra {
   display: flex;
   align-items: center;
   gap: 36px;
+  min-width: 0;
 }
 
 .logo {
   display: inline-flex;
   align-items: center;
   gap: 11px;
+  flex-shrink: 0;
   color: #f4f8ff;
   text-decoration: none;
   font-size: 20px;
@@ -52,26 +88,35 @@
   font-weight: 900;
 }
 
-.navigazione {
+.navigazione,
+.nav-admin {
   display: flex;
+  align-items: center;
+  flex-wrap: wrap;
   gap: 24px;
 }
 
-.navigazione a {
+.navigazione a,
+.nav-admin a {
   color: #c0cfe1;
   text-decoration: none;
   font-size: 14px;
   font-weight: 600;
+  white-space: nowrap;
+  transition: color 0.2s ease;
 }
 
 .navigazione a.attivo,
-.navigazione a:hover {
+.navigazione a:hover,
+.nav-admin a:hover {
   color: #51c8ff;
 }
 
 .azioni-header {
   display: flex;
   align-items: center;
+  justify-content: flex-end;
+  flex-wrap: wrap;
   gap: 14px;
   margin-left: auto;
 }
@@ -81,130 +126,138 @@
   color: #fff;
   font-size: 10px;
   font-weight: 900;
-  padding: 4px 8px;
-  border-radius: 4px;
+  padding: 5px 8px;
+  border-radius: 5px;
   letter-spacing: 1px;
 }
 
-.nome-utente-header {
+.nome-utente-header,
+.utente-admin {
   color: #e2f1ff;
   font-size: 13px;
   font-weight: 700;
 }
 
-.link-esci {
+.link-esci,
+.btn-uscita {
   background: transparent;
   border: 1px solid #294765;
   color: #ffb9c3;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
+  padding: 8px 14px;
+  border-radius: 7px;
   font-size: 12px;
 }
 
-/* LAYOUT DASHBOARD */
-.pagina-admin {
-  flex: 1;
+.link-esci:hover,
+.btn-uscita:hover {
+  background: #3a2222;
+  border-color: #784044;
+}
+
+/* CONTENUTO DASHBOARD */
+
+.contenuto-admin {
   width: min(1200px, 92%);
   margin: 0 auto;
-  padding: 40px 0 80px;
+  padding: 42px 0 64px;
+  flex: 1;
+  min-width: 0;
+}
+
+.introduzione {
+  margin-bottom: 32px;
 }
 
 .sovratitolo {
+  margin: 0 0 10px;
   color: #51c8ff;
   font-size: 11px;
   font-weight: 800;
   letter-spacing: 2px;
 }
 
-h1 {
+.introduzione h1,
+.contenuto-admin > section > h1 {
+  margin: 0 0 12px;
   font-size: clamp(28px, 4vw, 38px);
-  margin: 10px 0 6px;
-}
-
-.sottotitolo {
-  color: #b6c7da;
-  font-size: 14px;
-  margin-bottom: 35px;
-}
-
-.griglia-admin {
-  display: grid;
-  grid-template-columns: minmax(320px, 1fr) minmax(420px, 1.4fr);
-  gap: 28px;
-  align-items: start;
-}
-
-.pannello-admin {
-  background: #10243b;
-  border: 1px solid #203650;
-  border-radius: 16px;
-  padding: 28px;
-  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.12);
-}
-
-.pannello-admin h2 {
-  font-size: 18px;
-  margin: 0 0 16px;
+  line-height: 1.2;
   color: #f4f8ff;
 }
 
-.sub-titolo {
-  display: block;
-  color: #8da2b9;
-  font-size: 12px;
-  margin-bottom: 15px;
+.introduzione > p:last-child {
+  color: #b6c7da;
+  font-size: 14px;
+  line-height: 1.7;
+  margin: 0;
 }
 
-/* LISTA TORNEI SCROLLABILE (ALTEZZA FISSA MAX) */
-.contenitore-tabella-scrollabile {
-  max-height: 420px;
-  overflow-y: auto;
-  padding-right: 4px;
+/* SEZIONI E PANNELLI */
+
+.sezione-admin {
+  min-width: 0;
+  margin-bottom: 28px;
+  padding: 26px;
+  background: #10243b;
+  border: 1px solid #203650;
+  border-radius: 16px;
+  box-shadow: 0 18px 45px rgba(0, 0, 0, 0.12);
 }
 
-.contenitore-tabella-scrollabile::-webkit-scrollbar {
-  width: 6px;
+.sezione-admin h2 {
+  color: #f4f8ff;
+  font-size: 19px;
+  line-height: 1.4;
+  margin: 0 0 20px;
 }
 
-.contenitore-tabella-scrollabile::-webkit-scrollbar-thumb {
-  background: #203650;
-  border-radius: 4px;
+.sezione-admin h3 {
+  color: #f4f8ff;
+  font-size: 16px;
+  margin: 0 0 16px;
 }
 
-/* FORM CREAZIONE TORNEO */
-form {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
+.sezione-admin h4 {
+  color: #e2f1ff;
+  margin: 0 0 8px;
+}
+
+.sezione-admin p {
+  line-height: 1.6;
+}
+
+/* FORM CREAZIONE E MODIFICA */
+
+.form-torneo {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 18px;
 }
 
 .campo {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 7px;
+  min-width: 0;
 }
 
-.campo-doppio {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 14px;
+.campo-completo {
+  grid-column: 1 / -1;
 }
 
 .campo label {
-  color: #8da2b9;
-  font-size: 11px;
-  font-weight: 800;
-  letter-spacing: 1px;
+  color: #a9bdd2;
+  font-size: 12px;
+  font-weight: 700;
 }
 
 .campo input,
 .campo select,
 .campo textarea {
   width: 100%;
-  padding: 11px 14px;
+  min-width: 0;
+  padding: 11px 13px;
   background: #071426;
-  border: 1px solid #203650;
+  border: 1px solid #29415c;
   border-radius: 8px;
   color: #f4f8ff;
   font-size: 13px;
@@ -215,72 +268,139 @@ form {
 .campo select:focus,
 .campo textarea:focus {
   border-color: #51c8ff;
+  box-shadow: 0 0 0 3px rgba(81, 200, 255, 0.1);
 }
 
-.bottone-crea {
-  margin-top: 10px;
-  padding: 13px;
-  background: #e53935;
-  color: #fff;
-  border: none;
+.campo textarea {
+  min-height: 90px;
+  resize: vertical;
+}
+
+.campo select option {
+  background: #071426;
+  color: #f4f8ff;
+}
+
+.azioni-form {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 2px;
+}
+
+.btn-principale,
+.btn-secondario,
+.btn-pericolo {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 38px;
+  padding: 10px 16px;
   border-radius: 8px;
-  font-weight: 900;
-  font-size: 13px;
-  letter-spacing: 1px;
-  cursor: pointer;
-  transition: background 0.2s ease;
+  font-size: 12px;
+  font-weight: 800;
 }
 
-.bottone-crea:hover:not(:disabled) {
-  background: #f44336;
+.btn-principale {
+  background: #51c8ff;
+  border: 1px solid #51c8ff;
+  color: #06172a;
 }
 
-.bottone-crea:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
+.btn-principale:hover:not(:disabled) {
+  background: #83dcff;
+  border-color: #83dcff;
+  transform: translateY(-1px);
 }
 
-/* TABELLE ADMIN */
-.tabella-admin {
+.btn-secondario {
+  background: #183350;
+  border: 1px solid #315474;
+  color: #cceeff;
+}
+
+.btn-secondario:hover:not(:disabled) {
+  background: #214566;
+  border-color: #51c8ff;
+}
+
+.btn-pericolo {
+  background: #3a2222;
+  border: 1px solid #633636;
+  color: #ffaaa5;
+}
+
+.btn-pericolo:hover:not(:disabled) {
+  background: #552a2a;
+  border-color: #e56b6b;
+}
+
+/* TABELLE */
+
+.tabella-contenitore {
   width: 100%;
+  overflow-x: auto;
+  border: 1px solid #203650;
+  border-radius: 10px;
+}
+
+.tabella-tornei {
+  width: 100%;
+  min-width: 720px;
   border-collapse: collapse;
   text-align: left;
 }
 
-.tabella-admin th {
-  padding: 12px 14px;
-  color: #8da2b9;
-  font-size: 11px;
-  font-weight: 800;
-  border-bottom: 1px solid #203650;
+.tabella-tornei th {
   position: sticky;
   top: 0;
-  background: #10243b;
   z-index: 2;
-}
-
-.tabella-admin td {
-  padding: 14px;
-  border-bottom: 1px solid #1a2d42;
-  font-size: 13px;
-}
-
-.riga-selezionata {
-  background: #183350;
-}
-
-.sotto-testo {
+  padding: 14px 15px;
+  background: #0b1c30;
+  color: #9db2c9;
   font-size: 11px;
-  color: #51c8ff;
-  display: block;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  border-bottom: 1px solid #29415c;
 }
+
+.tabella-tornei td {
+  padding: 14px 15px;
+  color: #dbe7f5;
+  font-size: 12px;
+  vertical-align: middle;
+  border-bottom: 1px solid #1c3149;
+}
+
+.tabella-tornei tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.tabella-tornei tbody tr:hover {
+  background: rgba(81, 200, 255, 0.045);
+}
+
+.azioni-tabella {
+  white-space: nowrap;
+}
+
+.azioni-tabella button + button {
+  margin-left: 6px;
+}
+
+/* STATO TORNEO */
 
 .badge-stato {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5px 9px;
+  border-radius: 6px;
   font-size: 10px;
   font-weight: 800;
-  padding: 4px 8px;
-  border-radius: 5px;
-  display: inline-block;
+  white-space: nowrap;
 }
 
 .badge-stato.aperto {
@@ -293,36 +413,53 @@ form {
   color: #ff8a80;
 }
 
-.badge-stato.concluso {
-  background: #28283a;
-  color: #a0a0d0;
+/* DETTAGLI TORNEO */
+
+.dettagli-torneo {
+  margin-top: 32px;
+  border-top: 2px solid #51c8ff;
 }
 
-.celle-azioni {
+.titolo-dettagli,
+.titolo-sottosezione {
   display: flex;
-  gap: 6px;
-  justify-content: flex-end;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+.titolo-dettagli {
+  margin-bottom: 24px;
+}
+
+.titolo-dettagli h2 {
+  margin-bottom: 5px;
+}
+
+.titolo-dettagli p:last-child {
+  color: #a9bdd2;
+  margin: 0;
+}
+
+.azioni-stato {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  padding: 18px;
+  margin-bottom: 26px;
+  background: #0b1c30;
+  border: 1px solid #203650;
+  border-radius: 10px;
 }
 
 .btn-azione {
-  padding: 6px 10px;
-  border-radius: 6px;
-  font-size: 11px;
-  font-weight: 700;
-  cursor: pointer;
+  padding: 9px 13px;
+  border-radius: 7px;
   border: 1px solid transparent;
-}
-
-.btn-azione.seleziona {
-  background: #1e4a75;
-  color: #51c8ff;
-  border-color: #2e6295;
-}
-
-.btn-azione.chiudi {
-  background: #3a2222;
-  color: #ff8a80;
-  border-color: #5a2828;
+  font-size: 12px;
+  font-weight: 800;
 }
 
 .btn-azione.apri {
@@ -331,203 +468,268 @@ form {
   border-color: #1a6b52;
 }
 
-.btn-azione.elimina {
-  background: transparent;
-  color: #8da2b9;
+.btn-azione.apri:hover:not(:disabled) {
+  background: #185541;
 }
 
-/* SEZIONE RISULTATI TORNEO SELEZIONATO */
-.sezione-risultati {
-  margin-top: 30px;
-  border-top: 2px solid #51c8ff;
+.btn-azione.chiudi {
+  background: #3a2222;
+  color: #ff8a80;
+  border-color: #5a2828;
 }
 
-.intestazione-risultati {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
+.btn-azione.chiudi:hover:not(:disabled) {
+  background: #512a2a;
 }
 
-.evidenzia-torneo {
-  color: #51c8ff;
-}
-
-.btn-chiudi-sezione {
-  background: transparent;
-  border: 1px solid #203650;
-  color: #8da2b9;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-}
-
-.input-tabella {
-  width: 90px;
-  padding: 6px 10px;
-  background: #071426;
-  border: 1px solid #203650;
-  border-radius: 6px;
-  color: #fff;
-  font-size: 13px;
-}
-
-.btn-salva-singolo {
-  background: #123e32;
-  color: #4fe3a5;
-  border: 1px solid #1a6b52;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-weight: 700;
-  font-size: 11px;
-}
-
-.nessun-partecipante {
-  padding: 30px;
-  text-align: center;
-  color: #8da2b9;
-}
-
-/* STATO NON AUTORIZZATO */
-.stato-non-autorizzato {
-  text-align: center;
-  padding: 60px 20px;
-  background: #10243b;
-  border-radius: 16px;
-  border: 1px solid #203650;
-}
-
-.icona-divieto {
-  font-size: 54px;
-  display: block;
-  margin-bottom: 15px;
-}
-
-.pulsante-home {
-  display: inline-block;
-  margin-top: 15px;
-  padding: 12px 22px;
-  background: #51c8ff;
-  color: #06172a;
-  font-weight: 800;
-  border-radius: 8px;
-  text-decoration: none;
-}
-
-@media (max-width: 900px) {
-  .griglia-admin {
-    grid-template-columns: 1fr;
-  }
-}
-
-/* FORM MODIFICA TORNEO COMPATTO */
-.sezione-risultati {
-  margin-top: 28px;
-  padding: 24px;
-}
-
-.sezione-risultati > form {
-  max-width: 650px;
-  gap: 12px;
-}
-
-.sezione-risultati > h3 {
-  margin-top: 22px;
-  margin-bottom: 14px;
-  font-size: 16px;
-}
-
-.sezione-risultati .campo input,
-.sezione-risultati .campo select,
-.sezione-risultati .campo textarea {
-  padding: 9px 12px;
-}
-
-.sezione-risultati .campo textarea {
-  min-height: 75px;
-  resize: vertical;
-}
-
-.sezione-risultati .bottone-crea {
-  max-width: 240px;
-  padding: 11px 16px;
-}
-
-.sezione-risultati hr {
-  border: 0;
-  border-top: 1px solid #203650;
-  margin: 24px 0;
-}
-
-@media (max-width: 600px) {
-  .sezione-risultati {
-    padding: 18px;
-  }
-
-  .sezione-risultati > form {
-    max-width: 100%;
-  }
-
-  .sezione-risultati .bottone-crea {
-    max-width: 100%;
-  }
-}
-
-/* LAYOUT GESTIONE TORNEO */
-.griglia-gestione {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
-  gap: 24px;
-  align-items: start;
+.sottosezione {
+  padding-top: 24px;
   margin-top: 24px;
+  border-top: 1px solid #203650;
 }
 
-.griglia-gestione > .pannello-admin {
-  min-width: 0;
-}
-
-.griglia-gestione .pannello-admin h2 {
+.titolo-sottosezione {
   margin-bottom: 18px;
 }
 
-.griglia-inferiore {
-  align-items: stretch;
+.titolo-sottosezione h3 {
+  margin: 0;
 }
 
-.griglia-inferiore > .pannello-admin {
-  min-width: 0;
+.griglia-dati {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
 }
 
-.azioni-stato {
+.dato {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  gap: 12px;
-  margin-top: 24px;
-}
-
-.griglia-inferiore .contenitore-tabella-scrollabile {
-  max-height: 360px;
-  overflow-x: auto;
-}
-
-.griglia-inferiore .tabella-admin {
-  min-width: 420px;
-}
-
-.griglia-inferiore .input-tabella {
-  width: 65px;
+  gap: 9px;
   min-width: 0;
-  padding: 7px;
+  padding: 16px;
+  background: #0b1c30;
+  border: 1px solid #203650;
+  border-radius: 9px;
 }
 
-@media (max-width: 900px) {
-  .griglia-gestione {
+.dato span {
+  color: #8da2b9;
+  font-size: 11px;
+}
+
+.dato strong {
+  color: #f4f8ff;
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+
+.descrizione-torneo {
+  margin-top: 18px;
+  padding: 16px;
+  background: #0b1c30;
+  border-radius: 9px;
+}
+
+.descrizione-torneo p {
+  margin-bottom: 0;
+  color: #b6c7da;
+  font-size: 13px;
+}
+
+/* PARTECIPANTI */
+
+.lista-partecipanti {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.lista-partecipanti li {
+  display: flex;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 18px;
+  padding: 13px 15px;
+  background: #0b1c30;
+  border-bottom: 1px solid #203650;
+  font-size: 12px;
+}
+
+.lista-partecipanti li:first-child {
+  border-radius: 8px 8px 0 0;
+}
+
+.lista-partecipanti li:last-child {
+  border-bottom: none;
+  border-radius: 0 0 8px 8px;
+}
+
+.lista-partecipanti li span:first-child {
+  color: #f4f8ff;
+  font-weight: 700;
+}
+
+.lista-partecipanti li span:last-child {
+  color: #9db2c9;
+  overflow-wrap: anywhere;
+}
+
+/* RISULTATI PARTITE */
+
+.campi-risultato {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 7px;
+}
+
+.campi-risultato input {
+  width: 60px;
+  min-width: 0;
+  padding: 8px;
+  background: #071426;
+  border: 1px solid #29415c;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 12px;
+}
+
+.campi-risultato input:focus {
+  outline: none;
+  border-color: #51c8ff;
+}
+
+.messaggio-vuoto {
+  margin: 0;
+  padding: 24px 16px;
+  text-align: center;
+  color: #8da2b9;
+  background: #0b1c30;
+  border: 1px dashed #29415c;
+  border-radius: 9px;
+  font-size: 13px;
+}
+
+/* ACCESSO NON AUTORIZZATO */
+
+.contenuto-admin > .sezione-admin:has(> h1) {
+  text-align: center;
+}
+
+.contenuto-admin > .sezione-admin > h1 {
+  font-size: 28px;
+}
+
+/* FOOTER */
+
+.footer-admin {
+  margin-top: auto;
+  padding: 22px 5%;
+  text-align: center;
+  background: #050f1e;
+  border-top: 1px solid #203650;
+}
+
+.footer-admin p {
+  margin: 0;
+  color: #8da2b9;
+  font-size: 12px;
+}
+
+/* RESPONSIVE */
+
+@media (max-width: 1000px) {
+  .header,
+  .header-admin {
+    padding: 15px 4%;
+    flex-wrap: wrap;
+  }
+
+  .header-sinistra {
+    gap: 20px;
+    flex-wrap: wrap;
+  }
+
+  .navigazione,
+  .nav-admin {
+    gap: 15px;
+  }
+
+  .contenuto-admin {
+    width: 94%;
+  }
+}
+
+@media (max-width: 700px) {
+  .header,
+  .header-admin {
+    align-items: flex-start;
+    gap: 16px;
+  }
+
+  .header-sinistra {
+    width: 100%;
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .navigazione,
+  .nav-admin {
+    width: 100%;
+    gap: 14px;
+  }
+
+  .azioni-header {
+    width: 100%;
+    margin-left: 0;
+    justify-content: flex-start;
+  }
+
+  .contenuto-admin {
+    padding-top: 28px;
+    padding-bottom: 40px;
+  }
+
+  .sezione-admin {
+    padding: 18px;
+    border-radius: 12px;
+  }
+
+  .form-torneo {
     grid-template-columns: 1fr;
   }
 
+  .campo-completo {
+    grid-column: auto;
+  }
+
+  .griglia-dati {
+    grid-template-columns: 1fr;
+  }
+
+  .titolo-dettagli,
+  .titolo-sottosezione {
+    align-items: flex-start;
+  }
+
+  .tabella-tornei {
+    min-width: 700px;
+  }
+
   .azioni-stato {
-    flex-direction: row;
-    flex-wrap: wrap;
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .azioni-stato button {
+    width: 100%;
+  }
+
+  .campi-risultato {
+    min-width: 160px;
   }
 }
