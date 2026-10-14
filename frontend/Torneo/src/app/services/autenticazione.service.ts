@@ -1,6 +1,6 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, of } from 'rxjs';
+import { Observable, of, throwError } from 'rxjs';
 import { tap, map, catchError } from 'rxjs/operators';
 import { Utente } from '../interfaces/utente.interface';
 
@@ -14,10 +14,6 @@ export class AutenticazioneMockService {
 
   private readonly chiaveUtenteLoggato = 'utente_loggato';
   private readonly chiaveToken = 'auth_token';
-
-  
-
-
 
   readonly utenteCorrente = signal<Utente | null>(
     this.leggiUtenteLoggato()
@@ -98,18 +94,27 @@ export class AutenticazioneMockService {
     if (!utente) return of(false);
 
     const targetId = Number(torneoId);
+    
+
+    const rawUserId = utente.id ?? (utente as any).uid ?? (utente as any).idUtente;
+    const userId = Number(rawUserId);
+
+    if (isNaN(userId) || isNaN(targetId)) {
+      console.error('ID Utente o ID Torneo non valido:', { rawUserId, targetId, utente });
+      return throwError(() => new Error('ID Utente o ID Torneo non valido.'));
+    }
+
     const endpoint = iscrivi
       ? `${this.iscrizioniUrl}/iscrivi`
       : `${this.iscrizioniUrl}/annulla`;
 
     const payload = {
-      uid: Number(utente.id),
+      uid: userId,
       torneoId: targetId
     };
 
     return this.http.post(endpoint, payload).pipe(
       tap(() => {
-        
         const idsAttuali = (utente.torneiIscrittiIds ?? []).map(id => Number(id));
         
         let nuoviIds: number[];
@@ -124,7 +129,6 @@ export class AutenticazioneMockService {
           torneiIscrittiIds: nuoviIds
         };
 
-      
         this.utenteCorrente.set(utenteAggiornato);
         localStorage.setItem(
           this.chiaveUtenteLoggato,
@@ -134,7 +138,8 @@ export class AutenticazioneMockService {
       map(() => true),
       catchError(err => {
         console.error('Errore durante la gestione dell\'iscrizione:', err);
-        return of(false);
+        
+        return throwError(() => err);
       })
     );
   }

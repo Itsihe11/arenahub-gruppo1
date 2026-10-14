@@ -38,27 +38,38 @@ public class IscrizioneController {
  
     @PostMapping("/iscrivi")
     public ResponseEntity<?> iscrivi(@RequestBody Map<String, Object> payload) {
+        System.out.println("=== REQUEST /api/iscrizioni/iscrivi ===");
+        System.out.println("Payload ricevuto: " + payload);
+
         Integer uid = estraiId(payload, "uid", "utenteId", "idUtente");
         Integer torneoId = estraiId(payload, "torneoId", "idTorneo");
 
+        System.out.println("Estratto -> UID: " + uid + ", TorneoID: " + torneoId);
+
         if (uid == null || torneoId == null) {
             Map<String, String> err = new HashMap<>();
-            err.put("error", "Parametri 'uid' (o 'utenteId') e 'torneoId' obbligatori.");
+            err.put("error", "Parametri 'utenteId' e 'torneoId' obbligatori o non validi.");
             return ResponseEntity.badRequest().body(err);
         }
 
-        Iscrizione nuova = iscrizioneService.iscrivi(uid, torneoId);
-        
-       
-        Map<String, Object> risposta = new HashMap<>();
-        risposta.put("id", nuova.getId());
-        risposta.put("torneoId", nuova.getTorneoId());
-        risposta.put("utenteId", nuova.getUtenteId());
-        risposta.put("stato", nuova.getStato());
+        try {
+            Iscrizione nuova = iscrizioneService.iscrivi(uid, torneoId);
+            
+            Map<String, Object> risposta = new HashMap<>();
+            risposta.put("id", nuova.getId());
+            risposta.put("torneoId", nuova.getTorneoId());
+            risposta.put("utenteId", nuova.getUtenteId());
+            risposta.put("stato", nuova.getStato());
 
-        return ResponseEntity.ok(risposta);
+            return ResponseEntity.ok(risposta);
+        } catch (Exception e) {
+            System.err.println(" Errore in IscrizioneService: " + e.getMessage());
+            e.printStackTrace();
+            Map<String, String> err = new HashMap<>();
+            err.put("error", e.getMessage());
+            return ResponseEntity.badRequest().body(err);
+        }
     }
-
    
     @PostMapping("/annulla")
     public ResponseEntity<?> annulla(@RequestBody Map<String, Object> payload) {
@@ -67,7 +78,7 @@ public class IscrizioneController {
 
         if (uid == null || torneoId == null) {
             Map<String, String> err = new HashMap<>();
-            err.put("error", "Parametri 'uid' (o 'utenteId') e 'torneoId' obbligatori.");
+            err.put("error", "Parametri  'utenteId' e 'torneoId' obbligatori.");
             return ResponseEntity.badRequest().body(err);
         }
 
