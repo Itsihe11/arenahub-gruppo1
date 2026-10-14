@@ -419,3 +419,115 @@ form {
     grid-template-columns: 1fr;
   }
 }
+
+/* FORM MODIFICA TORNEO COMPATTO */
+.sezione-risultati {
+  margin-top: 28px;
+  padding: 24px;
+}
+
+.sezione-risultati > form {
+  max-width: 650px;
+  gap: 12px;
+}
+
+.sezione-risultati > h3 {
+  margin-top: 22px;
+  margin-bottom: 14px;
+  font-size: 16px;
+}
+
+.sezione-risultati .campo input,
+.sezione-risultati .campo select,
+.sezione-risultati .campo textarea {
+  padding: 9px 12px;
+}
+
+.sezione-risultati .campo textarea {
+  min-height: 75px;
+  resize: vertical;
+}
+
+.sezione-risultati .bottone-crea {
+  max-width: 240px;
+  padding: 11px 16px;
+}
+
+.sezione-risultati hr {
+  border: 0;
+  border-top: 1px solid #203650;
+  margin: 24px 0;
+}
+
+@media (max-width: 600px) {
+  .sezione-risultati {
+    padding: 18px;
+  }
+
+  .sezione-risultati > form {
+    max-width: 100%;
+  }
+
+  .sezione-risultati .bottone-crea {
+    max-width: 100%;
+  }
+}
+
+/* LAYOUT GESTIONE TORNEO */
+.griglia-gestione {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 24px;
+  align-items: start;
+  margin-top: 24px;
+}
+
+.griglia-gestione > .pannello-admin {
+  min-width: 0;
+}
+
+.griglia-gestione .pannello-admin h2 {
+  margin-bottom: 18px;
+}
+
+.griglia-inferiore {
+  align-items: stretch;
+}
+
+.griglia-inferiore > .pannello-admin {
+  min-width: 0;
+}
+
+.azioni-stato {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 12px;
+  margin-top: 24px;
+}
+
+.griglia-inferiore .contenitore-tabella-scrollabile {
+  max-height: 360px;
+  overflow-x: auto;
+}
+
+.griglia-inferiore .tabella-admin {
+  min-width: 420px;
+}
+
+.griglia-inferiore .input-tabella {
+  width: 65px;
+  min-width: 0;
+  padding: 7px;
+}
+
+@media (max-width: 900px) {
+  .griglia-gestione {
+    grid-template-columns: 1fr;
+  }
+
+  .azioni-stato {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+}

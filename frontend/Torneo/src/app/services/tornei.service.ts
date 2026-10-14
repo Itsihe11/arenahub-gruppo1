@@ -1,6 +1,7 @@
 import { Injectable, signal, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { AutenticazioneMockService } from './autenticazione.service';
+import { Observable } from 'rxjs';
 
 export interface Torneo {
   id: number;
@@ -79,6 +80,25 @@ export class TorneiService {
       error: (err) => console.error('Errore durante l\'eliminazione del torneo:', err)
     });
   }
+
+
+  modificaTorneo(id: number, dati: Partial<Torneo>): void {
+    const uid = this.authService.utenteCorrente()?.id;
+
+    if (uid == null) {
+      console.error('Impossibile modificare il torneo: amministratore non identificato.');
+      return;
+    }
+
+    this.http.put<Torneo>(`${this.apiUrl}/${id}?uid=${uid}`, dati).subscribe({
+      next: () => {
+        this.caricaTornei();
+      },
+      error: (err) => console.error('Errore durante la modifica del torneo:', err)
+    });
+  }
+
+
 
   iscriviUtente(torneoId: number, utenteId: number): void {
     this.http.post<void>(`http://localhost:8080/api/iscrizioni`, { torneoId, utenteId }).subscribe({

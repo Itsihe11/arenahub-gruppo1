@@ -1,109 +1,169 @@
-<header class="header">
-  <div class="header-sinistra">
-    <a class="logo" routerLink="/">
-      <span class="logo-icona">A</span>
-      <span class="logo-testo">ArenaHub</span>
-    </a>
-    <nav class="navigazione">
-      <a routerLink="/">Home</a>
-      <a routerLink="/tornei">Tornei</a>
-      <a routerLink="/admin" class="attivo">Dashboard Admin</a>
-    </nav>
-  </div>
+@if (utenteCorrente()?.ruolo === 'admin') {
+  <header class="header">
+    <div class="header-sinistra">
+      <a routerLink="/" class="logo">
+        <span class="logo-icona">L</span>
+        <span>LazioDigitalGame</span>
+      </a>
+    </div>
 
-  <div class="azioni-header">
-    <span class="badge-ruolo-admin">ADMIN</span>
-    <span class="nome-utente-header">👤 {{ utenteCorrente()?.nome }}</span>
-    <button type="button" class="link-esci" (click)="esci()">Esci</button>
-  </div>
-</header>
+    <div class="azioni-header">
+      <span class="badge-ruolo-admin">AMMINISTRATORE</span>
+      <span class="nome-utente-header">
+        {{ utenteCorrente()?.nome }}
+      </span>
+      <button type="button" class="link-esci" (click)="esci()">
+        Esci
+      </button>
+    </div>
+  </header>
 
-<main class="pagina-admin">
-  @if (utenteCorrente()?.ruolo === 'admin') {
-    <span class="sovratitolo">PANNELLO DI CONTROLLO</span>
-    <h1>Gestione Tornei & Partite</h1>
-    <p class="sottotitolo">Crea nuovi tornei, gestisci lo stato delle iscrizioni e inserisci i risultati dei match.</p>
+  <main class="pagina-admin">
+    <section class="intestazione-pagina">
+      <span class="sovratitolo">PANNELLO DI CONTROLLO</span>
+      <h1>Gestione tornei</h1>
+      <p class="sottotitolo">
+        Crea e gestisci i tornei, controlla le iscrizioni e aggiorna i risultati.
+      </p>
+    </section>
 
     <div class="griglia-admin">
-     
+      <!-- CREA TORNEO -->
       <section class="pannello-admin">
-        <h2>Crea Nuovo Torneo</h2>
-        <span class="sub-titolo">I nuovi tornei verranno pubblicati con iscrizioni APERTE.</span>
+        <span class="sovratitolo">NUOVA COMPETIZIONE</span>
+        <h2>Crea un torneo</h2>
+        <p class="sub-titolo">
+          Inserisci le informazioni principali del nuovo torneo.
+        </p>
 
         <form (ngSubmit)="creaTorneo()">
           <div class="campo">
-            <label for="nome">NOME TORNEO</label>
-            <input id="nome" type="text" [(ngModel)]="nuovoNome" name="nome" placeholder="es. Torneo FIFA 2026" required />
+            <label for="nuovoNome">Nome torneo</label>
+            <input
+              id="nuovoNome"
+              type="text"
+              name="nuovoNome"
+              [(ngModel)]="nuovoNome"
+              placeholder="Es. Lazio Gaming Cup"
+              required
+            />
           </div>
 
           <div class="campo">
-            <label for="gioco">GIOCO / DISCIPLINA</label>
-            <input id="gioco" type="text" [(ngModel)]="nuovoGioco" name="gioco" placeholder="es. FC 24, FC 25, Rocket League" required />
-          </div>
-
-          <div class="campo-doppio">
-            <div class="campo">
-              <label for="data">DATA EVENTO</label>
-              <input id="data" type="date" [(ngModel)]="nuovaData" name="data" required />
-            </div>
-
-            <div class="campo">
-              <label for="posti">POSTI MAX</label>
-              <input id="posti" type="number" [(ngModel)]="nuoviPostiMax" name="posti" min="2" max="128" required />
-            </div>
+            <label for="nuovoGioco">Gioco</label>
+            <input
+              id="nuovoGioco"
+              type="text"
+              name="nuovoGioco"
+              [(ngModel)]="nuovoGioco"
+              placeholder="Es. EA Sports FC"
+              required
+            />
           </div>
 
           <div class="campo">
-            <label for="descrizione">DESCRIZIONE / REGOLAMENTO</label>
-            <textarea id="descrizione" [(ngModel)]="nuovaDescrizione" name="descrizione" rows="3" placeholder="Inserisci regole e dettagli..."></textarea>
+            <label for="nuovaData">Data del torneo</label>
+            <input
+              id="nuovaData"
+              type="date"
+              name="nuovaData"
+              [(ngModel)]="nuovaData"
+              required
+            />
           </div>
 
-          <button type="submit" class="bottone-crea">PUBBLICA TORNEO</button>
+          <div class="campo">
+            <label for="nuoviPostiMax">Numero massimo di partecipanti</label>
+            <input
+              id="nuoviPostiMax"
+              type="number"
+              name="nuoviPostiMax"
+              [(ngModel)]="nuoviPostiMax"
+              min="2"
+              required
+            />
+          </div>
+
+          <div class="campo">
+            <label for="nuovaDescrizione">Descrizione</label>
+            <textarea
+              id="nuovaDescrizione"
+              name="nuovaDescrizione"
+              [(ngModel)]="nuovaDescrizione"
+              placeholder="Descrivi il torneo..."
+              rows="3"
+            ></textarea>
+          </div>
+
+          <button type="submit" class="bottone-crea">
+            Crea torneo
+          </button>
         </form>
       </section>
 
-  
+      <!-- ELENCO TORNEI -->
       <section class="pannello-admin">
-        <h2>Elenco Tornei</h2>
+        <span class="sovratitolo">COMPETIZIONI</span>
+        <h2>Tornei disponibili</h2>
+        <p class="sub-titolo">
+          Seleziona un torneo per gestirne i dettagli.
+        </p>
+
         <div class="contenitore-tabella-scrollabile">
           <table class="tabella-admin">
             <thead>
               <tr>
-                <th>TORNEO</th>
-                <th>STATO</th>
-                <th>ISCRITTI</th>
-                <th style="text-align: right;">AZIONI</th>
+                <th>Torneo</th>
+                <th>Stato</th>
+                <th>Azioni</th>
               </tr>
             </thead>
+
             <tbody>
               @for (torneo of tuttiTornei(); track torneo.id) {
-                <tr [class.riga-selezionata]="torneoSelezionato()?.id === torneo.id">
+                <tr
+                  [class.riga-selezionata]="torneoSelezionato()?.id === torneo.id"
+                >
                   <td>
                     <strong>{{ torneo.nome }}</strong>
                     <span class="sotto-testo">{{ torneo.gioco }}</span>
                   </td>
+
                   <td>
-                    <span class="badge-stato" [class]="torneo.stato">{{ torneo.stato | uppercase }}</span>
+                    <span
+                      class="badge-stato"
+                      [class.aperto]="torneo.stato === 'aperto'"
+                      [class.chiuso]="torneo.stato === 'chiuso'"
+                      [class.concluso]="torneo.stato === 'concluso'"
+                    >
+                      {{ torneo.stato | uppercase }}
+                    </span>
                   </td>
-                  <td>{{ torneo.iscritti }}/{{ torneo.postiMax }}</td>
-                  <td class="celle-azioni">
-                    <button type="button" class="btn-azione seleziona" (click)="selezionaTorneo(torneo)">
-                      Partite
-                    </button>
 
-                    @if (torneo.stato === 'aperto') {
-                      <button type="button" class="btn-azione chiudi" (click)="cambiaStato(torneo.id, 'chiuso')">
-                        Chiudi
+                  <td>
+                    <div class="celle-azioni">
+                      <button
+                        type="button"
+                        class="btn-azione seleziona"
+                        (click)="selezionaTorneo(torneo)"
+                      >
+                        Gestisci
                       </button>
-                    } @else {
-                      <button type="button" class="btn-azione apri" (click)="cambiaStato(torneo.id, 'aperto')">
-                        Apri
-                      </button>
-                    }
 
-                    <button type="button" class="btn-azione elimina" (click)="elimina(torneo.id)">
-                      🗑️
-                    </button>
+                      <button
+                        type="button"
+                        class="btn-azione elimina"
+                        (click)="elimina(torneo.id)"
+                      >
+                        Elimina
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="3">
+                    Nessun torneo disponibile.
                   </td>
                 </tr>
               }
@@ -113,79 +173,279 @@
       </section>
     </div>
 
-   
+    <!-- GESTIONE DEL TORNEO SELEZIONATO -->
     @if (torneoSelezionato(); as torneo) {
-      <section class="pannello-admin sezione-risultati">
+      <section class="sezione-risultati">
         <div class="intestazione-risultati">
           <div>
-            <h2>Gestione Partite: <span class="evidenzia-torneo">{{ torneo.nome }}</span></h2>
-            <span class="sub-titolo">Genera il tabellone degli accoppiamenti e inserisci i punteggi.</span>
+            <span class="sovratitolo">GESTIONE COMPETIZIONE</span>
+            <h2>{{ torneo.nome }}</h2>
+            <p class="sub-titolo">
+              Modifica le informazioni e gestisci partecipanti e partite.
+            </p>
           </div>
-          <div style="display: flex; gap: 10px; align-items: center;">
-            <button type="button" class="btn-azione apri" (click)="generaPartite()">
-               GENERAMATCH / TABELLONE
-            </button>
-            <button type="button" class="btn-chiudi-sezione" (click)="deselezionaTorneo()">Chiudi X</button>
-          </div>
+
+          <button
+            type="button"
+            class="btn-azione seleziona"
+            (click)="deselezionaTorneo()"
+          >
+            Chiudi gestione
+          </button>
         </div>
 
-        @if (partite().length > 0) {
-          <div class="contenitore-tabella-scrollabile">
-            <table class="tabella-admin">
-              <thead>
-                <tr>
-                  <th>TURNO</th>
-                  <th>GIOCATORE 1</th>
-                  <th style="text-align: center;">PUNTEGGIO</th>
-                  <th>GIOCATORE 2</th>
-                  <th>STATO</th>
-                  <th style="text-align: right;">AZIONI</th>
-                </tr>
-              </thead>
-              <tbody>
-                @for (p of partite(); track p.id) {
+        <!-- PRIMA RIGA: MODIFICA TORNEO E STATO -->
+        <div class="griglia-gestione">
+          <section class="pannello-admin">
+            <span class="sovratitolo">DETTAGLI</span>
+            <h2>Modifica torneo</h2>
+
+            <form (ngSubmit)="salvaModificheTorneo()">
+              <div class="campo">
+                <label for="modificaNome">Nome torneo</label>
+                <input
+                  id="modificaNome"
+                  type="text"
+                  name="modificaNome"
+                  [(ngModel)]="nuovoNome"
+                  required
+                />
+              </div>
+
+              <div class="campo">
+                <label for="modificaGioco">Gioco</label>
+                <input
+                  id="modificaGioco"
+                  type="text"
+                  name="modificaGioco"
+                  [(ngModel)]="nuovoGioco"
+                  required
+                />
+              </div>
+
+              <div class="campo">
+                <label for="modificaData">Data del torneo</label>
+                <input
+                  id="modificaData"
+                  type="date"
+                  name="modificaData"
+                  [(ngModel)]="nuovaData"
+                  required
+                />
+              </div>
+
+              <div class="campo">
+                <label for="modificaPosti">Posti massimi</label>
+                <input
+                  id="modificaPosti"
+                  type="number"
+                  name="modificaPosti"
+                  [(ngModel)]="nuoviPostiMax"
+                  min="2"
+                  required
+                />
+              </div>
+
+              <div class="campo">
+                <label for="modificaDescrizione">Descrizione</label>
+                <textarea
+                  id="modificaDescrizione"
+                  name="modificaDescrizione"
+                  [(ngModel)]="nuovaDescrizione"
+                  rows="3"
+                ></textarea>
+              </div>
+
+              <button type="submit" class="bottone-crea">
+                Salva modifiche
+              </button>
+            </form>
+          </section>
+
+          <section class="pannello-admin">
+            <span class="sovratitolo">ISCRIZIONI E AVANZAMENTO</span>
+            <h2>Stato del torneo</h2>
+
+            <p class="sub-titolo">
+              Stato attuale:
+              <strong>{{ torneo.stato | uppercase }}</strong>
+            </p>
+
+            <div class="azioni-stato">
+              <button
+                type="button"
+                class="btn-azione apri"
+                (click)="cambiaStato(torneo.id, 'aperto')"
+              >
+                Apri iscrizioni
+              </button>
+
+              <button
+                type="button"
+                class="btn-azione chiudi"
+                (click)="cambiaStato(torneo.id, 'chiuso')"
+              >
+                Chiudi iscrizioni
+              </button>
+
+              <button
+                type="button"
+                class="btn-azione elimina"
+                (click)="cambiaStato(torneo.id, 'concluso')"
+              >
+                Segna come concluso
+              </button>
+            </div>
+          </section>
+        </div>
+
+        <!-- SECONDA RIGA: PARTECIPANTI E PARTITE -->
+        <div class="griglia-gestione griglia-inferiore">
+          <!-- PARTECIPANTI -->
+          <section class="pannello-admin">
+            <span class="sovratitolo">ISCRIZIONI</span>
+            <h2>Lista partecipanti</h2>
+            <p class="sub-titolo">
+              Partecipanti iscritti a {{ torneo.nome }}.
+            </p>
+
+            <div class="contenitore-tabella-scrollabile">
+              <table class="tabella-admin">
+                <thead>
                   <tr>
-                    <td><strong>Turno {{ p.turno }}</strong></td>
-                    <td [style.font-weight]="p.vincitoreId === p.giocatore1.id ? 'bold' : 'normal'">
-                      👤 {{ p.giocatore1.nome }} {{ p.giocatore1.cognome }}
-                    </td>
-                    <td style="text-align: center; white-space: nowrap;">
-                      <input type="number" class="input-tabella" #p1Input [value]="p.punteggio1 ?? 0" style="width: 55px; text-align: center;" min="0" />
-                      <span style="margin: 0 4px;">-</span>
-                      <input type="number" class="input-tabella" #p2Input [value]="p.punteggio2 ?? 0" style="width: 55px; text-align: center;" min="0" />
-                    </td>
-                    <td [style.font-weight]="p.vincitoreId === p.giocatore2.id ? 'bold' : 'normal'">
-                      👤 {{ p.giocatore2.nome }} {{ p.giocatore2.cognome }}
-                    </td>
-                    <td>
-                      <span class="badge-stato" [class]="p.stato">{{ p.stato | uppercase }}</span>
-                    </td>
-                    <td style="text-align: right;">
-                      <button type="button" class="btn-salva-singolo" (click)="salvaRisultatoPartita(p.id, p1Input.value, p2Input.value)">
-                        Salva Risultato
-                      </button>
-                    </td>
+                    <th>Nome</th>
+                    <th>Cognome</th>
+                    <th>Email</th>
                   </tr>
-                }
-              </tbody>
-            </table>
-          </div>
-        } @else {
-          <div class="nessun-partecipante">
-            <p>Nessuna partita generata al momento per questo torneo.</p>
-            <button type="button" class="btn-azione apri" style="margin-top: 10px;" (click)="generaPartite()">
-               Genera Tabellone Accoppiamenti
+                </thead>
+
+                <tbody>
+                  @for (partecipante of partecipanti(); track partecipante.id) {
+                    <tr>
+                      <td>{{ partecipante.nome }}</td>
+                      <td>{{ partecipante.cognome }}</td>
+                      <td>{{ partecipante.email }}</td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="3">
+                        Nessun partecipante da visualizzare.
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <!-- PARTITE -->
+          <section class="pannello-admin">
+            <span class="sovratitolo">COMPETIZIONE</span>
+            <h2>Gestione partite</h2>
+            <p class="sub-titolo">
+              Genera il tabellone e aggiorna i risultati delle partite.
+            </p>
+
+            <button
+              type="button"
+              class="bottone-crea"
+              (click)="generaPartite()"
+            >
+              Genera tabellone
             </button>
-          </div>
-        }
+
+            <div class="contenitore-tabella-scrollabile">
+              <table class="tabella-admin">
+                <thead>
+                  <tr>
+                    <th>Giocatore 1</th>
+                    <th>Punteggio</th>
+                    <th>Giocatore 2</th>
+                    <th>Stato</th>
+                    <th>Salva</th>
+                  </tr>
+                </thead>
+
+                <tbody>
+                  @for (partita of partite(); track partita.id) {
+                    <tr>
+                      <td>
+                        {{ partita.giocatore1?.nome || 'Da assegnare' }}
+                      </td>
+
+                      <td>
+                        <div class="celle-azioni">
+                          <input
+                            #punteggio1
+                            class="input-tabella"
+                            type="number"
+                            min="0"
+                            aria-label="Punteggio giocatore 1"
+                            [value]="partita.punteggio1 ?? 0"
+                          />
+
+                          <span>-</span>
+
+                          <input
+                            #punteggio2
+                            class="input-tabella"
+                            type="number"
+                            min="0"
+                            aria-label="Punteggio giocatore 2"
+                            [value]="partita.punteggio2 ?? 0"
+                          />
+                        </div>
+                      </td>
+
+                      <td>
+                        {{ partita.giocatore2?.nome || 'Da assegnare' }}
+                      </td>
+
+                      <td>
+                        {{ partita.stato }}
+                      </td>
+
+                      <td>
+                        <button
+                          type="button"
+                          class="btn-azione seleziona"
+                          (click)="salvaRisultatoPartita(
+                            partita.id,
+                            punteggio1.value,
+                            punteggio2.value
+                          )"
+                        >
+                          Salva
+                        </button>
+                      </td>
+                    </tr>
+                  } @empty {
+                    <tr>
+                      <td colspan="5">
+                        Nessuna partita generata per questo torneo.
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          </section>
+        </div>
       </section>
     }
-  } @else {
-    <div class="stato-non-autorizzato">
-      <span class="icona-divieto">🚫</span>
-      <h2>Accesso Riservato</h2>
-      <p>Devi aver effettuato l'accesso con un account Amministratore per consultare questa pagina.</p>
-      <a routerLink="/" class="pulsante-home">Torna alla Home</a>
-    </div>
-  }
-</main>
+  </main>
+
+  <footer class="footer">
+    <p>© LazioDigitalGame — Piattaforma tornei gaming</p>
+  </footer>
+} @else {
+  <main class="stato-non-autorizzato">
+    <div class="icona-divieto">!</div>
+    <h1>Accesso non autorizzato</h1>
+    <p>Questa pagina è riservata agli amministratori.</p>
+
+    <a routerLink="/" class="pulsante-home">
+      Torna alla home
+    </a>
+  </main>
+}
