@@ -43,3 +43,11 @@ INSERT INTO partita (torneo_id, giocatore1, giocatore2, turno, dataora, punteggi
 (5, 16, 17, 1, '2026-09-01 10:00:00', 1, 0, 'completata'),
 (5, 18, 19, 1, '2026-09-01 11:00:00', 0, 1, 'completata'),
 (5, 16, 19, 2, '2026-09-02 16:00:00', 1, 0, 'completata');
+
+
+INSERT INTO configurazione (chiave, valore, descrizione) 
+VALUES (
+    'max_tornei_attivi_utente', 
+    '3', 
+    'Numero massimo di tornei contemporaneamente attivi a cui un utente puo iscriversi o rimanere in lista d attesa'
+);

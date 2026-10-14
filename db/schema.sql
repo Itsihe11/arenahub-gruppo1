@@ -53,3 +53,6 @@ CREATE TABLE partita (
   CONSTRAINT check_giocatori_diversi CHECK (giocatore1 <> giocatore2)
 );
 
+
+
+

@@ -53,5 +53,8 @@ CREATE TABLE partita (
   CONSTRAINT check_giocatori_diversi CHECK (giocatore1 <> giocatore2)
 );
 
-ALTER TABLE utente 
-ADD COLUMN max_tornei_attivi INTEGER NOT NULL DEFAULT 3;
+CREATE TABLE configurazione (
+    chiave VARCHAR(50) PRIMARY KEY,
+    valore VARCHAR(255) NOT NULL,
+    descrizione TEXT
+);
