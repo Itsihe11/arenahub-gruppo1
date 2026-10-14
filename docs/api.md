@@ -338,7 +338,6 @@ Numero massimo di iscrizioni per gli utenti. Accesso: admin.
 | Parametro | Dove | Tipo   | Obbligatorio |
 |-----------|------|--------|--------------|
 | Authorization | header | stringa | si|
-| id         | path | intero | si |
 
 **Risposta 200**
 { “maxTorneiAttivi”: 3 }
@@ -379,8 +378,7 @@ Modifica numero massimo di iscrizioni per gli utenti. Accesso: admin.
 | Parametro | Dove | Tipo   | Obbligatorio |
 |-----------|------|--------|--------------|
 | Authorization | header | stringa | si |
-| id         | path | intero | si |
-| maxTorneiAttivi | path | intero | si |
+| maxTorneiAttivi | body| intero | si |
 
 **Risposta 200**
 { “maxTorneiAttivi”: 3 }
