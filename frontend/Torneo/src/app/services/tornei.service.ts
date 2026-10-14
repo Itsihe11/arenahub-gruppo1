@@ -11,7 +11,7 @@ export interface Torneo {
   dataTorneo: string;
   postiMax: number;
   iscritti: number;
-  stato: 'aperto' | 'chiuso' | 'concluso';
+  stato: 'aperto' | 'chiuso';
   partecipantiIds?: number[];
   classificaFinale?: {
     utenteId: number;
@@ -59,7 +59,7 @@ export class TorneiService {
     });
   }
 
-  cambiaStatoTorneo(id: number, nuovoStato: 'aperto' | 'chiuso' | 'concluso'): void {
+  cambiaStatoTorneo(id: number, nuovoStato: 'aperto' | 'chiuso'): void {
     const torneoCorrente = this.getTorneoById(id);
     if (!torneoCorrente) return;
 

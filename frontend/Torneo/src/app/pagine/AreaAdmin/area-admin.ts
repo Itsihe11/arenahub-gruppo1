@@ -1,26 +1,25 @@
+
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { UpperCasePipe, SlicePipe } from '@angular/common';
+import { SlicePipe } from '@angular/common';
 
 import { AutenticazioneMockService } from '../../services/autenticazione.service';
 import { TorneiService, Torneo } from '../../services/tornei.service';
 import { PartiteService } from '../../services/partita.service';
 import { Utente } from '../../interfaces/utente.interface';
 
-type StatoTorneo = 'aperto' | 'chiuso' | 'concluso';
+type StatoTorneo = 'aperto' | 'chiuso';
 
 @Component({
   selector: 'app-area-admin',
   standalone: true,
-  imports: [RouterLink, FormsModule, UpperCasePipe, SlicePipe],
+  imports: [RouterLink, FormsModule, SlicePipe],
   templateUrl: './area-admin.html',
   styleUrl: './area-admin.css'
 })
 export class AreaAdmin {
-  private readonly autenticazioneService =
-    inject(AutenticazioneMockService);
-
+  private readonly autenticazioneService = inject(AutenticazioneMockService);
   private readonly torneiService = inject(TorneiService);
   private readonly partitaService = inject(PartiteService);
   private readonly router = inject(Router);
@@ -32,14 +31,12 @@ export class AreaAdmin {
   readonly torneoSelezionato = signal<Torneo | null>(null);
   readonly modalitaModifica = signal(false);
 
-  // Campi per creare un nuovo torneo
   nuovoNome = '';
   nuovoGioco = '';
   nuovaData = '';
   nuoviPostiMax = 16;
   nuovaDescrizione = '';
 
-  // Campi per modificare il torneo selezionato
   modificaNome = '';
   modificaGioco = '';
   modificaData = '';
@@ -47,7 +44,6 @@ export class AreaAdmin {
   modificaDescrizione = '';
   modificaStato: StatoTorneo = 'aperto';
 
-  // Partecipanti presenti nei dati mock salvati nel browser
   get partecipantiSelezionati(): Utente[] {
     const torneo = this.torneoSelezionato();
 
@@ -72,7 +68,6 @@ export class AreaAdmin {
     }
   }
 
-  // CREA TORNEO
   creaTorneo(): void {
     if (
       !this.nuovoNome.trim() ||
@@ -99,12 +94,10 @@ export class AreaAdmin {
     this.nuovaDescrizione = '';
   }
 
-  // SELEZIONA UN TORNEO
   selezionaTorneo(torneo: Torneo): void {
     this.torneoSelezionato.set(torneo);
     this.modalitaModifica.set(false);
     this.caricaDatiModifica(torneo);
-
     this.partitaService.caricaPartiteTorneo(torneo.id);
   }
 
@@ -114,10 +107,12 @@ export class AreaAdmin {
     this.modificaData = torneo.dataTorneo?.slice(0, 10) ?? '';
     this.modificaPostiMax = torneo.postiMax;
     this.modificaDescrizione = torneo.descrizione ?? '';
-    this.modificaStato = torneo.stato;
+
+    // Nell'area admin sono ammessi soltanto gli stati aperto e chiuso.
+    this.modificaStato =
+      torneo.stato === 'aperto' ? 'aperto' : 'chiuso';
   }
 
-  // ATTIVA LA MODIFICA
   attivaModifica(): void {
     const torneo = this.torneoSelezionato();
 
@@ -129,7 +124,6 @@ export class AreaAdmin {
     this.modalitaModifica.set(true);
   }
 
-  // ANNULLA LA MODIFICA
   annullaModifica(): void {
     this.modalitaModifica.set(false);
 
@@ -140,7 +134,6 @@ export class AreaAdmin {
     }
   }
 
-  // SALVA LE MODIFICHE
   salvaModificheTorneo(): void {
     const torneo = this.torneoSelezionato();
 
@@ -155,31 +148,32 @@ export class AreaAdmin {
       !this.modificaData ||
       this.modificaPostiMax < 2
     ) {
-      alert('Compila i campi obbligatori e inserisci almeno 2 posti.');
+      alert('Controlla i campi obbligatori e inserisci almeno 2 posti.');
       return;
     }
 
-    const datiAggiornati: Partial<Torneo> = {
+    this.torneiService.modificaTorneo(torneo.id, {
       nome: this.modificaNome.trim(),
       gioco: this.modificaGioco.trim(),
       dataTorneo: this.modificaData,
       postiMax: this.modificaPostiMax,
       descrizione: this.modificaDescrizione.trim(),
       stato: this.modificaStato
-    };
+    });
 
-    this.torneiService.modificaTorneo(torneo.id, datiAggiornati);
-
-    // Aggiorna subito la visualizzazione locale
     this.torneoSelezionato.set({
       ...torneo,
-      ...datiAggiornati
+      nome: this.modificaNome.trim(),
+      gioco: this.modificaGioco.trim(),
+      dataTorneo: this.modificaData,
+      postiMax: this.modificaPostiMax,
+      descrizione: this.modificaDescrizione.trim(),
+      stato: this.modificaStato
     });
 
     this.modalitaModifica.set(false);
   }
 
-  // CAMBIA STATO
   cambiaStato(id: number, nuovoStato: StatoTorneo): void {
     this.torneiService.cambiaStatoTorneo(id, nuovoStato);
 
@@ -195,7 +189,6 @@ export class AreaAdmin {
     }
   }
 
-  // ELIMINA TORNEO
   elimina(id: number): void {
     if (!confirm('Sei sicuro di voler eliminare questo torneo?')) {
       return;
@@ -210,14 +203,12 @@ export class AreaAdmin {
     }
   }
 
-  // CHIUDE LA GESTIONE DEL TORNEO
   deselezionaTorneo(): void {
     this.torneoSelezionato.set(null);
     this.modalitaModifica.set(false);
     this.partitaService.partite.set([]);
   }
 
-  // GENERA IL TABELLONE
   generaPartite(): void {
     const torneo = this.torneoSelezionato();
 
@@ -225,12 +216,7 @@ export class AreaAdmin {
       return;
     }
 
-    const uid = this.utenteCorrente()?.id;
-
-    if (uid == null) {
-      alert('Non è stato possibile identificare l’amministratore.');
-      return;
-    }
+    const uid = this.utenteCorrente()?.id ?? 1;
 
     this.partitaService.generaTabellone(torneo.id, uid).subscribe({
       next: () => {
@@ -250,7 +236,6 @@ export class AreaAdmin {
     });
   }
 
-  // SALVA IL RISULTATO DI UNA PARTITA
   salvaRisultatoPartita(
     partitaId: number,
     p1Val: string | number,
@@ -271,11 +256,6 @@ export class AreaAdmin {
       alert(
         'Inserisci punteggi validi e non negativi per entrambi i giocatori.'
       );
-      return;
-    }
-
-    if (uidCorrente == null) {
-      alert('Non è stato possibile identificare l’amministratore.');
       return;
     }
 
@@ -312,7 +292,6 @@ export class AreaAdmin {
       });
   }
 
-  // USCITA
   esci(): void {
     this.autenticazioneService.esci();
     this.router.navigate(['/login']);

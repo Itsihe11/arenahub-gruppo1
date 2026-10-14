@@ -50,7 +50,7 @@ export class AreaUtente implements OnInit {
 
   readonly torneiCompletatiCount = computed(() =>
     this.mieiTornei().filter(
-      torneo => torneo.stato === 'concluso' || torneo.stato === 'chiuso'
+      torneo => torneo.stato === 'chiuso'
     ).length
   );
 
