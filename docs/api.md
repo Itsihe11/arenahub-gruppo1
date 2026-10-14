@@ -327,3 +327,166 @@ Modifica un torneo esistente. Accesso: admin.
 | 409 | postiMax inferiore al numero di iscritti attuali                                    | {"errore": "Posti insufficienti"} |
 | 409 | torneo concluso (modifica non ammessa)                                              | {"errore": "Torneo concluso"} |
 
+
+—------------------------------------------------------------------------------------------------------------------------
+
+
+CHANGE REQUEST
+## GET /api/admin/maxTornei
+Numero massimo di iscrizioni per gli utenti. Accesso: admin.
+
+| Parametro | Dove | Tipo   | Obbligatorio |
+|-----------|------|--------|--------------|
+| Authorization | header | stringa | si|
+| id         | path | intero | si |
+
+**Risposta 200**
+{ “maxTorneiAttivi”: 3 }
+
+**Errori**
+| 401 | token mancante o non valido | {"errore": "Non autenticato"} |
+| 403 | utente senza ruolo admin    | {"errore": "Accesso negato"} |
+
+—------------------------------------------------------------------------------------------------------------------------
+
+
+## GET /api/utente/me/statoIscrizione
+
+Numero massimo di iscrizioni per il singolo utente. Accesso: utente autenticato.
+
+| Parametro | Dove | Tipo   | Obbligatorio |
+|-----------|------|--------|--------------|
+| Authorization | header | stringa | si|
+
+**Risposta 200**
+{ “torneiAttiviConteggiati”: 3, “limiteMassimo”: 3, “canRegister”: false }
+
+**Errori**
+| 401 | token mancante o non valido | {"errore": "Non autenticato"} |
+| 404 | id utente inesistente | {"errore": "Utente non trovato"} |
+
+
+—------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+## PUT /api/admin/maxTornei
+Modifica numero massimo di iscrizioni per gli utenti. Accesso: admin.
+
+| Parametro | Dove | Tipo   | Obbligatorio |
+|-----------|------|--------|--------------|
+| Authorization | header | stringa | si |
+| id         | path | intero | si |
+| maxTorneiAttivi | path | intero | si |
+
+**Risposta 200**
+{ “maxTorneiAttivi”: 3 }
+
+**Errori**
+| 400 | numero mancante o non valido | {"errore": "Numero mancante o non valido"} |
+| 401 | token mancante o non valido | {"errore": "Non autenticato"} |
+| 403 | utente senza ruolo admin    | {"errore": "Accesso negato"} |
+
+—------------------------------------------------------------------------------------------------------------------------
+
+INTEGRAZIONE TABELLA PARTITE
+
+
+
+## GET /api/partite/torneo/{torneoId}
+Lista delle partite di un torneo (tabellone). Accesso: pubblico.
+
+| Parametro | Dove | Tipo   | Obbligatorio |
+|-----------|------|--------|--------------|
+| torneoId  | path | intero | si           |
+
+**Risposta 200**
+[ { "id": 1, "torneoId": 3, "turno": 1,
+    "giocatore1": { "id": 1, "nome": "mario", "cognome": "rossi" },
+    "giocatore2": { "id": 4, "nome": "luigi", "cognome": "bianchi" },
+    "punteggio1": 2, "punteggio2": 1, "stato": "completata" },
+  { "id": 2, "torneoId": 3, "turno": 1,
+    "giocatore1": { "id": 5, "nome": "anna", "cognome": "verdi" },
+    "giocatore2": { "id": 6, "nome": "paolo", "cognome": "neri" },
+    "punteggio1": null, "punteggio2": null, "stato": "da_giocare" } ]
+
+
+**Errori**
+| 400 | torneoId non numerico | {"errore": "Id non valido"} |
+| 404 | torneo inesistente    | {"errore": "Torneo non trovato"} |
+
+—------------------------------------------------------------------------------------------------------------------------
+
+## POST /api/partite/genera/{torneoId}
+Genera il tabellone (accoppiamenti) di un torneo. Accesso: admin.
+
+| Parametro     | Dove   | Tipo    | Obbligatorio |
+|---------------|--------|---------|--------------|
+| Authorization | header | stringa | si           |
+| torneoId      | path   | intero  | si           |
+
+**Risposta 201**
+[ { "id": 1, "torneoId": 3, "turno": 1,
+    "giocatore1": { "id": 1, "nome": "mario", "cognome": "rossi" },
+    "giocatore2": { "id": 4, "nome": "luigi", "cognome": "bianchi" },
+    "punteggio1": null, "punteggio2": null, "stato": "da_giocare" } ]
+
+**Errori**
+| 400 | torneoId non numerico                          | {"errore": "Id non valido"} |
+| 401 | token mancante o non valido                    | {"errore": "Non autenticato"} |
+| 403 | utente senza ruolo admin                       | {"errore": "Accesso negato"} |
+| 404 | torneo inesistente                             | {"errore": "Torneo non trovato"} |
+| 409 | tabellone già generato per questo torneo       | {"errore": "Tabellone già generato"} |
+| 409 | iscritti insufficienti (meno di 2)             | {"errore": "Iscritti insufficienti"} |
+| 409 | torneo concluso                                | {"errore": "Torneo concluso"} |
+
+—------------------------------------------------------------------------------------------------------------------------
+
+## PUT /api/partite/{id}/risultato
+Salva il risultato di una singola partita. Accesso: admin.
+
+| Parametro     | Dove   | Tipo    | Obbligatorio |
+|---------------|--------|---------|--------------|
+| Authorization | header | stringa | si           |
+| id            | path   | intero  | si           |
+| punteggio1    | body   | intero  | si           |
+| punteggio2    | body   | intero  | si           |
+| stato         | body   | stringa | no (default: completata) |
+
+Stati ammessi: da_giocare, completata.
+
+**Risposta 200**
+{ "id": 1, "torneoId": 3, "turno": 1,
+  "utente1": { "id": 1, "nome": "mario", "cognome": "rossi" },
+  "utente2": { "id": 4, "nome": "luigi", "cognome": "bianchi" },
+  "punteggio1": 2, "punteggio2": 1, "stato": "completata" }
+
+**Errori**
+| 400 | id non numerico, punteggio mancante, non numerico o negativo, stato non ammesso | {"errore": "Dati non validi"} |
+| 401 | token mancante o non valido                                                     | {"errore": "Non autenticato"} |
+| 403 | utente senza ruolo admin                                                        | {"errore": "Accesso negato"} |
+| 404 | id partita inesistente                                                          | {"errore": "Partita non trovata"} |
+| 409 | torneo concluso (modifica non ammessa)                                          | {"errore": "Torneo concluso"} |
+
+—------------------------------------------------------------------------------------------------------------------------
+
+## DELETE /api/partite/reset/{torneoId}
+Elimina tutte le partite del torneo e riporta il tabellone allo stato iniziale. Accesso: admin.
+
+| Parametro     | Dove   | Tipo    | Obbligatorio |
+|---------------|--------|---------|--------------|
+| Authorization | header | stringa | si           |
+| torneoId      | path   | intero  | si           |
+
+**Risposta 200**
+
+**Errori**
+| 400 | torneoId non numerico       | {"errore": "Id non valido"} |
+| 401 | token mancante o non valido | {"errore": "Non autenticato"} |
+| 403 | utente senza ruolo admin    | {"errore": "Accesso negato"} |
+| 404 | torneo inesistente          | {"errore": "Torneo non trovato"} |
+| 409 | torneo concluso (reset non ammesso) | {"errore": "Torneo concluso"} |
+

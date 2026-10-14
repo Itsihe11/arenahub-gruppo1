@@ -39,6 +39,9 @@ public interface IscrizioneRepository extends JpaRepository<Iscrizione, Integer>
 	@Query("DELETE FROM Iscrizione i WHERE i.torneo.id = :torneoId")
 	void deleteByTorneoId(@Param("torneoId") int torneoId);
 	
+	@Query("SELECT i FROM Iscrizione i WHERE i.torneo.id = :torneoId ORDER BY i.data, i.id")
+	List<Iscrizione> findByTorneoIdOrdinate(@Param("torneoId") int torneoId);
+	
 	
 	
 	
