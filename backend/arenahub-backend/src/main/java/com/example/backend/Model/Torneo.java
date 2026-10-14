@@ -39,7 +39,7 @@ public class Torneo {
 
     @Column(name = "data_inizio_torneo")
     @JsonProperty("dataTorneo")
-    private LocalDate dataInizioTorneo;
+    private LocalDate dataTorneo;
 
     private String stato;
 
@@ -52,14 +52,14 @@ public class Torneo {
     }
 
     public Torneo(String nome, String gioco, String descrizione, LocalDate dataInizioIscrizione,
-            LocalDate dataFineIscrizione, Integer maxPartecipanti, LocalDate dataInizioTorneo, String stato) {
+            LocalDate dataFineIscrizione, Integer maxPartecipanti, LocalDate dataTorneo, String stato) {
         this.nome = nome;
         this.gioco = gioco;
         this.descrizione = descrizione;
         this.dataInizioIscrizione = dataInizioIscrizione;
         this.dataFineIscrizione = dataFineIscrizione;
         this.maxPartecipanti = maxPartecipanti;
-        this.dataInizioTorneo = dataInizioTorneo;
+        this.dataTorneo = dataTorneo;
         this.stato = stato;
     }
 
@@ -119,12 +119,12 @@ public class Torneo {
         this.maxPartecipanti = maxPartecipanti;
     }
 
-    public LocalDate getDataInizioTorneo() {
-        return dataInizioTorneo;
+    public LocalDate getDataTorneo() {
+        return dataTorneo;
     }
 
-    public void setDataInizioTorneo(LocalDate dataInizioTorneo) {
-        this.dataInizioTorneo = dataInizioTorneo;
+    public void setDataTorneo(LocalDate dataTorneo) {
+        this.dataTorneo = dataTorneo;
     }
 
     public String getStato() {
