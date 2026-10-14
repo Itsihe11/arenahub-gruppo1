@@ -64,7 +64,6 @@ public class PartitaServices {
                         "Nessun turno generabile: iscritti insufficienti (< 2). Il torneo è stato impostato su 'chiuso'.");
             }
 
-            torneo.setStato("in corso");
             torneoRepo.save(torneo);
 
             List<Utente> giocatoriShuffled = new ArrayList<>(iscritti);

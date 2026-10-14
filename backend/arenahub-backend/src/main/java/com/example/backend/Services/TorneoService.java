@@ -21,7 +21,7 @@ import jakarta.transaction.Transactional;
 
 @Service
 public class TorneoService {
-    private static final Set<String> STATI = Set.of("aperto", "chiuso", "concluso");
+    private static final Set<String> STATI = Set.of("aperto", "chiuso");
     private final TorneoRepository tornei;
     private final IscrizioneRepository iscrizioni;
     private final UtenteService utenti;
