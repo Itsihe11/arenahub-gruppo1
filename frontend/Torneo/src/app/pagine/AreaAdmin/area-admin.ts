@@ -1,5 +1,4 @@
-
-import { Component, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SlicePipe } from '@angular/common';
@@ -43,6 +42,21 @@ export class AreaAdmin {
   modificaPostiMax = 16;
   modificaDescrizione = '';
   modificaStato: StatoTorneo = 'aperto';
+
+  readonly limiteCorrente = this.torneiService.limiteTorneiPerGiocatore;
+  readonly salvataggioLimiteInCorso = signal(false);
+  readonly messaggioLimite = signal<{ tipo: 'ok' | 'errore'; testo: string } | null>(null);
+
+  limiteInput = 3;
+
+  constructor() {
+    effect(() => {
+      const limite = this.limiteCorrente();
+      if (limite !== null) {
+        this.limiteInput = limite;
+      }
+    });
+  }
 
   get partecipantiSelezionati(): Utente[] {
     const torneo = this.torneoSelezionato();
@@ -229,7 +243,7 @@ export class AreaAdmin {
           typeof err?.error === 'string'
             ? err.error
             : err?.error?.message ||
-              'Impossibile generare il tabellone.';
+            'Impossibile generare il tabellone.';
 
         alert(messaggio);
       }
@@ -285,7 +299,7 @@ export class AreaAdmin {
             typeof err?.error === 'string'
               ? err.error
               : err?.error?.message ||
-                'Impossibile salvare il risultato.';
+              'Impossibile salvare il risultato.';
 
           alert('Errore: ' + messaggio);
         }
@@ -295,5 +309,36 @@ export class AreaAdmin {
   esci(): void {
     this.autenticazioneService.esci();
     this.router.navigate(['/login']);
+  }
+
+  salvaLimite(): void {
+    const valore = Number(this.limiteInput);
+
+    if (!Number.isInteger(valore) || valore < 1) {
+      this.messaggioLimite.set({
+        tipo: 'errore',
+        testo: 'Inserisci un numero intero maggiore di zero.'
+      });
+      return;
+    }
+
+    this.salvataggioLimiteInCorso.set(true);
+    this.messaggioLimite.set(null);
+
+    this.torneiService.salvaLimite(valore).subscribe({
+      next: () => {
+        this.torneiService.impostaLimiteLocale(valore);
+        this.salvataggioLimiteInCorso.set(false);
+        this.messaggioLimite.set({ tipo: 'ok', testo: 'Limite salvato.' });
+      },
+      error: err => {
+        console.error('Errore durante il salvataggio del limite:', err);
+        this.salvataggioLimiteInCorso.set(false);
+        this.messaggioLimite.set({
+          tipo: 'errore',
+          testo: 'Impossibile salvare il limite. Il servizio non è ancora disponibile?'
+        });
+      }
+    });
   }
 }

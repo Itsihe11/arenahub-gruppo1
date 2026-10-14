@@ -35,10 +35,36 @@
 
   @if (utenteCorrente()?.ruolo === 'admin') {
   <main class="contenuto-admin">
-    <section class="introduzione">
-      <p class="sovratitolo">AREA RISERVATA</p>
-      <h1>Pannello amministratore</h1>
-      <p>Gestisci tornei, iscrizioni e risultati delle partite.</p>
+        <section class="introduzione introduzione-con-limite">
+      <div class="introduzione-testo">
+        <p class="sovratitolo">AREA RISERVATA</p>
+        <h1>Pannello amministratore</h1>
+        <p>Gestisci tornei, iscrizioni e risultati delle partite.</p>
+      </div>
+
+      <form class="limite-tornei" (ngSubmit)="salvaLimite()">
+        <label for="limiteInput">Limite tornei per giocatore</label>
+
+        <div class="limite-tornei-riga">
+          <input id="limiteInput" name="limiteInput" type="number" min="1" step="1"
+            [(ngModel)]="limiteInput" [disabled]="salvataggioLimiteInCorso()" />
+
+          <button type="submit" class="btn-principale" [disabled]="salvataggioLimiteInCorso()">
+            {{ salvataggioLimiteInCorso() ? 'Salvataggio...' : 'Salva limite' }}
+          </button>
+        </div>
+
+        <small class="limite-tornei-nota">
+          Tornei attivi contemporaneamente per giocatore.
+        </small>
+
+        @if (messaggioLimite(); as msg) {
+        <small class="limite-tornei-messaggio" [class.ok]="msg.tipo === 'ok'"
+          [class.errore]="msg.tipo === 'errore'" role="status">
+          {{ msg.testo }}
+        </small>
+        }
+      </form>
     </section>
 
     <section class="sezione-admin">

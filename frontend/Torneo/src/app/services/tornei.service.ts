@@ -20,6 +20,14 @@ export interface Torneo {
   }[];
 }
 
+/**
+ * Struttura prevista per il limite globale di tornei per giocatore.
+ * Da adattare alla risposta effettiva del backend.
+ */
+export interface LimiteTornei {
+  limite: number;
+}
+
 @Injectable({
   providedIn: 'root'
 })
@@ -28,10 +36,22 @@ export class TorneiService {
   private readonly authService = inject(AutenticazioneMockService);
   private readonly apiUrl = 'http://localhost:8080/api/tornei';
 
+  /**
+   * TODO: sostituire con l'endpoint definitivo fornito dal team backend.
+   */
+  private readonly limiteUrl = 'http://localhost:8080/api/impostazioni/limite-tornei';
+
   readonly tornei = signal<Torneo[]>([]);
+
+  /**
+   * Limite globale di tornei attivi per giocatore.
+   * null = non ancora caricato (o endpoint non disponibile).
+   */
+  readonly limiteTorneiPerGiocatore = signal<number | null>(null);
 
   constructor() {
     this.caricaTornei();
+    this.caricaLimite();
   }
 
   caricaTornei(): void {
@@ -81,7 +101,6 @@ export class TorneiService {
     });
   }
 
-
   modificaTorneo(id: number, dati: Partial<Torneo>): void {
     const uid = this.authService.utenteCorrente()?.id;
 
@@ -98,10 +117,8 @@ export class TorneiService {
     });
   }
 
-
-
   iscriviUtente(torneoId: number, utenteId: number): void {
-    this.http.post<void>(`http://localhost:8080/api/iscrizioni`, { torneoId, utenteId }).subscribe({
+    this.http.post<void>('http://localhost:8080/api/iscrizioni', { torneoId, utenteId }).subscribe({
       next: () => {
         this.caricaTornei();
         this.aggiornaIscrizioneUtente(utenteId, torneoId, true);
@@ -128,10 +145,41 @@ export class TorneiService {
   ): void {
     const payload = { torneoId, utenteId, posizione, punteggio };
 
-    this.http.post<void>(`http://localhost:8080/api/partite/risultato`, payload).subscribe({
+    this.http.post<void>('http://localhost:8080/api/partite/risultato', payload).subscribe({
       next: () => this.caricaTornei(),
       error: (err) => console.error('Errore durante il salvataggio del risultato:', err)
     });
+  }
+
+  // ===== LIMITE GLOBALE TORNEI PER GIOCATORE =====
+
+  /**
+   * Legge il limite dal backend e lo salva nel signal.
+   * Se l'endpoint non esiste ancora, logga l'errore e lascia il valore a null.
+   */
+  caricaLimite(): void {
+    this.http.get<LimiteTornei>(this.limiteUrl).subscribe({
+      next: (data) => this.limiteTorneiPerGiocatore.set(data.limite),
+      error: (err) => console.warn('Limite tornei non disponibile (endpoint non ancora pronto?):', err)
+    });
+  }
+
+  /**
+   * Salva il nuovo limite sul backend.
+   * Restituisce un Observable così il componente può mostrare
+   * un messaggio di successo o di errore.
+   * Il backend dovrà accettare PUT con payload { limite: number }.
+   */
+  salvaLimite(limite: number): Observable<LimiteTornei> {
+    return this.http.put<LimiteTornei>(this.limiteUrl, { limite });
+  }
+
+  /**
+   * Da chiamare dal componente dopo un salvataggio riuscito,
+   * per aggiornare subito il valore mostrato.
+   */
+  impostaLimiteLocale(limite: number): void {
+    this.limiteTorneiPerGiocatore.set(limite);
   }
 
   private aggiornaIscrizioneUtente(utenteId: number, torneoId: number, iscrivi: boolean): void {
