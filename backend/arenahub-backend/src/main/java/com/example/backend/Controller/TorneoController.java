@@ -62,7 +62,7 @@ public class TorneoController {
     		@RequestParam(required = false) String stato,
     		@RequestParam(required = false) String gioco,
     		@RequestParam(required = false) String data) {
-        return torneoService.elenco(stato);
+        return torneoService.elenco(stato, gioco, data);
     }
 
     @GetMapping("/{id}")

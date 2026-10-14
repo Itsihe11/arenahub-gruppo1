@@ -43,13 +43,28 @@ public class TorneoService {
         tornei.delete(t);
     }
 
-    public List<Map<String, Object>> elenco(String stato) {
+    public List<Map<String, Object>> elenco(String stato, String gioco, String data) {
         if (stato != null && !STATI.contains(stato))
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Stato non valido");
-        List<Torneo> lista = (stato == null)
-                ? tornei.findAllByOrderByDataTorneo()
-                : tornei.findByStatoOrderByDataTorneo(stato);
-        return conIscritti(lista);
+
+        LocalDate giorno = null;
+        if (data != null) {
+            try {
+                giorno = LocalDate.parse(solaData(data));
+            } catch (DateTimeParseException e) {
+                throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dati non validi");
+            }
+        }
+
+        List<Torneo> lista = (stato == null) ? tornei.findAll() : tornei.findByStato(stato);
+
+        List<Torneo> filtrati = new ArrayList<>();
+        for (Torneo t : lista) {
+            if (gioco != null && !gioco.equalsIgnoreCase(t.getGioco())) continue;
+            if (giorno != null && !giorno.equals(t.getDataTorneo())) continue;
+            filtrati.add(t);
+        }
+        return conIscritti(filtrati);
     }
 
     public Map<String, Object> dettaglio(int id) {

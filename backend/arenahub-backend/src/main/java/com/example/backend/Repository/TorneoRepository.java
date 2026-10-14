@@ -16,6 +16,8 @@ public interface TorneoRepository extends JpaRepository<Torneo, Integer> {
 	List<Torneo> findAllByOrderByDataTorneo();
 
 	List<Torneo> findByStatoOrderByDataTorneo(String stato);
+	
+	List<Torneo> findByStato(String stato);
 
 	Optional<Torneo> findById(int id);
 	
