@@ -20,7 +20,7 @@ public class UtenteController {
         this.service = service;
     }
 
-    @PostMapping("/login")
+    @PostMapping("/utenti/login")
     public Map<String, Object> login(@RequestBody Map<String, Object> body) {
         return service.login(body);
     }
