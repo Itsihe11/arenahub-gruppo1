@@ -1,22 +1,26 @@
 import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { UpperCasePipe } from '@angular/common';
+import { UpperCasePipe, SlicePipe } from '@angular/common';
 
 import { AutenticazioneMockService } from '../../services/autenticazione.service';
 import { TorneiService, Torneo } from '../../services/tornei.service';
 import { PartiteService } from '../../services/partita.service';
 import { Utente } from '../../interfaces/utente.interface';
 
+type StatoTorneo = 'aperto' | 'chiuso' | 'concluso';
+
 @Component({
   selector: 'app-area-admin',
   standalone: true,
-  imports: [RouterLink, FormsModule, UpperCasePipe],
+  imports: [RouterLink, FormsModule, UpperCasePipe, SlicePipe],
   templateUrl: './area-admin.html',
   styleUrl: './area-admin.css'
 })
 export class AreaAdmin {
-  private readonly autenticazioneService = inject(AutenticazioneMockService);
+  private readonly autenticazioneService =
+    inject(AutenticazioneMockService);
+
   private readonly torneiService = inject(TorneiService);
   private readonly partitaService = inject(PartiteService);
   private readonly router = inject(Router);
@@ -28,19 +32,22 @@ export class AreaAdmin {
   readonly torneoSelezionato = signal<Torneo | null>(null);
   readonly modalitaModifica = signal(false);
 
+  // Campi per creare un nuovo torneo
   nuovoNome = '';
   nuovoGioco = '';
   nuovaData = '';
   nuoviPostiMax = 16;
   nuovaDescrizione = '';
 
+  // Campi per modificare il torneo selezionato
   modificaNome = '';
   modificaGioco = '';
   modificaData = '';
   modificaPostiMax = 16;
   modificaDescrizione = '';
-  modificaStato: 'aperto' | 'chiuso' = 'aperto';
+  modificaStato: StatoTorneo = 'aperto';
 
+  // Partecipanti presenti nei dati mock salvati nel browser
   get partecipantiSelezionati(): Utente[] {
     const torneo = this.torneoSelezionato();
 
@@ -65,6 +72,7 @@ export class AreaAdmin {
     }
   }
 
+  // CREA TORNEO
   creaTorneo(): void {
     if (
       !this.nuovoNome.trim() ||
@@ -91,20 +99,25 @@ export class AreaAdmin {
     this.nuovaDescrizione = '';
   }
 
+  // SELEZIONA UN TORNEO
   selezionaTorneo(torneo: Torneo): void {
     this.torneoSelezionato.set(torneo);
     this.modalitaModifica.set(false);
+    this.caricaDatiModifica(torneo);
 
+    this.partitaService.caricaPartiteTorneo(torneo.id);
+  }
+
+  private caricaDatiModifica(torneo: Torneo): void {
     this.modificaNome = torneo.nome;
     this.modificaGioco = torneo.gioco;
     this.modificaData = torneo.dataTorneo?.slice(0, 10) ?? '';
     this.modificaPostiMax = torneo.postiMax;
     this.modificaDescrizione = torneo.descrizione ?? '';
-    this.modificaStato = torneo.stato === 'aperto' ? 'aperto' : 'chiuso';
-
-    this.partitaService.caricaPartiteTorneo(torneo.id);
+    this.modificaStato = torneo.stato;
   }
 
+  // ATTIVA LA MODIFICA
   attivaModifica(): void {
     const torneo = this.torneoSelezionato();
 
@@ -112,31 +125,22 @@ export class AreaAdmin {
       return;
     }
 
-    this.modificaNome = torneo.nome;
-    this.modificaGioco = torneo.gioco;
-    this.modificaData = torneo.dataTorneo?.slice(0, 10) ?? '';
-    this.modificaPostiMax = torneo.postiMax;
-    this.modificaDescrizione = torneo.descrizione ?? '';
-    this.modificaStato = torneo.stato === 'aperto' ? 'aperto' : 'chiuso';
-
+    this.caricaDatiModifica(torneo);
     this.modalitaModifica.set(true);
   }
 
+  // ANNULLA LA MODIFICA
   annullaModifica(): void {
     this.modalitaModifica.set(false);
 
     const torneo = this.torneoSelezionato();
 
     if (torneo) {
-      this.modificaNome = torneo.nome;
-      this.modificaGioco = torneo.gioco;
-      this.modificaData = torneo.dataTorneo?.slice(0, 10) ?? '';
-      this.modificaPostiMax = torneo.postiMax;
-      this.modificaDescrizione = torneo.descrizione ?? '';
-      this.modificaStato = torneo.stato === 'aperto' ? 'aperto' : 'chiuso';
+      this.caricaDatiModifica(torneo);
     }
   }
 
+  // SALVA LE MODIFICHE
   salvaModificheTorneo(): void {
     const torneo = this.torneoSelezionato();
 
@@ -145,20 +149,38 @@ export class AreaAdmin {
       return;
     }
 
-    const datiAggiornati = {
-      nome: this.nuovoNome,
-      gioco: this.nuovoGioco,
-      dataTorneo: this.nuovaData,
-      postiMax: this.nuoviPostiMax,
-      descrizione: this.nuovaDescrizione,
-      stato: torneo.stato
+    if (
+      !this.modificaNome.trim() ||
+      !this.modificaGioco.trim() ||
+      !this.modificaData ||
+      this.modificaPostiMax < 2
+    ) {
+      alert('Compila i campi obbligatori e inserisci almeno 2 posti.');
+      return;
+    }
+
+    const datiAggiornati: Partial<Torneo> = {
+      nome: this.modificaNome.trim(),
+      gioco: this.modificaGioco.trim(),
+      dataTorneo: this.modificaData,
+      postiMax: this.modificaPostiMax,
+      descrizione: this.modificaDescrizione.trim(),
+      stato: this.modificaStato
     };
 
     this.torneiService.modificaTorneo(torneo.id, datiAggiornati);
+
+    // Aggiorna subito la visualizzazione locale
+    this.torneoSelezionato.set({
+      ...torneo,
+      ...datiAggiornati
+    });
+
+    this.modalitaModifica.set(false);
   }
 
-
-  cambiaStato(id: number, nuovoStato: 'aperto' | 'chiuso'): void {
+  // CAMBIA STATO
+  cambiaStato(id: number, nuovoStato: StatoTorneo): void {
     this.torneiService.cambiaStatoTorneo(id, nuovoStato);
 
     const selezionato = this.torneoSelezionato();
@@ -173,6 +195,7 @@ export class AreaAdmin {
     }
   }
 
+  // ELIMINA TORNEO
   elimina(id: number): void {
     if (!confirm('Sei sicuro di voler eliminare questo torneo?')) {
       return;
@@ -183,15 +206,18 @@ export class AreaAdmin {
     if (this.torneoSelezionato()?.id === id) {
       this.torneoSelezionato.set(null);
       this.modalitaModifica.set(false);
+      this.partitaService.partite.set([]);
     }
   }
 
+  // CHIUDE LA GESTIONE DEL TORNEO
   deselezionaTorneo(): void {
     this.torneoSelezionato.set(null);
     this.modalitaModifica.set(false);
     this.partitaService.partite.set([]);
   }
 
+  // GENERA IL TABELLONE
   generaPartite(): void {
     const torneo = this.torneoSelezionato();
 
@@ -199,7 +225,12 @@ export class AreaAdmin {
       return;
     }
 
-    const uid = this.utenteCorrente()?.id ?? 1;
+    const uid = this.utenteCorrente()?.id;
+
+    if (uid == null) {
+      alert('Non è stato possibile identificare l’amministratore.');
+      return;
+    }
 
     this.partitaService.generaTabellone(torneo.id, uid).subscribe({
       next: () => {
@@ -212,13 +243,14 @@ export class AreaAdmin {
           typeof err?.error === 'string'
             ? err.error
             : err?.error?.message ||
-            'Impossibile generare il tabellone.';
+              'Impossibile generare il tabellone.';
 
         alert(messaggio);
       }
     });
   }
 
+  // SALVA IL RISULTATO DI UNA PARTITA
   salvaRisultatoPartita(
     partitaId: number,
     p1Val: string | number,
@@ -236,7 +268,14 @@ export class AreaAdmin {
       p1 < 0 ||
       p2 < 0
     ) {
-      alert('Inserisci punteggi validi e non negativi per entrambi i giocatori.');
+      alert(
+        'Inserisci punteggi validi e non negativi per entrambi i giocatori.'
+      );
+      return;
+    }
+
+    if (uidCorrente == null) {
+      alert('Non è stato possibile identificare l’amministratore.');
       return;
     }
 
@@ -266,13 +305,14 @@ export class AreaAdmin {
             typeof err?.error === 'string'
               ? err.error
               : err?.error?.message ||
-              'Impossibile salvare il risultato.';
+                'Impossibile salvare il risultato.';
 
           alert('Errore: ' + messaggio);
         }
       });
   }
 
+  // USCITA
   esci(): void {
     this.autenticazioneService.esci();
     this.router.navigate(['/login']);

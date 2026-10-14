@@ -28,12 +28,12 @@
     </section>
 
     <div class="griglia-admin">
-      <!-- CREA TORNEO -->
+      <!-- CREAZIONE TORNEO -->
       <section class="pannello-admin">
         <span class="sovratitolo">NUOVA COMPETIZIONE</span>
         <h2>Crea un torneo</h2>
         <p class="sub-titolo">
-          Inserisci le informazioni principali del nuovo torneo.
+          Inserisci le informazioni del nuovo torneo.
         </p>
 
         <form (ngSubmit)="creaTorneo()">
@@ -73,7 +73,7 @@
           </div>
 
           <div class="campo">
-            <label for="nuoviPostiMax">Numero massimo di partecipanti</label>
+            <label for="nuoviPostiMax">Posti massimi</label>
             <input
               id="nuoviPostiMax"
               type="number"
@@ -90,8 +90,8 @@
               id="nuovaDescrizione"
               name="nuovaDescrizione"
               [(ngModel)]="nuovaDescrizione"
-              placeholder="Descrivi il torneo..."
               rows="3"
+              placeholder="Descrivi il torneo..."
             ></textarea>
           </div>
 
@@ -162,9 +162,7 @@
                 </tr>
               } @empty {
                 <tr>
-                  <td colspan="3">
-                    Nessun torneo disponibile.
-                  </td>
+                  <td colspan="3">Nessun torneo disponibile.</td>
                 </tr>
               }
             </tbody>
@@ -173,7 +171,7 @@
       </section>
     </div>
 
-    <!-- GESTIONE DEL TORNEO SELEZIONATO -->
+    <!-- DETTAGLI DEL TORNEO SELEZIONATO -->
     @if (torneoSelezionato(); as torneo) {
       <section class="sezione-risultati">
         <div class="intestazione-risultati">
@@ -181,7 +179,7 @@
             <span class="sovratitolo">GESTIONE COMPETIZIONE</span>
             <h2>{{ torneo.nome }}</h2>
             <p class="sub-titolo">
-              Modifica le informazioni e gestisci partecipanti e partite.
+              Modifica i dettagli, gestisci lo stato e controlla le partite.
             </p>
           </div>
 
@@ -194,76 +192,114 @@
           </button>
         </div>
 
-        <!-- PRIMA RIGA: MODIFICA TORNEO E STATO -->
+        <!-- PRIMA RIGA: MODIFICA E STATO -->
         <div class="griglia-gestione">
           <section class="pannello-admin">
             <span class="sovratitolo">DETTAGLI</span>
             <h2>Modifica torneo</h2>
 
-            <form (ngSubmit)="salvaModificheTorneo()">
-              <div class="campo">
-                <label for="modificaNome">Nome torneo</label>
-                <input
-                  id="modificaNome"
-                  type="text"
-                  name="modificaNome"
-                  [(ngModel)]="nuovoNome"
-                  required
-                />
-              </div>
+            @if (!modalitaModifica()) {
+              <p><strong>Gioco:</strong> {{ torneo.gioco }}</p>
+              <p><strong>Data:</strong> {{ torneo.dataTorneo | slice:0:10 }}</p>
+              <p><strong>Posti massimi:</strong> {{ torneo.postiMax }}</p>
+              <p><strong>Descrizione:</strong> {{ torneo.descrizione || 'Nessuna descrizione' }}</p>
 
-              <div class="campo">
-                <label for="modificaGioco">Gioco</label>
-                <input
-                  id="modificaGioco"
-                  type="text"
-                  name="modificaGioco"
-                  [(ngModel)]="nuovoGioco"
-                  required
-                />
-              </div>
-
-              <div class="campo">
-                <label for="modificaData">Data del torneo</label>
-                <input
-                  id="modificaData"
-                  type="date"
-                  name="modificaData"
-                  [(ngModel)]="nuovaData"
-                  required
-                />
-              </div>
-
-              <div class="campo">
-                <label for="modificaPosti">Posti massimi</label>
-                <input
-                  id="modificaPosti"
-                  type="number"
-                  name="modificaPosti"
-                  [(ngModel)]="nuoviPostiMax"
-                  min="2"
-                  required
-                />
-              </div>
-
-              <div class="campo">
-                <label for="modificaDescrizione">Descrizione</label>
-                <textarea
-                  id="modificaDescrizione"
-                  name="modificaDescrizione"
-                  [(ngModel)]="nuovaDescrizione"
-                  rows="3"
-                ></textarea>
-              </div>
-
-              <button type="submit" class="bottone-crea">
-                Salva modifiche
+              <button
+                type="button"
+                class="btn-azione seleziona"
+                (click)="attivaModifica()"
+              >
+                Modifica dettagli
               </button>
-            </form>
+            } @else {
+              <form (ngSubmit)="salvaModificheTorneo()">
+                <div class="campo">
+                  <label for="modificaNome">Nome torneo</label>
+                  <input
+                    id="modificaNome"
+                    type="text"
+                    name="modificaNome"
+                    [(ngModel)]="modificaNome"
+                    required
+                  />
+                </div>
+
+                <div class="campo">
+                  <label for="modificaGioco">Gioco</label>
+                  <input
+                    id="modificaGioco"
+                    type="text"
+                    name="modificaGioco"
+                    [(ngModel)]="modificaGioco"
+                    required
+                  />
+                </div>
+
+                <div class="campo">
+                  <label for="modificaData">Data del torneo</label>
+                  <input
+                    id="modificaData"
+                    type="date"
+                    name="modificaData"
+                    [(ngModel)]="modificaData"
+                    required
+                  />
+                </div>
+
+                <div class="campo">
+                  <label for="modificaPostiMax">Posti massimi</label>
+                  <input
+                    id="modificaPostiMax"
+                    type="number"
+                    name="modificaPostiMax"
+                    [(ngModel)]="modificaPostiMax"
+                    min="2"
+                    required
+                  />
+                </div>
+
+                <div class="campo">
+                  <label for="modificaDescrizione">Descrizione</label>
+                  <textarea
+                    id="modificaDescrizione"
+                    name="modificaDescrizione"
+                    [(ngModel)]="modificaDescrizione"
+                    rows="3"
+                  ></textarea>
+                </div>
+
+                <div class="campo">
+                  <label for="modificaStato">Stato del torneo</label>
+                  <select
+                    id="modificaStato"
+                    name="modificaStato"
+                    [(ngModel)]="modificaStato"
+                  >
+                    <option value="aperto">Aperto</option>
+                    <option value="chiuso">Chiuso</option>
+                    <option value="concluso">Concluso</option>
+                  </select>
+                </div>
+
+                <div class="celle-azioni">
+                  <button type="submit" class="bottone-crea">
+                    Salva modifiche
+                  </button>
+
+                  <button
+                    type="button"
+                    class="btn-azione chiudi"
+                    (click)="annullaModifica()"
+                  >
+                    Annulla
+                  </button>
+                </div>
+              </form>
+            }
           </section>
 
           <section class="pannello-admin">
-            <span class="sovratitolo">ISCRIZIONI E AVANZAMENTO</span>
+            <span class="sovratitolo">AVANZAMENTO</span>
             <h2>Stato del torneo</h2>
 
             <p class="sub-titolo">
@@ -301,7 +337,6 @@
 
         <!-- SECONDA RIGA: PARTECIPANTI E PARTITE -->
         <div class="griglia-gestione griglia-inferiore">
-          <!-- PARTECIPANTI -->
           <section class="pannello-admin">
             <span class="sovratitolo">ISCRIZIONI</span>
             <h2>Lista partecipanti</h2>
@@ -320,7 +355,10 @@
                 </thead>
 
                 <tbody>
-                  @for (partecipante of partecipanti(); track partecipante.id) {
+                  @for (
+                    partecipante of partecipantiSelezionati;
+                    track partecipante.id
+                  ) {
                     <tr>
                       <td>{{ partecipante.nome }}</td>
                       <td>{{ partecipante.cognome }}</td>
@@ -338,12 +376,11 @@
             </div>
           </section>
 
-          <!-- PARTITE -->
           <section class="pannello-admin">
             <span class="sovratitolo">COMPETIZIONE</span>
             <h2>Gestione partite</h2>
             <p class="sub-titolo">
-              Genera il tabellone e aggiorna i risultati delle partite.
+              Genera il tabellone e aggiorna i risultati.
             </p>
 
             <button
@@ -401,9 +438,7 @@
                         {{ partita.giocatore2?.nome || 'Da assegnare' }}
                       </td>
 
-                      <td>
-                        {{ partita.stato }}
-                      </td>
+                      <td>{{ partita.stato }}</td>
 
                       <td>
                         <button
