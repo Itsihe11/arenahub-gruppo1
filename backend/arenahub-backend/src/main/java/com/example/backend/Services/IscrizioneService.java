@@ -1,10 +1,14 @@
 package com.example.backend.Services;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
 import com.example.backend.Model.Iscrizione;
@@ -12,81 +16,107 @@ import com.example.backend.Model.Torneo;
 import com.example.backend.Model.Utente;
 import com.example.backend.Repository.IscrizioneRepository;
 import com.example.backend.Repository.TorneoRepository;
-import com.example.backend.Repository.UtenteRepository;
-
-import jakarta.transaction.Transactional;
 
 @Service
 public class IscrizioneService {
+
     private final TorneoRepository tornei;
     private final IscrizioneRepository iscrizioni;
-    private final UtenteRepository utentiRepo;
     private final UtenteService utenti;
     private final TorneoService torneoService;
 
-    public IscrizioneService(TorneoRepository tornei, IscrizioneRepository iscrizioni, UtenteRepository utentiRepo,
-            UtenteService utenti, TorneoService torneoService) {
+    public IscrizioneService(TorneoRepository tornei, IscrizioneRepository iscrizioni,
+                             UtenteService utenti, TorneoService torneoService) {
         this.tornei = tornei;
         this.iscrizioni = iscrizioni;
-        this.utentiRepo = utentiRepo;
         this.utenti = utenti;
         this.torneoService = torneoService;
     }
 
     @Transactional
-    public Iscrizione iscrivi(int uid, int torneoId) {
-        Utente u = utenti.utenteCorrente(uid);
-        Torneo t = tornei.findById(torneoId)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Torneo non trovato"));
+    public Map<String, Object> iscrivi(Integer uid, int torneoId) {
+        Utente u = utenti.utenteCorrente(uid);                       
+        Torneo t = torneoService.trova(torneoId);                    
 
-        if (!"aperto".equalsIgnoreCase(t.getStato())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Torneo chiuso");
-        }
-        if (iscrizioni.countByTorneoId(torneoId) >= t.getMaxPartecipanti()) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Torneo pieno");
-        }
-        if (iscrizioni.existsByTorneoIdAndUtenteId(torneoId, u.getId())) {
-            throw new ResponseStatusException(HttpStatus.CONFLICT, "Utente già iscritto");
-        }
+        if (!"aperto".equalsIgnoreCase(t.getStato()))
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Iscrizioni chiuse");
+        if (iscrizioni.countByTorneoId(torneoId) >= t.getMaxPartecipanti())
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Posti esauriti");
+        if (iscrizioni.existsByTorneoIdAndUtenteId(torneoId, u.getId()))
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Già iscritto");
 
         Iscrizione i = new Iscrizione();
         i.setTorneo(t);
         i.setUtente(u);
         i.setData(LocalDate.now());
         i.setStato("confermata");
+        i = iscrizioni.save(i);
 
-        return iscrizioni.save(i);
+        Map<String, Object> r = new LinkedHashMap<>();
+        r.put("idTorneo", torneoId);
+        r.put("idUtente", u.getId());
+        r.put("dataIscrizione", i.getData());
+        r.put("torneo", riepilogo(t));
+        return r;
     }
 
     @Transactional
-    public void annulla(int uid, int torneoId) {
-        Utente u = utenti.utenteCorrente(uid);
-        Torneo t = torneoService.trova(torneoId);
+    public Map<String, Object> annulla(Integer uid, int torneoId) {
+        Utente u = utenti.utenteCorrente(uid);                       
+        Torneo t = torneoService.trova(torneoId);                    
 
-        if (!"aperto".equalsIgnoreCase(t.getStato())) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Torneo non più aperto");
+        boolean giaIniziato = t.getDataTorneo() != null
+                && t.getDataTorneo().isBefore(LocalDate.now());
+        if (!"aperto".equalsIgnoreCase(t.getStato()) || giaIniziato)
+            throw new ResponseStatusException(HttpStatus.CONFLICT, "Annullamento non consentito");
+
+        if (iscrizioni.deleteByTorneoIdAndUtenteId(torneoId, u.getId()) == 0)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Iscrizione non trovata");
+
+        Map<String, Object> r = new LinkedHashMap<>();
+        r.put("idTorneo", torneoId);
+        r.put("idUtente", u.getId());
+        r.put("torneo", riepilogo(t));                               
+        return r;
+    }
+
+    public List<Map<String, Object>> mieIscrizioni(Integer uid) {
+        Utente u = utenti.utenteCorrente(uid);                       
+        List<Map<String, Object>> risultato = new ArrayList<>();
+        for (Iscrizione i : iscrizioni.findByUtenteId(u.getId())) {
+            Map<String, Object> m = new LinkedHashMap<>(torneoService.conIscritti(i.getTorneo()));
+            m.put("dataIscrizione", i.getData());
+            risultato.add(m);
         }
-
-        iscrizioni.deleteByTorneoIdAndUtenteId(torneoId, u.getId());
-    }
-    
-    @Transactional
-    public void disiscrivi(int torneoId, int utenteId) {
-        iscrizioni.deleteByTorneoIdAndUtenteId(torneoId, utenteId);
+        return risultato;
     }
 
-    public List<Torneo> mieIscrizioni(int uid) {
-        Utente u = utenti.utenteCorrente(uid);
-        List<Torneo> lista = tornei.torneiDellUtente(u.getId());
-        for (Torneo t : lista) {
-            torneoService.conIscritti(t);
+    public Map<String, Object> partecipanti(int torneoId) {
+        Torneo t = torneoService.trova(torneoId);                   
+        List<Map<String, Object>> lista = new ArrayList<>();
+        for (Iscrizione i : iscrizioni.findByTorneoIdOrdinate(torneoId)) {
+            Map<String, Object> p = new LinkedHashMap<>();
+            p.put("idUtente", i.getUtente().getId());
+            p.put("nome", i.getUtente().getNome());
+            p.put("cognome", i.getUtente().getCognome());
+            p.put("dataIscrizione", i.getData());
+            lista.add(p);
         }
-        return lista;
+        Map<String, Object> r = new LinkedHashMap<>();
+        r.put("idTorneo", t.getId());
+        r.put("nome", t.getNome());
+        r.put("iscritti", lista.size());
+        r.put("postiMax", t.getMaxPartecipanti());
+        r.put("partecipanti", lista);
+        return r;
     }
 
-    public List<Utente> iscritti(int uid, int torneoId) {
-        utenti.richiediAdmin(uid);
-        torneoService.trova(torneoId);
-        return utentiRepo.iscrittiDelTorneo(torneoId);
+    private Map<String, Object> riepilogo(Torneo t) {
+        Map<String, Object> m = new LinkedHashMap<>();
+        m.put("id", t.getId());
+        m.put("nome", t.getNome());
+        m.put("iscritti", iscrizioni.countByTorneoId(t.getId()));
+        m.put("postiMax", t.getMaxPartecipanti());
+        return m;
     }
 }

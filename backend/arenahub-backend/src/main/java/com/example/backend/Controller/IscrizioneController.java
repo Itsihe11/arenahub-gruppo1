@@ -1,130 +1,58 @@
 package com.example.backend.Controller;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.example.backend.Model.Iscrizione;
-import com.example.backend.Model.Torneo;
-import com.example.backend.Model.Utente;
 import com.example.backend.Services.IscrizioneService;
+import com.example.backend.Services.UtenteService;
 
 @RestController
-@RequestMapping("/api/iscrizioni")
+@RequestMapping("/api")
 @CrossOrigin(origins = "http://localhost:4200")
 public class IscrizioneController {
 
-    @Autowired
-    private IscrizioneService iscrizioneService;
+    private final IscrizioneService service;
+    private final UtenteService utenti;
 
-
-    @PostMapping
-    public ResponseEntity<?> iscriviDiretto(@RequestBody Map<String, Object> payload) {
-        return iscrivi(payload);
+    public IscrizioneController(IscrizioneService service, UtenteService utenti) {
+        this.service = service;
+        this.utenti = utenti;
     }
 
- 
-    @PostMapping("/iscrivi")
-    public ResponseEntity<?> iscrivi(@RequestBody Map<String, Object> payload) {
-        System.out.println("=== REQUEST /api/iscrizioni/iscrivi ===");
-        System.out.println("Payload ricevuto: " + payload);
-
-        Integer uid = estraiId(payload, "uid", "utenteId", "idUtente");
-        Integer torneoId = estraiId(payload, "torneoId", "idTorneo");
-
-        System.out.println("Estratto -> UID: " + uid + ", TorneoID: " + torneoId);
-
-        if (uid == null || torneoId == null) {
-            Map<String, String> err = new HashMap<>();
-            err.put("error", "Parametri 'utenteId' e 'torneoId' obbligatori o non validi.");
-            return ResponseEntity.badRequest().body(err);
-        }
-
-        try {
-            Iscrizione nuova = iscrizioneService.iscrivi(uid, torneoId);
-            
-            Map<String, Object> risposta = new HashMap<>();
-            risposta.put("id", nuova.getId());
-            risposta.put("torneoId", nuova.getTorneoId());
-            risposta.put("utenteId", nuova.getUtenteId());
-            risposta.put("stato", nuova.getStato());
-
-            return ResponseEntity.ok(risposta);
-        } catch (Exception e) {
-            System.err.println(" Errore in IscrizioneService: " + e.getMessage());
-            e.printStackTrace();
-            Map<String, String> err = new HashMap<>();
-            err.put("error", e.getMessage());
-            return ResponseEntity.badRequest().body(err);
-        }
-    }
-   
-    @PostMapping("/annulla")
-    public ResponseEntity<?> annulla(@RequestBody Map<String, Object> payload) {
-        Integer uid = estraiId(payload, "uid", "utenteId", "idUtente");
-        Integer torneoId = estraiId(payload, "torneoId", "idTorneo");
-
-        if (uid == null || torneoId == null) {
-            Map<String, String> err = new HashMap<>();
-            err.put("error", "Parametri  'utenteId' e 'torneoId' obbligatori.");
-            return ResponseEntity.badRequest().body(err);
-        }
-
-        iscrizioneService.annulla(uid, torneoId);
-        return ResponseEntity.ok().build();
-    }
-    
-    @DeleteMapping
-    public ResponseEntity<Void> disiscrivi(
-            @RequestParam int torneoId,
-            @RequestParam(name = "utenteId", required = false) Integer utenteId,
-            @RequestParam(name = "uid", required = false) Integer uid) {
-
-        int idUtente = (utenteId != null) ? utenteId : (uid != null ? uid : 0);
-        iscrizioneService.disiscrivi(torneoId, idUtente);
-
-        return ResponseEntity.noContent().build();
+    @PostMapping("/tornei/{id}/iscrizione")
+    public ResponseEntity<Map<String, Object>> iscrivi(
+            @RequestHeader(value = "Authorization", required = false) String auth,
+            @PathVariable int id) {
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(service.iscrivi(utenti.idDaHeader(auth), id));
     }
 
-  
-    @GetMapping("/mie")
-    public ResponseEntity<List<Torneo>> mieIscrizioni(@RequestParam int uid) {
-        List<Torneo> lista = iscrizioneService.mieIscrizioni(uid);
-        return ResponseEntity.ok(lista);
+    @DeleteMapping("/tornei/{id}/iscrizione")
+    public Map<String, Object> annulla(
+            @RequestHeader(value = "Authorization", required = false) String auth,
+            @PathVariable int id) {
+        return service.annulla(utenti.idDaHeader(auth), id);
     }
 
-    
-    @GetMapping("/torneo/{torneoId}")
-    public ResponseEntity<List<Utente>> iscritti(@RequestParam int uid, @PathVariable int torneoId) {
-        List<Utente> lista = iscrizioneService.iscritti(uid, torneoId);
-        return ResponseEntity.ok(lista);
+    @GetMapping("/utenti/me/iscrizioni")
+    public List<Map<String, Object>> mie(
+            @RequestHeader(value = "Authorization", required = false) String auth) {
+        return service.mieIscrizioni(utenti.idDaHeader(auth));
     }
 
-
-    private Integer estraiId(Map<String, Object> payload, String... chiavi) {
-        for (String chiave : chiavi) {
-            if (payload.containsKey(chiave) && payload.get(chiave) != null) {
-                Object val = payload.get(chiave);
-                if (val instanceof Number) {
-                    return ((Number) val).intValue();
-                }
-                try {
-                    return Integer.parseInt(val.toString());
-                } catch (NumberFormatException ignored) {}
-            }
-        }
-        return null;
+    @GetMapping("/tornei/{id}/partecipanti")
+    public Map<String, Object> partecipanti(@PathVariable int id) {
+        return service.partecipanti(id);
     }
 }
