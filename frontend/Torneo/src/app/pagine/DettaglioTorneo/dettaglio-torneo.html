@@ -134,6 +134,23 @@
       </section>
     </div>
 
+    <section class="sezione-scheda" style="margin-top: 32px;">
+      <span class="sovratitolo">ISCRITTI AL TORNEO</span>
+      <h2>👥 Partecipanti ({{ partecipanti().length }})</h2>
+
+      @if (partecipanti().length > 0) {
+        <div class="griglia-partecipanti" style="display: flex; gap: 12px; flex-wrap: wrap; margin-top: 16px;">
+          @for (p of partecipanti(); track $index) {
+            <div class="card-partecipante" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); padding: 10px 16px; border-radius: 8px; color: #fff;">
+              👤 <strong>{{ p.nome || p.nomeUtente || p.email || p.first_name || 'Partecipante ' + ($index + 1) }} {{ p.cognome || p.last_name || '' }}</strong>
+            </div>
+          }
+        </div>
+      } @else {
+        <p class="messaggio-vuoto">Nessun partecipante ancora iscritto a questo torneo.</p>
+      }
+    </section>
+
     <!-- SEZIONE CLASSIFICA TORNEO -->
     <section class="sezione-scheda" style="margin-top: 32px;">
       <span class="sovratitolo">POSIZIONI & STATISTICHE</span>

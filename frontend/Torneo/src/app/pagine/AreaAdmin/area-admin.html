@@ -1,370 +1,376 @@
 <div class="pagina-admin">
 
   <header class="header">
-  <div class="header-sinistra">
-    <a class="logo" routerLink="/" aria-label="ArenaHub - Home">
-      <span class="logo-icona">A</span>
-      <span class="logo-testo">ArenaHub</span>
-    </a>
+    <div class="header-sinistra">
+      <a class="logo" routerLink="/" aria-label="ArenaHub - Home">
+        <span class="logo-icona">A</span>
+        <span class="logo-testo">ArenaHub</span>
+      </a>
 
-    <nav class="navigazione">
-      <a routerLink="/">Home</a>
-      <a routerLink="/tornei">Tornei</a>
-      @if (utenteCorrente()?.ruolo === 'admin') {
-        <a routerLink="/admin">Dashboard Admin</a>
-      } @else if (utenteCorrente()) {
-        <a routerLink="/area-utente" class="attivo">I miei tornei</a>
+      <nav class="navigazione">
+        <a routerLink="/">Home</a>
+        <a routerLink="/tornei">Tornei</a>
+        @if (utenteCorrente()?.ruolo === 'admin') {
+          <a routerLink="/admin" class="attivo">Dashboard Admin</a>
+        } @else if (utenteCorrente()) {
+          <a routerLink="/area-utente">I miei tornei</a>
+        }
+      </nav>
+    </div>
+
+    <div class="azioni-header">
+      @if (utenteCorrente()) {
+        @if (utenteCorrente()?.ruolo === 'admin') {
+          <span class="badge-ruolo-admin">ADMIN</span>
+        }
+        <span class="nome-utente-header">👤 {{ utenteCorrente()?.nome }}</span>
+        <button type="button" class="link-esci" (click)="esci()">Esci</button>
+      } @else {
+        <a routerLink="/login" class="link-login">Accedi</a>
+        <a routerLink="/login" class="bottone-registrazione">Registrati</a>
       }
-    </nav>
-  </div>
-
-  <div class="azioni-header">
-    @if (utenteCorrente()) {
-      @if (utenteCorrente()?.ruolo === 'admin') {
-        <span class="badge-ruolo-admin">ADMIN</span>
-      }
-      <span class="nome-utente-header">👤 {{ utenteCorrente()?.nome }}</span>
-      <button type="button" class="link-esci" (click)="esci()">Esci</button>
-    } @else {
-      <a routerLink="/login" class="link-login">Accedi</a>
-      <a routerLink="/login" class="bottone-registrazione">Registrati</a>
-    }
-  </div>
-</header>
-
+    </div>
+  </header>
 
   @if (utenteCorrente()?.ruolo === 'admin') {
-  <main class="contenuto-admin">
-        <section class="introduzione introduzione-con-limite">
-      <div class="introduzione-testo">
-        <p class="sovratitolo">AREA RISERVATA</p>
-        <h1>Pannello amministratore</h1>
-        <p>Gestisci tornei, iscrizioni e risultati delle partite.</p>
-      </div>
-
-      <form class="limite-tornei" (ngSubmit)="salvaLimite()">
-        <label for="limiteInput">Limite tornei per giocatore</label>
-
-        <div class="limite-tornei-riga">
-          <input id="limiteInput" name="limiteInput" type="number" min="1" step="1"
-            [(ngModel)]="limiteInput" [disabled]="salvataggioLimiteInCorso()" />
-
-          <button type="submit" class="btn-principale" [disabled]="salvataggioLimiteInCorso()">
-            {{ salvataggioLimiteInCorso() ? 'Salvataggio...' : 'Salva limite' }}
-          </button>
+    <main class="contenuto-admin">
+      
+      
+      <section class="introduzione introduzione-con-limite">
+        <div class="introduzione-testo">
+          <p class="sovratitolo">AREA RISERVATA</p>
+          <h1>Pannello amministratore</h1>
+          <p>Gestisci tornei, iscrizioni e risultati delle partite.</p>
         </div>
 
-        <small class="limite-tornei-nota">
-          Tornei attivi contemporaneamente per giocatore.
-        </small>
+        <form class="limite-tornei" (ngSubmit)="salvaLimite()">
+          <label for="limiteInput">Limite tornei per giocatore</label>
 
-        @if (messaggioLimite(); as msg) {
-        <small class="limite-tornei-messaggio" [class.ok]="msg.tipo === 'ok'"
-          [class.errore]="msg.tipo === 'errore'" role="status">
-          {{ msg.testo }}
-        </small>
-        }
-      </form>
-    </section>
+          <div class="limite-tornei-riga">
+            <input id="limiteInput" name="limiteInput" type="number" min="1" step="1"
+              [(ngModel)]="limiteInput" [disabled]="salvataggioLimiteInCorso()" />
 
-    <section class="sezione-admin">
-      <h2>Crea un nuovo torneo</h2>
+            <button type="submit" class="btn-principale" [disabled]="salvataggioLimiteInCorso()">
+              {{ salvataggioLimiteInCorso() ? 'Salvataggio...' : 'Salva limite' }}
+            </button>
+          </div>
 
-      <form class="form-torneo" (ngSubmit)="creaTorneo()">
-        <div class="campo">
-          <label for="nuovoNome">Nome torneo *</label>
-          <input id="nuovoNome" name="nuovoNome" type="text" [(ngModel)]="nuovoNome" required />
-        </div>
+          <small class="limite-tornei-nota">
+            Tornei attivi contemporaneamente per giocatore.
+          </small>
 
-        <div class="campo">
-          <label for="nuovoGioco">Gioco *</label>
-          <input id="nuovoGioco" name="nuovoGioco" type="text" [(ngModel)]="nuovoGioco" required />
-        </div>
-
-        <div class="campo">
-          <label for="nuovaData">Data del torneo *</label>
-          <input id="nuovaData" name="nuovaData" type="date" [(ngModel)]="nuovaData" required />
-        </div>
-
-        <div class="campo">
-          <label for="nuoviPostiMax">Numero massimo di partecipanti *</label>
-          <input id="nuoviPostiMax" name="nuoviPostiMax" type="number" min="2" [(ngModel)]="nuoviPostiMax" required />
-        </div>
-
-        <div class="campo campo-completo">
-          <label for="nuovaDescrizione">Descrizione</label>
-          <textarea id="nuovaDescrizione" name="nuovaDescrizione" rows="3" [(ngModel)]="nuovaDescrizione"></textarea>
-        </div>
-
-        <div class="azioni-form campo-completo">
-          <button type="submit" class="btn-principale">
-            Crea torneo
-          </button>
-        </div>
-      </form>
-    </section>
-
-    <section class="sezione-admin">
-      <h2>Tornei disponibili</h2>
-
-      @if (tuttiTornei().length > 0) {
-      <div class="tabella-contenitore">
-        <table class="tabella-tornei">
-          <thead>
-            <tr>
-              <th>Nome</th>
-              <th>Gioco</th>
-              <th>Data</th>
-              <th>Posti</th>
-              <th>Stato</th>
-              <th>Azioni</th>
-            </tr>
-          </thead>
-
-          <tbody>
-            @for (torneo of tuttiTornei(); track torneo.id) {
-            <tr>
-              <td>{{ torneo.nome }}</td>
-              <td>{{ torneo.gioco }}</td>
-              <td>{{ torneo.dataTorneo | slice:0:10 }}</td>
-              <td>{{ torneo.postiMax }}</td>
-              <td>
-                <span class="badge-stato" [class.aperto]="torneo.stato === 'aperto'"
-                  [class.chiuso]="torneo.stato !== 'aperto'">
-                  {{ torneo.stato === 'aperto' ? 'Aperto' : 'Chiuso' }}
-                </span>
-              </td>
-              <td class="azioni-tabella">
-                <button type="button" class="btn-secondario" (click)="selezionaTorneo(torneo)">
-                  Gestisci
-                </button>
-
-                <button type="button" class="btn-pericolo" (click)="elimina(torneo.id)">
-                  Elimina
-                </button>
-              </td>
-            </tr>
-            }
-          </tbody>
-        </table>
-      </div>
-      } @else {
-      <p class="messaggio-vuoto">Non ci sono tornei da mostrare.</p>
-      }
-    </section>
-
-    @if (torneoSelezionato(); as torneo) {
-    <section class="sezione-admin dettagli-torneo">
-      <div class="titolo-dettagli">
-        <div>
-          <p class="sovratitolo">GESTIONE TORNEO</p>
-          <h2>{{ torneo.nome }}</h2>
-          <p>{{ torneo.gioco }}</p>
-        </div>
-
-        <button type="button" class="btn-secondario" (click)="deselezionaTorneo()">
-          Chiudi dettagli
-        </button>
-      </div>
-
-      <div class="azioni-stato">
-        <button type="button" class="btn-azione apri" (click)="cambiaStato(torneo.id, 'aperto')"
-          [disabled]="torneo.stato === 'aperto'">
-          Apri iscrizioni
-        </button>
-
-        <button type="button" class="btn-azione chiudi" (click)="cambiaStato(torneo.id, 'chiuso')"
-          [disabled]="torneo.stato === 'chiuso'">
-          Chiudi iscrizioni
-        </button>
-      </div>
-
-      <div class="sottosezione">
-        <div class="titolo-sottosezione">
-          <h3>Dati del torneo</h3>
-
-          @if (!modalitaModifica()) {
-          <button type="button" class="btn-secondario" (click)="attivaModifica()">
-            Modifica dati
-          </button>
+          @if (messaggioLimite(); as msg) {
+            <small class="limite-tornei-messaggio" [class.ok]="msg.tipo === 'ok'"
+              [class.errore]="msg.tipo === 'errore'" role="status">
+              {{ msg.testo }}
+            </small>
           }
-        </div>
+        </form>
+      </section>
 
-        @if (modalitaModifica()) {
-        <form class="form-torneo" (ngSubmit)="salvaModificheTorneo()">
+      
+      <section class="sezione-admin">
+        <h2>Crea un nuovo torneo</h2>
+
+        <form class="form-torneo" (ngSubmit)="creaTorneo()">
           <div class="campo">
-            <label for="modificaNome">Nome torneo *</label>
-            <input id="modificaNome" name="modificaNome" type="text" [(ngModel)]="modificaNome" required />
+            <label for="nuovoNome">Nome torneo *</label>
+            <input id="nuovoNome" name="nuovoNome" type="text" [(ngModel)]="nuovoNome" required />
           </div>
 
           <div class="campo">
-            <label for="modificaGioco">Gioco *</label>
-            <input id="modificaGioco" name="modificaGioco" type="text" [(ngModel)]="modificaGioco" required />
+            <label for="nuovoGioco">Gioco *</label>
+            <input id="nuovoGioco" name="nuovoGioco" type="text" [(ngModel)]="nuovoGioco" required />
           </div>
 
           <div class="campo">
-            <label for="modificaData">Data del torneo *</label>
-            <input id="modificaData" name="modificaData" type="date" [(ngModel)]="modificaData" required />
+            <label for="nuovaData">Data del torneo *</label>
+            <input id="nuovaData" name="nuovaData" type="date" [(ngModel)]="nuovaData" required />
           </div>
 
           <div class="campo">
-            <label for="modificaPostiMax">
-              Numero massimo di partecipanti *
-            </label>
-            <input id="modificaPostiMax" name="modificaPostiMax" type="number" min="2" [(ngModel)]="modificaPostiMax"
-              required />
-          </div>
-
-          <div class="campo">
-            <label for="modificaStato">Stato del torneo</label>
-            <select id="modificaStato" name="modificaStato" [(ngModel)]="modificaStato">
-              <option value="aperto">Aperto</option>
-              <option value="chiuso">Chiuso</option>
-            </select>
+            <label for="nuoviPostiMax">Numero massimo di partecipanti *</label>
+            <input id="nuoviPostiMax" name="nuoviPostiMax" type="number" min="2" [(ngModel)]="nuoviPostiMax" required />
           </div>
 
           <div class="campo campo-completo">
-            <label for="modificaDescrizione">Descrizione</label>
-            <textarea id="modificaDescrizione" name="modificaDescrizione" rows="3"
-              [(ngModel)]="modificaDescrizione"></textarea>
+            <label for="nuovaDescrizione">Descrizione</label>
+            <textarea id="nuovaDescrizione" name="nuovaDescrizione" rows="3" [(ngModel)]="nuovaDescrizione"></textarea>
           </div>
 
           <div class="azioni-form campo-completo">
             <button type="submit" class="btn-principale">
-              Salva modifiche
-            </button>
-
-            <button type="button" class="btn-secondario" (click)="annullaModifica()">
-              Annulla
+              Crea torneo
             </button>
           </div>
         </form>
+      </section>
+
+      
+      <section class="sezione-admin">
+        <h2>Tornei disponibili</h2>
+
+        @if (tuttiTornei().length > 0) {
+          <div class="tabella-contenitore">
+            <table class="tabella-tornei">
+              <thead>
+                <tr>
+                  <th>Nome</th>
+                  <th>Gioco</th>
+                  <th>Data</th>
+                  <th>Posti</th>
+                  <th>Stato</th>
+                  <th>Azioni</th>
+                </tr>
+              </thead>
+
+              <tbody>
+                @for (torneo of tuttiTornei(); track torneo.id) {
+                  <tr>
+                    <td>{{ torneo.nome }}</td>
+                    <td>{{ torneo.gioco }}</td>
+                    <td>{{ torneo.dataTorneo | slice:0:10 }}</td>
+                    <td>{{ torneo.postiMax }}</td>
+                    <td>
+                      <span class="badge-stato" [class.aperto]="torneo.stato === 'aperto'"
+                        [class.chiuso]="torneo.stato !== 'aperto'">
+                        {{ torneo.stato === 'aperto' ? 'Aperto' : 'Chiuso' }}
+                      </span>
+                    </td>
+                    <td class="azioni-tabella">
+                      <button type="button" class="btn-secondario" (click)="selezionaTorneo(torneo)">
+                        Gestisci
+                      </button>
+
+                      <button type="button" class="btn-pericolo" (click)="elimina(torneo.id)">
+                        Elimina
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
         } @else {
-        <div class="griglia-dati">
-          <div class="dato">
-            <span>Data</span>
-            <strong>{{ torneo.dataTorneo | slice:0:10 }}</strong>
+          <p class="messaggio-vuoto">Non ci sono tornei da mostrare.</p>
+        }
+      </section>
+
+      
+      @if (torneoSelezionato(); as torneo) {
+        <section class="sezione-admin dettagli-torneo">
+          <div class="titolo-dettagli">
+            <div>
+              <p class="sovratitolo">GESTIONE TORNEO</p>
+              <h2>{{ torneo.nome }}</h2>
+              <p>{{ torneo.gioco }}</p>
+            </div>
+
+            <button type="button" class="btn-secondario" (click)="deselezionaTorneo()">
+              Chiudi dettagli
+            </button>
           </div>
 
-          <div class="dato">
-            <span>Posti massimi</span>
-            <strong>{{ torneo.postiMax }}</strong>
+          <div class="azioni-stato">
+            <button type="button" class="btn-azione apri" (click)="cambiaStato(torneo.id, 'aperto')"
+              [disabled]="torneo.stato === 'aperto'">
+              Apri iscrizioni
+            </button>
+
+            <button type="button" class="btn-azione chiudi" (click)="cambiaStato(torneo.id, 'chiuso')"
+              [disabled]="torneo.stato === 'chiuso'">
+              Chiudi iscrizioni
+            </button>
           </div>
 
-          <div class="dato">
-            <span>Stato</span>
-            <strong>
-              {{ torneo.stato === 'aperto' ? 'Aperto' : 'Chiuso' }}
-            </strong>
-          </div>
-        </div>
+          
+          <div class="sottosezione">
+            <div class="titolo-sottosezione">
+              <h3>Dati del torneo</h3>
 
-        @if (torneo.descrizione) {
-        <div class="descrizione-torneo">
-          <h4>Descrizione</h4>
-          <p>{{ torneo.descrizione }}</p>
-        </div>
-        }
-        }
-      </div>
-
-      <div class="sottosezione">
-        <h3>Partecipanti</h3>
-
-        @if (partecipantiSelezionati.length > 0) {
-        <ul class="lista-partecipanti">
-          @for (partecipante of partecipantiSelezionati; track partecipante.id) {
-          <li>
-            <span>{{ partecipante.nome }}</span>
-            <span>{{ partecipante.email }}</span>
-          </li>
-          }
-        </ul>
-        } @else {
-        <p class="messaggio-vuoto">
-          Nessun partecipante da mostrare.
-        </p>
-        }
-      </div>
-
-      <div class="sottosezione">
-        <div class="titolo-sottosezione">
-          <h3>Partite</h3>
-
-          <button type="button" class="btn-principale" (click)="generaPartite()">
-            Genera tabellone
-          </button>
-        </div>
-
-        @if (partite().length > 0) {
-        <div class="tabella-contenitore">
-          <table class="tabella-tornei">
-            <thead>
-              <tr>
-                <th>Partita</th>
-                <th>Giocatore 1</th>
-                <th>Punteggio</th>
-                <th>Giocatore 2</th>
-                <th>Risultato</th>
-              </tr>
-            </thead>
-
-            <tbody>
-              @for (partita of partite(); track partita.id) {
-              <tr>
-                <td>{{ partita.id }}</td>
-                <td>
-                  {{ partita.giocatore1?.nome || 'Da definire' }}
-                </td>
-                <td>
-                  {{ partita.punteggio1 ?? '-' }}
-                  -
-                  {{ partita.punteggio2 ?? '-' }}
-                </td>
-                <td>
-                  {{ partita.giocatore2?.nome || 'Da definire' }}
-                </td>
-                <td>
-                  <div class="campi-risultato">
-                    <input #punteggio1 type="number" min="0" placeholder="P1" [value]="partita.punteggio1 ?? ''"
-                      aria-label="Punteggio giocatore 1" />
-
-                    <input #punteggio2 type="number" min="0" placeholder="P2" [value]="partita.punteggio2 ?? ''"
-                      aria-label="Punteggio giocatore 2" />
-
-                    <button type="button" class="btn-secondario" (click)="salvaRisultatoPartita(
-                                partita.id,
-                                punteggio1.value,
-                                punteggio2.value
-                              )">
-                      Salva
-                    </button>
-                  </div>
-                </td>
-              </tr>
+              @if (!modalitaModifica()) {
+                <button type="button" class="btn-secondario" (click)="attivaModifica()">
+                  Modifica dati
+                </button>
               }
-            </tbody>
-          </table>
-        </div>
-        } @else {
-        <p class="messaggio-vuoto">
-          Non sono ancora presenti partite per questo torneo.
-        </p>
-        }
-      </div>
-    </section>
-    }
-  </main>
+            </div>
+
+            @if (modalitaModifica()) {
+              <form class="form-torneo" (ngSubmit)="salvaModificheTorneo()">
+                <div class="campo">
+                  <label for="modificaNome">Nome torneo *</label>
+                  <input id="modificaNome" name="modificaNome" type="text" [(ngModel)]="modificaNome" required />
+                </div>
+
+                <div class="campo">
+                  <label for="modificaGioco">Gioco *</label>
+                  <input id="modificaGioco" name="modificaGioco" type="text" [(ngModel)]="modificaGioco" required />
+                </div>
+
+                <div class="campo">
+                  <label for="modificaData">Data del torneo *</label>
+                  <input id="modificaData" name="modificaData" type="date" [(ngModel)]="modificaData" required />
+                </div>
+
+                <div class="campo">
+                  <label for="modificaPostiMax">
+                    Numero massimo di partecipanti *
+                  </label>
+                  <input id="modificaPostiMax" name="modificaPostiMax" type="number" min="2" [(ngModel)]="modificaPostiMax"
+                    required />
+                </div>
+
+                <div class="campo">
+                  <label for="modificaStato">Stato del torneo</label>
+                  <select id="modificaStato" name="modificaStato" [(ngModel)]="modificaStato">
+                    <option value="aperto">Aperto</option>
+                    <option value="chiuso">Chiuso</option>
+                  </select>
+                </div>
+
+                <div class="campo campo-completo">
+                  <label for="modificaDescrizione">Descrizione</label>
+                  <textarea id="modificaDescrizione" name="modificaDescrizione" rows="3"
+                    [(ngModel)]="modificaDescrizione"></textarea>
+                </div>
+
+                <div class="azioni-form campo-completo">
+                  <button type="submit" class="btn-principale">
+                    Salva modifiche
+                  </button>
+
+                  <button type="button" class="btn-secondario" (click)="annullaModifica()">
+                    Annulla
+                  </button>
+                </div>
+              </form>
+            } @else {
+              <div class="griglia-dati">
+                <div class="dato">
+                  <span>Data</span>
+                  <strong>{{ torneo.dataTorneo | slice:0:10 }}</strong>
+                </div>
+
+                <div class="dato">
+                  <span>Posti massimi</span>
+                  <strong>{{ torneo.postiMax }}</strong>
+                </div>
+
+                <div class="dato">
+                  <span>Stato</span>
+                  <strong>
+                    {{ torneo.stato === 'aperto' ? 'Aperto' : 'Chiuso' }}
+                  </strong>
+                </div>
+              </div>
+
+              @if (torneo.descrizione) {
+                <div class="descrizione-torneo">
+                  <h4>Descrizione</h4>
+                  <p>{{ torneo.descrizione }}</p>
+                </div>
+              }
+            }
+          </div>
+
+        <div class="sottosezione">
+            <h3>Partecipanti ({{ partecipantiSelezionati.length }})</h3>
+
+            @if (partecipantiSelezionati.length > 0) {
+              <ul class="lista-partecipanti">
+                @for (partecipante of partecipantiSelezionati; track $index) {
+                  <li style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(255,255,255,0.03); margin-bottom: 6px; border-radius: 6px;">
+                    <span>👤 <strong>{{ partecipante.nome || partecipante.email }} {{ partecipante.cognome || '' }}</strong></span>
+                    <span style="color: #94a3b8; font-size: 0.9em;">{{ partecipante.email }}</span>
+                  </li>
+                }
+              </ul>
+            } @else {
+              <p class="messaggio-vuoto">
+                Nessun partecipante da mostrare.
+              </p>
+            }
+          </div>
+
+        
+          <div class="sottosezione">
+            <div class="titolo-sottosezione">
+              <h3>Partite</h3>
+
+              <button type="button" class="btn-principale" (click)="generaPartite()">
+                Genera tabellone
+              </button>
+            </div>
+
+            @if (partite().length > 0) {
+              <div class="tabella-contenitore">
+                <table class="tabella-tornei">
+                  <thead>
+                    <tr>
+                      <th>Partita</th>
+                      <th>Giocatore 1</th>
+                      <th>Punteggio</th>
+                      <th>Giocatore 2</th>
+                      <th>Risultato</th>
+                    </tr>
+                  </thead>
+
+                  <tbody>
+                    @for (partita of partite(); track partita.id) {
+                      <tr>
+                        <td>{{ partita.id }}</td>
+                        <td>
+                          {{ partita.giocatore1?.nome || 'Da definire' }}
+                        </td>
+                        <td>
+                          {{ partita.punteggio1 ?? '-' }}
+                          -
+                          {{ partita.punteggio2 ?? '-' }}
+                        </td>
+                        <td>
+                          {{ partita.giocatore2?.nome || 'Da definire' }}
+                        </td>
+                        <td>
+                          <div class="campi-risultato">
+                            <input #punteggio1 type="number" min="0" placeholder="P1" [value]="partita.punteggio1 ?? ''"
+                              aria-label="Punteggio giocatore 1" />
+
+                            <input #punteggio2 type="number" min="0" placeholder="P2" [value]="partita.punteggio2 ?? ''"
+                              aria-label="Punteggio giocatore 2" />
+
+                            <button type="button" class="btn-secondario" (click)="salvaRisultatoPartita(
+                                    partita.id,
+                                    punteggio1.value,
+                                    punteggio2.value
+                                  )">
+                              Salva
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    }
+                  </tbody>
+                </table>
+              </div>
+            } @else {
+              <p class="messaggio-vuoto">
+                Non sono ancora presenti partite per questo torneo.
+              </p>
+            }
+          </div>
+        </section>
+      }
+    </main>
   } @else {
-  <main class="contenuto-admin">
-    <section class="sezione-admin">
-      <h1>Accesso non autorizzato</h1>
-      <p>Questa pagina è riservata agli amministratori.</p>
-      <button type="button" class="btn-principale" (click)="esci()">
-        Torna al login
-      </button>
-    </section>
-  </main>
+    <main class="contenuto-admin">
+      <section class="sezione-admin">
+        <h1>Accesso non autorizzato</h1>
+        <p>Questa pagina è riservata agli amministratori.</p>
+        <button type="button" class="btn-principale" (click)="esci()">
+          Torna al login
+        </button>
+      </section>
+    </main>
   }
 
   <footer class="footer-admin">

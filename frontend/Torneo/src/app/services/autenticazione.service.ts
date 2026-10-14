@@ -10,7 +10,6 @@ import { Utente } from '../interfaces/utente.interface';
 export class AutenticazioneMockService {
   private readonly http = inject(HttpClient);
   private readonly apiUrl = 'http://localhost:8080/api';
-  private readonly iscrizioniUrl = 'http://localhost:8080/api/iscrizioni';
 
   private readonly chiaveUtenteLoggato = 'utente_loggato';
   private readonly chiaveToken = 'auth_token';
@@ -23,17 +22,63 @@ export class AutenticazioneMockService {
     localStorage.getItem(this.chiaveToken)
   );
 
+  constructor() {
+   
+    if (this.utenteCorrente()) {
+      this.sincronizzaUtenteEIscrizioni();
+    }
+  }
+
   private leggiUtenteLoggato(): Utente | null {
     try {
       const dato = localStorage.getItem(this.chiaveUtenteLoggato);
-      return dato ? (JSON.parse(dato) as Utente) : null;
+      return dato ? this.normalizzaUtente(JSON.parse(dato)) : null;
     } catch {
       return null;
     }
   }
 
-  private salvaSessione(utente: Utente, tokenRicevuto?: string): void {
-    const tokenGenerato = tokenRicevuto ?? `token-${utente.id}-${Date.now()}`;
+
+  private normalizzaUtente(raw: any): Utente {
+    if (!raw) return raw;
+
+  
+    const src = raw.utente ?? raw.user ?? raw;
+
+    const idEstratto = Number(src.id ?? src.uid ?? src.idUtente);
+
+    const ruoloRaw = String(src.ruolo ?? src.role ?? 'utente').toLowerCase();
+    const ruoloNormalizzato = ruoloRaw.includes('admin') ? 'admin' : 'utente';
+
+    return {
+      ...src,
+      id: isNaN(idEstratto) ? src.id : idEstratto,
+      nome: src.nome ?? src.nomeUtente ?? src.first_name ?? '',
+      cognome: src.cognome ?? src.last_name ?? '',
+      email: src.email ?? '',
+      ruolo: ruoloNormalizzato,
+      torneiIscrittiIds: Array.isArray(raw.torneiIscrittiIds ?? src.torneiIscrittiIds)
+        ? (raw.torneiIscrittiIds ?? src.torneiIscrittiIds).map((id: any) => Number(id))
+        : []
+    };
+  }
+
+  private creaHeaders(): HttpHeaders {
+    const t = this.token() || localStorage.getItem(this.chiaveToken) || '';
+    const authHeader = t ? (t.startsWith('Bearer ') ? t : `Bearer ${t}`) : '';
+    return new HttpHeaders({
+      'Authorization': authHeader
+    });
+  }
+
+  private salvaSessione(rispostaGrezza: any, tokenRicevuto?: string): void {
+    const utenteObj = rispostaGrezza?.utente ?? rispostaGrezza?.user ?? rispostaGrezza;
+    const utente = this.normalizzaUtente(utenteObj);
+
+    const tokenGenerato = tokenRicevuto
+      ?? rispostaGrezza?.token
+      ?? rispostaGrezza?.tokenJwt
+      ?? `token-${utente.id}-${Date.now()}`;
 
     this.utenteCorrente.set(utente);
     this.token.set(tokenGenerato);
@@ -43,28 +88,26 @@ export class AutenticazioneMockService {
   }
 
   accedi(email: string, password: string): Observable<boolean> {
-  const payload = {
-    email: email.trim().toLowerCase(),
-    password
-  };
+    const payload = {
+      email: email.trim().toLowerCase(),
+      password
+    };
 
-  return this.http.post<any>(`${this.apiUrl}/login`, payload).pipe(
-    tap(res => {
-      
-      const utente: Utente = res.utente ?? res.user ?? res;
-      const token = res.token;
-
-      if (utente) {
-        this.salvaSessione(utente, token);
-      }
-    }),
-    map(res => !!res),
-    catchError(err => {
-      console.error('Errore durante il login:', err);
-      return of(false);
-    })
-  );
-}
+    return this.http.post<any>(`${this.apiUrl}/login`, payload).pipe(
+      tap(risposta => {
+        if (risposta) {
+          this.salvaSessione(risposta, risposta.token || risposta.tokenJwt);
+          
+          this.sincronizzaUtenteEIscrizioni();
+        }
+      }),
+      map(risposta => !!risposta),
+      catchError(err => {
+        console.error('Errore durante il login:', err);
+        return of(false);
+      })
+    );
+  }
 
   registra(
     nome: string,
@@ -79,13 +122,13 @@ export class AutenticazioneMockService {
       password
     };
 
-    return this.http.post<Utente>(`${this.apiUrl}/registrazione`, payload).pipe(
-      tap(utente => {
-        if (utente) {
-          this.salvaSessione(utente);
+    return this.http.post<any>(`${this.apiUrl}/registrazione`, payload).pipe(
+      tap(risposta => {
+        if (risposta) {
+          this.salvaSessione(risposta, risposta.token || risposta.tokenJwt);
         }
       }),
-      map(utente => !!utente),
+      map(risposta => !!risposta),
       catchError(err => {
         console.error('Errore durante la registrazione:', err);
         return of(false);
@@ -93,53 +136,87 @@ export class AutenticazioneMockService {
     );
   }
 
- aggiornaIscrizioniTornei(torneoId: number | string, iscrivi: boolean): Observable<boolean> {
+ 
+  sincronizzaUtenteEIscrizioni(): void {
+    const utenteAttuale = this.utenteCorrente();
+    if (!utenteAttuale) return;
+
+    const headers = this.creaHeaders();
+
+    this.http.get<any>(`${this.apiUrl}/utenti/me`, { headers }).pipe(
+      tap(datiMe => {
+        if (datiMe) {
+          const profiloAggiornato = this.normalizzaUtente({
+            ...utenteAttuale,
+            ...datiMe
+          });
+          this.utenteCorrente.set(profiloAggiornato);
+          localStorage.setItem(this.chiaveUtenteLoggato, JSON.stringify(profiloAggiornato));
+        }
+      }),
+      catchError(err => {
+        console.warn('Impossibile recuperare /api/utenti/me:', err);
+        return of(null);
+      })
+    ).subscribe();
+
+    this.http.get<any[]>(`${this.apiUrl}/utenti/me/iscrizioni`, { headers }).pipe(
+      tap(listaIscrizioni => {
+        const ids = Array.isArray(listaIscrizioni)
+          ? listaIscrizioni.map(item => Number(item.torneoId ?? item.idTorneo ?? item.id))
+          : [];
+
+        const utente = this.utenteCorrente();
+        if (utente) {
+          const utenteConIscrizioni = this.normalizzaUtente({
+            ...utente,
+            torneiIscrittiIds: ids
+          });
+          this.utenteCorrente.set(utenteConIscrizioni);
+          localStorage.setItem(this.chiaveUtenteLoggato, JSON.stringify(utenteConIscrizioni));
+        }
+      }),
+      catchError(err => {
+        console.error('Errore caricamento iscrizioni:', err);
+        return of([]);
+      })
+    ).subscribe();
+  }
+
+  aggiornaIscrizioniTornei(torneoId: number | string, iscrivi: boolean): Observable<boolean> {
     const utente = this.utenteCorrente();
     if (!utente) return of(false);
 
     const targetId = Number(torneoId);
-
     if (isNaN(targetId)) {
-      console.error('ID Torneo non valido:', { targetId });
       return throwError(() => new Error('ID Torneo non valido.'));
     }
 
-    const authToken = this.token() || localStorage.getItem(this.chiaveToken) || '';
-    const headers = new HttpHeaders({
-      'Authorization': authToken.startsWith('Bearer ') ? authToken : `Bearer ${authToken}`
-    });
-
-    
+    const headers = this.creaHeaders();
     const url = `${this.apiUrl}/tornei/${targetId}/iscrizione`;
 
-   
     const richiesta$ = iscrivi
       ? this.http.post(url, {}, { headers })
       : this.http.delete(url, { headers });
 
     return richiesta$.pipe(
       tap(() => {
-        
         const idsAttuali = (utente.torneiIscrittiIds ?? []).map(id => Number(id));
-        
         let nuoviIds: number[];
+
         if (iscrivi) {
           nuoviIds = Array.from(new Set([...idsAttuali, targetId]));
         } else {
           nuoviIds = idsAttuali.filter(id => id !== targetId);
         }
 
-        const utenteAggiornato: Utente = {
+        const utenteAggiornato = this.normalizzaUtente({
           ...utente,
           torneiIscrittiIds: nuoviIds
-        };
+        });
 
-        
         this.utenteCorrente.set(utenteAggiornato);
-        localStorage.setItem(
-          this.chiaveUtenteLoggato,
-          JSON.stringify(utenteAggiornato)
-        );
+        localStorage.setItem(this.chiaveUtenteLoggato, JSON.stringify(utenteAggiornato));
       }),
       map(() => true),
       catchError(err => {
@@ -156,4 +233,25 @@ export class AutenticazioneMockService {
     localStorage.removeItem(this.chiaveUtenteLoggato);
     localStorage.removeItem(this.chiaveToken);
   }
+
+  getPartecipantiTorneo(torneoId: number | string): Observable<any[]> {
+    const id = Number(torneoId);
+    const headers = this.creaHeaders();
+
+    return this.http.get<any>(`${this.apiUrl}/tornei/${id}/partecipanti`, { headers }).pipe(
+      map(risposta => {
+        
+        if (Array.isArray(risposta)) {
+          return risposta;
+        }
+      
+        return risposta?.partecipanti || risposta?.iscritti || risposta?.utenti || [];
+      }),
+      catchError(err => {
+        console.error('Errore nel caricamento dei partecipanti:', err);
+        return of([]);
+      })
+    );
+  }
+  
 }

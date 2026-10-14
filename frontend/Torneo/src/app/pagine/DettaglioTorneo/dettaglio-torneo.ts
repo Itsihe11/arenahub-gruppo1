@@ -35,6 +35,9 @@ export class DettaglioTorneo {
   readonly torneoId = signal<number | null>(null);
   readonly partite = this.partitaService.partite;
 
+ 
+  readonly partecipanti = signal<any[]>([]);
+
   readonly torneo = computed(() => {
     const id = this.torneoId();
 
@@ -61,7 +64,6 @@ export class DettaglioTorneo {
 
     return iscrittoNelProfilo || iscrittoTraPartecipanti;
   });
-
 
   readonly partitePerTurno = computed(() => {
     const lista = this.partite();
@@ -128,11 +130,11 @@ export class DettaglioTorneo {
       }
     }
 
-   
     return Array.from(mappaGiocatori.values()).sort((a, b) => {
       if (b.vittorie !== a.vittorie) return b.vittorie - a.vittorie;
       if (b.differenzaPunti !== a.differenzaPunti) return b.differenzaPunti - a.differenzaPunti;
-      return b.puntiFatti - a.puntiFatti;
+      if (b.puntiFatti !== a.puntiFatti) return b.puntiFatti - a.puntiFatti;
+      return 0;
     });
   });
 
@@ -147,10 +149,24 @@ export class DettaglioTorneo {
 
       if (idParam !== null && Number.isInteger(id) && id > 0) {
         this.torneoId.set(id);
-        // Richiede le partite del torneo selezionato al backend Spring Boot
         this.partitaService.caricaPartiteTorneo(id);
+        
+        this.caricaPartecipanti(id);
       } else {
         this.torneoId.set(null);
+      }
+    });
+  }
+
+  
+  caricaPartecipanti(id: number): void {
+    this.autenticazioneService.getPartecipantiTorneo(id).subscribe({
+      next: (lista) => {
+        this.partecipanti.set(lista);
+      },
+      error: (err) => {
+        console.error('Errore durante il caricamento dei partecipanti:', err);
+        this.partecipanti.set([]);
       }
     });
   }
@@ -188,6 +204,8 @@ export class DettaglioTorneo {
       next: (successo) => {
         if (successo) {
           this.torneiService.caricaTornei();
+         
+          this.caricaPartecipanti(torneo.id);
           alert('Iscrizione completata con successo!');
         } else {
           alert('Impossibile completare l\'iscrizione.');
@@ -223,6 +241,8 @@ export class DettaglioTorneo {
         next: (successo) => {
           if (successo) {
             this.torneiService.caricaTornei();
+           
+            this.caricaPartecipanti(torneo.id);
             alert('Iscrizione annullata.');
           } else {
             alert('Impossibile annullare l\'iscrizione.');

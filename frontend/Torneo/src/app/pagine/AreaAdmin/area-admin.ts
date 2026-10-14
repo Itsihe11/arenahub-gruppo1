@@ -30,6 +30,9 @@ export class AreaAdmin {
   readonly torneoSelezionato = signal<Torneo | null>(null);
   readonly modalitaModifica = signal(false);
 
+
+  partecipantiSelezionati: Utente[] = [];
+
   nuovoNome = '';
   nuovoGioco = '';
   nuovaData = '';
@@ -56,30 +59,6 @@ export class AreaAdmin {
         this.limiteInput = limite;
       }
     });
-  }
-
-  get partecipantiSelezionati(): Utente[] {
-    const torneo = this.torneoSelezionato();
-
-    if (!torneo?.partecipantiIds?.length) {
-      return [];
-    }
-
-    return torneo.partecipantiIds
-      .map(id => this.getUtenteById(id))
-      .filter((utente): utente is Utente => utente !== undefined);
-  }
-
-  getUtenteById(id: number): Utente | undefined {
-    try {
-      const utenti: Utente[] = JSON.parse(
-        localStorage.getItem('mock_utenti') || '[]'
-      );
-
-      return utenti.find(utente => utente.id === id);
-    } catch {
-      return undefined;
-    }
   }
 
   creaTorneo(): void {
@@ -113,6 +92,18 @@ export class AreaAdmin {
     this.modalitaModifica.set(false);
     this.caricaDatiModifica(torneo);
     this.partitaService.caricaPartiteTorneo(torneo.id);
+
+    
+    this.partecipantiSelezionati = [];
+    this.autenticazioneService.getPartecipantiTorneo(torneo.id).subscribe({
+      next: (lista) => {
+        this.partecipantiSelezionati = lista;
+      },
+      error: (err) => {
+        console.error('Errore nel caricamento dei partecipanti admin:', err);
+        this.partecipantiSelezionati = [];
+      }
+    });
   }
 
   private caricaDatiModifica(torneo: Torneo): void {
@@ -122,7 +113,6 @@ export class AreaAdmin {
     this.modificaPostiMax = torneo.postiMax;
     this.modificaDescrizione = torneo.descrizione ?? '';
 
-    // Nell'area admin sono ammessi soltanto gli stati aperto e chiuso.
     this.modificaStato =
       torneo.stato === 'aperto' ? 'aperto' : 'chiuso';
   }
@@ -214,6 +204,7 @@ export class AreaAdmin {
       this.torneoSelezionato.set(null);
       this.modalitaModifica.set(false);
       this.partitaService.partite.set([]);
+      this.partecipantiSelezionati = [];
     }
   }
 
@@ -221,6 +212,7 @@ export class AreaAdmin {
     this.torneoSelezionato.set(null);
     this.modalitaModifica.set(false);
     this.partitaService.partite.set([]);
+    this.partecipantiSelezionati = [];
   }
 
   generaPartite(): void {
@@ -243,7 +235,7 @@ export class AreaAdmin {
           typeof err?.error === 'string'
             ? err.error
             : err?.error?.message ||
-            'Impossibile generare il tabellone.';
+              'Impossibile generare il tabellone.';
 
         alert(messaggio);
       }
@@ -299,7 +291,7 @@ export class AreaAdmin {
             typeof err?.error === 'string'
               ? err.error
               : err?.error?.message ||
-              'Impossibile salvare il risultato.';
+                'Impossibile salvare il risultato.';
 
           alert('Errore: ' + messaggio);
         }

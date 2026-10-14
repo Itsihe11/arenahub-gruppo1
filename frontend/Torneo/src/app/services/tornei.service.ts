@@ -20,6 +20,8 @@ export interface Torneo {
   }[];
 }
 
+
+
 /**
  * Struttura prevista per il limite globale di tornei per giocatore.
  * Da adattare alla risposta effettiva del backend.
