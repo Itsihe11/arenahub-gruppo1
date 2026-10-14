@@ -1,5 +1,5 @@
 import { Injectable, signal, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, of, throwError } from 'rxjs';
 import { tap, map, catchError } from 'rxjs/operators';
 import { Utente } from '../interfaces/utente.interface';
@@ -93,32 +93,33 @@ export class AutenticazioneMockService {
     );
   }
 
-  aggiornaIscrizioniTornei(torneoId: number | string, iscrivi: boolean): Observable<boolean> {
+ aggiornaIscrizioniTornei(torneoId: number | string, iscrivi: boolean): Observable<boolean> {
     const utente = this.utenteCorrente();
     if (!utente) return of(false);
 
     const targetId = Number(torneoId);
-    
 
-    const rawUserId = utente.id ?? (utente as any).uid ?? (utente as any).idUtente;
-    const userId = Number(rawUserId);
-
-    if (isNaN(userId) || isNaN(targetId)) {
-      console.error('ID Utente o ID Torneo non valido:', { rawUserId, targetId, utente });
-      return throwError(() => new Error('ID Utente o ID Torneo non valido.'));
+    if (isNaN(targetId)) {
+      console.error('ID Torneo non valido:', { targetId });
+      return throwError(() => new Error('ID Torneo non valido.'));
     }
 
-    const endpoint = iscrivi
-      ? `${this.iscrizioniUrl}/iscrivi`
-      : `${this.iscrizioniUrl}/annulla`;
+    const authToken = this.token() || localStorage.getItem(this.chiaveToken) || '';
+    const headers = new HttpHeaders({
+      'Authorization': authToken.startsWith('Bearer ') ? authToken : `Bearer ${authToken}`
+    });
 
-    const payload = {
-      uid: userId,
-      torneoId: targetId
-    };
+    
+    const url = `${this.apiUrl}/tornei/${targetId}/iscrizione`;
 
-    return this.http.post(endpoint, payload).pipe(
+   
+    const richiesta$ = iscrivi
+      ? this.http.post(url, {}, { headers })
+      : this.http.delete(url, { headers });
+
+    return richiesta$.pipe(
       tap(() => {
+        
         const idsAttuali = (utente.torneiIscrittiIds ?? []).map(id => Number(id));
         
         let nuoviIds: number[];
@@ -133,6 +134,7 @@ export class AutenticazioneMockService {
           torneiIscrittiIds: nuoviIds
         };
 
+        
         this.utenteCorrente.set(utenteAggiornato);
         localStorage.setItem(
           this.chiaveUtenteLoggato,
@@ -142,7 +144,6 @@ export class AutenticazioneMockService {
       map(() => true),
       catchError(err => {
         console.error('Errore durante la gestione dell\'iscrizione:', err);
-        
         return throwError(() => err);
       })
     );
