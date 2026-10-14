@@ -13,9 +13,9 @@ import com.example.backend.Model.Torneo;
 import jakarta.transaction.Transactional;
 
 public interface TorneoRepository extends JpaRepository<Torneo, Integer> {
-	List<Torneo> findAllByOrderByDataInizioTorneo();
+	List<Torneo> findAllByOrderByDataTorneo();
 
-	List<Torneo> findByStatoOrderByDataInizioTorneo(String stato);
+	List<Torneo> findByStatoOrderByDataTorneo(String stato);
 
 	Optional<Torneo> findById(int id);
 	

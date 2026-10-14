@@ -4,18 +4,24 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.example.backend.Model.Torneo;
 import com.example.backend.Services.TorneoService;
@@ -24,15 +30,38 @@ import com.example.backend.Services.TorneoService;
 @RequestMapping("/api/tornei")
 @CrossOrigin(origins = "http://localhost:4200")
 public class TorneoController {
+	
+	
+	@RestControllerAdvice
+	public class GestoreErrori {
 
-    @Autowired TorneoService torneoService;
+	    @ExceptionHandler(ResponseStatusException.class)
+	    public ResponseEntity<Map<String, String>> status(ResponseStatusException e) {
+	        return ResponseEntity.status(e.getStatusCode()).body(Map.of("errore", e.getReason()));
+	    }
+
+	    @ExceptionHandler({MethodArgumentTypeMismatchException.class})
+	    public ResponseEntity<Map<String, String>> id(Exception e) {
+	        return ResponseEntity.badRequest().body(Map.of("errore", "Id non valido"));
+	    }
+
+	    @ExceptionHandler({HttpMessageNotReadableException.class})
+	    public ResponseEntity<Map<String, String>> body(Exception e) {
+	        return ResponseEntity.badRequest().body(Map.of("errore", "Dati non validi"));
+	    }
+	}
+
+    private final TorneoService torneoService;
 
     public TorneoController(TorneoService torneoService) {
         this.torneoService = torneoService;
     }
 
     @GetMapping
-    public List<Map<String, Object>> elenco(@RequestParam(required = false) String stato) {
+    public List<Map<String, Object>> elenco(
+    		@RequestParam(required = false) String stato,
+    		@RequestParam(required = false) String gioco,
+    		@RequestParam(required = false) String data) {
         return torneoService.elenco(stato);
     }
 
@@ -44,43 +73,41 @@ public class TorneoController {
 
     @PostMapping
     public ResponseEntity<Map<String, Object>> crea(
-            @RequestParam(required = false, defaultValue = "1") Integer uid,
+            @RequestHeader(value = "Authorization", required = false) String auth,
             @RequestBody Map<String, Object> payload) {
 
-        Torneo t = convertiPayloadInTorneo(payload);
-        Map<String, Object> risultato = torneoService.crea(uid, t);
-        return ResponseEntity.ok(risultato);
+    	Map<String, Object> r = torneoService.crea(uid(auth), payload);
+        return ResponseEntity.status(HttpStatus.CREATED).body(r);
     }
 
-
-    @PostMapping("/crea")
-    public ResponseEntity<Map<String, Object>> creaSottopercorso(
-            @RequestParam(required = false, defaultValue = "1") Integer uid,
-            @RequestBody Map<String, Object> payload) {
-        return crea(uid, payload);
-    }
 
 
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> modifica(
-            @RequestParam(required = false, defaultValue = "1") Integer uid,
+    public Map<String, Object> modifica(
+            @RequestHeader(value = "Authorization", required = false) String auth,
             @PathVariable int id,
             @RequestBody Map<String, Object> payload) {
-
-        Torneo t = convertiPayloadInTorneo(payload);
-        Map<String, Object> risultato = torneoService.modifica(uid, id, t);
-        return ResponseEntity.ok(risultato);
+        return torneoService.modifica(uid(auth), id, payload);
     }
     
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> elimina(
-            @RequestParam(required = false, defaultValue = "1") Integer uid,
+            @RequestHeader(value = "Authorization", required = false) String auth,
             @PathVariable int id) {
-
-        torneoService.elimina(uid, id);
+        torneoService.elimina(uid(auth), id);
         return ResponseEntity.noContent().build();
     }
 
+    private Integer uid(String auth) {
+        if (auth == null || !auth.startsWith("Bearer ")) return null;
+        try {
+            return Integer.parseInt(auth.substring(7).trim());
+        } catch (NumberFormatException e) {
+            return null;
+        }
+    }
+    
+    
 
     private Torneo convertiPayloadInTorneo(Map<String, Object> p) {
         Torneo t = new Torneo();
@@ -104,11 +131,11 @@ public class TorneoController {
         }
 
 
-        Object dt = p.get("dataTorneo") != null ? p.get("dataTorneo") : p.get("dataInizioTorneo");
+        Object dt = p.get("dataTorneo") != null ? p.get("dataTorneo") : p.get("dataTorneo");
         if (dt != null && !dt.toString().isBlank()) {
-            t.setDataInizioTorneo(parseData(dt.toString()));
+            t.setDataTorneo(parseData(dt.toString()));
         } else {
-            t.setDataInizioTorneo(LocalDate.now().plusDays(7));
+            t.setDataTorneo(LocalDate.now().plusDays(7));
         }
 
      
@@ -124,7 +151,7 @@ public class TorneoController {
         if (dfi != null && !dfi.toString().isBlank()) {
             t.setDataFineIscrizione(parseData(dfi.toString()));
         } else {
-            t.setDataFineIscrizione(t.getDataInizioTorneo());
+            t.setDataFineIscrizione(t.getDataTorneo());
         }
 
         return t;
