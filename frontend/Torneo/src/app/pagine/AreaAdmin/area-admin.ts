@@ -91,6 +91,7 @@ export class AreaAdmin {
     });
   }
 
+  
   selezionaTorneo(torneo: Torneo): void {
     this.torneoSelezionato.set(torneo);
     this.modalitaModifica.set(false);

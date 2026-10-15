@@ -14,7 +14,7 @@ export class AutenticazioneMockService {
   private readonly chiaveUtenteLoggato = 'utente_loggato';
   private readonly chiaveToken = 'auth_token';
 
-  readonly utenteCorrente = signal<Utente | null>(
+  readonly utenteCorrente = signal<Utente | null>(  
     this.leggiUtenteLoggato()
   );
 
@@ -23,7 +23,6 @@ export class AutenticazioneMockService {
   );
 
   constructor() {
-   
     if (this.utenteCorrente()) {
       this.sincronizzaUtenteEIscrizioni();
     }
@@ -38,13 +37,10 @@ export class AutenticazioneMockService {
     }
   }
 
-
   private normalizzaUtente(raw: any): Utente {
     if (!raw) return raw;
 
-  
     const src = raw.utente ?? raw.user ?? raw;
-
     const idEstratto = Number(src.id ?? src.uid ?? src.idUtente);
 
     const ruoloRaw = String(src.ruolo ?? src.role ?? 'utente').toLowerCase();
@@ -75,10 +71,13 @@ export class AutenticazioneMockService {
     const utenteObj = rispostaGrezza?.utente ?? rispostaGrezza?.user ?? rispostaGrezza;
     const utente = this.normalizzaUtente(utenteObj);
 
-    const tokenGenerato = tokenRicevuto
+    
+    const tokenGenerato = String(
+      tokenRicevuto
       ?? rispostaGrezza?.token
       ?? rispostaGrezza?.tokenJwt
-      ?? `token-${utente.id}-${Date.now()}`;
+      ?? utente.id
+    );
 
     this.utenteCorrente.set(utente);
     this.token.set(tokenGenerato);
@@ -97,7 +96,6 @@ export class AutenticazioneMockService {
       tap(risposta => {
         if (risposta) {
           this.salvaSessione(risposta, risposta.token || risposta.tokenJwt);
-          
           this.sincronizzaUtenteEIscrizioni();
         }
       }),
@@ -126,6 +124,8 @@ export class AutenticazioneMockService {
       tap(risposta => {
         if (risposta) {
           this.salvaSessione(risposta, risposta.token || risposta.tokenJwt);
+         
+          this.sincronizzaUtenteEIscrizioni();
         }
       }),
       map(risposta => !!risposta),
@@ -136,7 +136,6 @@ export class AutenticazioneMockService {
     );
   }
 
- 
   sincronizzaUtenteEIscrizioni(): void {
     const utenteAttuale = this.utenteCorrente();
     if (!utenteAttuale) return;
@@ -242,7 +241,6 @@ export class AutenticazioneMockService {
       map(risposta => {
         let listaGrezza: any[] = [];
 
-     
         if (Array.isArray(risposta)) {
           listaGrezza = risposta;
         } else if (risposta && typeof risposta === 'object') {
@@ -256,7 +254,6 @@ export class AutenticazioneMockService {
           );
         }
 
-        
         return listaGrezza.map(item => {
           const u = item.utente ?? item.user ?? item;
           return {
@@ -275,25 +272,24 @@ export class AutenticazioneMockService {
   }
 
   caricaIscrizioniUtente(): Observable<number[]> {
-  const u = this.utenteCorrente();
-  if (!u) return of([]);
+    const u = this.utenteCorrente();
+    if (!u) return of([]);
 
-  const headers = this.creaHeaders();
-  return this.http.get<any[]>('http://localhost:8080/api/utenti/me/iscrizioni', { headers }).pipe(
-    map(iscrizioni => iscrizioni.map(i => Number(i.id))),
-    tap(ids => {
-      const utenteAggiornato = this.normalizzaUtente({
-        ...u,
-        torneiIscrittiIds: ids
-      });
-      this.utenteCorrente.set(utenteAggiornato);
-      localStorage.setItem(this.chiaveUtenteLoggato, JSON.stringify(utenteAggiornato));
-    }),
-    catchError(err => {
-      console.error('Errore nel recupero iscrizioni utente dal backend:', err);
-      return of(u.torneiIscrittiIds || []);
-    })
-  );
-}
-  
+    const headers = this.creaHeaders();
+    return this.http.get<any[]>(`${this.apiUrl}/utenti/me/iscrizioni`, { headers }).pipe(
+      map(iscrizioni => Array.isArray(iscrizioni) ? iscrizioni.map(i => Number(i.idTorneo ?? i.id)) : []),
+      tap(ids => {
+        const utenteAggiornato = this.normalizzaUtente({
+          ...u,
+          torneiIscrittiIds: ids
+        });
+        this.utenteCorrente.set(utenteAggiornato);
+        localStorage.setItem(this.chiaveUtenteLoggato, JSON.stringify(utenteAggiornato));
+      }),
+      catchError(err => {
+        console.error('Errore nel recupero iscrizioni utente dal backend:', err);
+        return of(u.torneiIscrittiIds || []);
+      })
+    );
+  }
 }

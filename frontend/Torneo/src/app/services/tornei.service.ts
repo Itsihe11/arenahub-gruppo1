@@ -71,20 +71,30 @@ export class TorneiService {
     return this.tornei().find(t => t.id === id);
   }
 
-  creaTorneo(
-    nuovo: Omit<Torneo, 'id' | 'iscritti' | 'stato' | 'partecipantiIds' | 'classificaFinale'>
-  ): Observable<Torneo> {
-    const headers = this.creaHeaders();
-    const torneoPayload = {
-      ...nuovo,
-      stato: 'aperto'
-    };
+creaTorneo(dati: {
+  nome: string;
+  gioco: string;
+  dataTorneo: string;
+  postiMax: number;
+  descrizione: string;
+}): Observable<any> {
+  const headers = this.creaHeaders();
+  const oggi = new Date().toISOString().slice(0, 10);
 
-    return this.http.post<Torneo>(this.apiUrl, torneoPayload, { headers }).pipe(
-      tap(() => this.caricaTornei())
-    );
-  }
+  const payload = {
+    nome: dati.nome.trim(),
+    gioco: dati.gioco.trim(),
+    descrizione: dati.descrizione.trim() || 'Nessuna descrizione',
+    dataTorneo: dati.dataTorneo,
+    dataInizioIscrizione: oggi,               
+    dataFineIscrizione: dati.dataTorneo,        
+    postiMax: Number(dati.postiMax)
+  };
 
+  return this.http.post<any>(`${this.apiUrl}`, payload, { headers }).pipe(
+    tap(() => this.caricaTornei())
+  );
+}
   cambiaStatoTorneo(id: number, nuovoStato: 'aperto' | 'chiuso'): Observable<Torneo> {
     const headers = this.creaHeaders();
     const torneoCorrente = this.getTorneoById(id);

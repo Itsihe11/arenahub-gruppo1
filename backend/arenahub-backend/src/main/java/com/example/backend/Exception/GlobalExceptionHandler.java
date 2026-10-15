@@ -1,45 +1,32 @@
 package com.example.backend.Exception;
 
-import java.util.Map;
-
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
-import org.springframework.web.server.ResponseStatusException;
+
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    
-    @ExceptionHandler(ResponseStatusException.class)
-    public ResponseEntity<Map<String, String>> handleResponseStatus(ResponseStatusException ex) {
-        String messaggio = ex.getReason() != null ? ex.getReason() : "Errore generico";
-        return ResponseEntity.status(ex.getStatusCode()).body(Map.of("errore", messaggio));
-    }
-
-   
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
-        String messaggio = "Dati non validi";
-        if (ex.getBindingResult().getFieldError() != null) {
-            messaggio = ex.getBindingResult().getFieldError().getDefaultMessage();
-        }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("errore", messaggio));
-    }
+    public ResponseEntity<Map<String, String>> handleValidationExceptions(MethodArgumentNotValidException ex) {
+        
+        String dettagli = ex.getBindingResult()
+                .getAllErrors()
+                .stream()
+                .map(error -> {
+                    if (error instanceof FieldError fe) {
+                        return fe.getField() + ": " + fe.getDefaultMessage();
+                    }
+                    return error.getObjectName() + ": " + error.getDefaultMessage();
+                })
+                .collect(Collectors.joining(" | "));
 
-   
-    @ExceptionHandler(HttpMessageNotReadableException.class)
-    public ResponseEntity<Map<String, String>> handleNotReadable(HttpMessageNotReadableException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("errore", "Dati non validi"));
-    }
-
-   
-    @ExceptionHandler(MethodArgumentTypeMismatchException.class)
-    public ResponseEntity<Map<String, String>> handleTypeMismatch(MethodArgumentTypeMismatchException ex) {
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("errore", "Id non valido"));
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("errore", dettagli));
     }
 }

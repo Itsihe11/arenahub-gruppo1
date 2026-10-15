@@ -2,6 +2,7 @@ package com.example.backend.Model;
 
 import java.time.LocalDate;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -39,6 +40,7 @@ public class Torneo {
 
     @Column(name = "data_inizio_torneo")
     @JsonProperty("dataTorneo")
+    @JsonFormat(pattern = "yyyy-MM-dd")
     private LocalDate dataTorneo;
 
     private String stato;

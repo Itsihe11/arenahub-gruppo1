@@ -1,48 +1,50 @@
 package com.example.backend.Dto;
 
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import java.time.LocalDate;
 
 public class TorneoCreateRequest {
 
-    @NotBlank(message = "Dati non validi")
+    @NotBlank(message = "Il nome è obbligatorio")
     private String nome;
 
-    @NotBlank(message = "Dati non validi")
+    @NotBlank(message = "Il gioco è obbligatorio")
     private String gioco;
 
-    @NotBlank(message = "Dati non validi")
+    @NotNull(message = "La data è obbligatoria")
+    @JsonFormat(pattern = "yyyy-MM-dd")
+    private LocalDate dataTorneo;
+
+    @NotNull(message = "Il numero di posti è obbligatorio")
+    @Min(value = 2, message = "Inserire almeno 2 posti")
+    private Integer postiMax;
+
     private String descrizione;
 
-    @NotNull(message = "Dati non validi")
-    private LocalDateTime dataTorneo;
+   
+    private String stato = "aperto";
 
-    @NotNull(message = "Dati non validi")
-    private LocalDate dataInizioIscrizione;
+    public TorneoCreateRequest() {}
 
-    @NotNull(message = "Dati non validi")
-    private LocalDate dataFineIscrizione;
-
-    @NotNull(message = "Dati non validi")
-    @Min(value = 1, message = "Dati non validi")
-    private Integer postiMax;
 
     public String getNome() { return nome; }
     public void setNome(String nome) { this.nome = nome; }
+
     public String getGioco() { return gioco; }
     public void setGioco(String gioco) { this.gioco = gioco; }
-    public String getDescrizione() { return descrizione; }
-    public void setDescrizione(String descrizione) { this.descrizione = descrizione; }
-    public LocalDateTime getDataTorneo() { return dataTorneo; }
-    public void setDataTorneo(LocalDateTime dataTorneo) { this.dataTorneo = dataTorneo; }
-    public LocalDate getDataInizioIscrizione() { return dataInizioIscrizione; }
-    public void setDataInizioIscrizione(LocalDate dataInizioIscrizione) { this.dataInizioIscrizione = dataInizioIscrizione; }
-    public LocalDate getDataFineIscrizione() { return dataFineIscrizione; }
-    public void setDataFineIscrizione(LocalDate dataFineIscrizione) { this.dataFineIscrizione = dataFineIscrizione; }
+
+    public LocalDate getDataTorneo() { return dataTorneo; }
+    public void setDataTorneo(LocalDate dataTorneo) { this.dataTorneo = dataTorneo; }
+
     public Integer getPostiMax() { return postiMax; }
     public void setPostiMax(Integer postiMax) { this.postiMax = postiMax; }
+
+    public String getDescrizione() { return descrizione; }
+    public void setDescrizione(String descrizione) { this.descrizione = descrizione; }
+
+    public String getStato() { return stato; }
+    public void setStato(String stato) { this.stato = stato; }
 }
