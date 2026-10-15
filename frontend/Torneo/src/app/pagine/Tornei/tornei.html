@@ -125,11 +125,20 @@
       </button>
     </div>
 
-    <!-- Griglia tornei -->
-    @if (torneiFiltrati().length > 0) {
+@if (torneiFiltrati().length > 0) {
       <div class="griglia-tornei">
         @for (torneo of torneiFiltrati(); track torneo.id) {
           <article class="scheda-torneo">
+
+            
+            <div class="copertina-gioco">
+              <img 
+                [src]="getImmagineGioco(torneo.gioco)" 
+                [alt]="torneo.gioco"
+                (error)="$any($event.target).src = placeholderGioco"
+              />
+            </div>
+
             <div class="scheda-intestazione">
               <span
                 class="badge-stato"

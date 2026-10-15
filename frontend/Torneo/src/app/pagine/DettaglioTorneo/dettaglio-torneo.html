@@ -33,11 +33,22 @@
   @if (torneo(); as t) {
     <a routerLink="/tornei" class="ritorno-catalogo">← Torna al catalogo tornei</a>
 
-    <section class="hero-dettaglio">
+  <section class="hero-dettaglio">
+      
+      <div class="hero-bg">
+        <img 
+          [src]="getImmagineGioco(t.gioco)" 
+          [alt]="t.gioco" 
+          (error)="$any($event.target).src = placeholderGioco"
+        />
+        <div class="hero-overlay"></div>
+      </div>
+
+      
       <div class="hero-contenuto">
         <span class="sovratitolo">SCHEDA COMPETIZIONE</span>
 
-        <div>
+        <div class="badge-container">
           <span class="badge-gioco">{{ t.gioco }}</span>
           <span
             class="badge-stato"
@@ -51,11 +62,9 @@
         <h1>{{ t.nome }}</h1>
         <p class="descrizione-torneo">{{ t.descrizione }}</p>
       </div>
-
-      <div class="hero-sfondo">
-        <span>🎮</span>
-      </div>
     </section>
+
+      
 
     <div class="griglia-dettagli">
       <!-- PANNELLO INFORMAZIONI GENERALI -->

@@ -35,7 +35,28 @@ export class DettaglioTorneo {
   readonly torneoId = signal<number | null>(null);
   readonly partite = this.partitaService.partite;
 
+  readonly immaginiGiochi: Record<string, string> = {
+    'ea sports fc 24': 'https://www.playstationbit.com/wp-content/uploads/2023/07/EA-SPORTS-FC-24.jpg',
+    'ea fc 24': 'https://www.playstationbit.com/wp-content/uploads/2023/07/EA-SPORTS-FC-24.jpg',
+    'tekken 8': 'https://gaming-cdn.com/images/products/9579/616x353/tekken-8-pc-gioco-steam-cover.jpg?v=1744296954',
+    'super smash bros. ultimate': 'https://images.unsplash.com/photo-1566577134770-3d85bb3a9cc4?q=80&w=1170&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=NHwxMjA3fDA%3D',
+    'street fighter 6': 'https://www.streetfighter.com/6/assets/images/index/mv_edition_bg.jpg',
+    'streefighter v': 'https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSHVPfB2b2D4FhED08FbJZeHdo4gnzWPxF14VgGJ9agfedpuY_ecI37Ibw&s=10',
+    'scacchi': 'https://pbs.twimg.com/media/HUO9T_3WcAAswOA?format=webp&name=large',
+    'trackmania': 'https://store-images.s-microsoft.com/image/apps.12601.13929807647902137.38a53ce6-26b2-46d3-a4f5-54b363f7efcd.5a51a75a-b7d2-4138-8be9-9ce92ae4b837'
+  };
+  readonly placeholderGioco = 'https://images.ctfassets.net/s5n2t79q9icq/4ejLQCX5Y9E05jq96QoFLR/2e59320ed34130c2e92716c8ac69ac98/en_articles_archive_news_raising-new-banner-2017-10-08-meta-image.jpeg';
+
+  getImmagineGioco(nomeGioco: string | undefined | null): string {
+    if (!nomeGioco) return this.placeholderGioco;
+    const chiave = nomeGioco.trim().toLowerCase();
+    return this.immaginiGiochi[chiave] || this.placeholderGioco;
+  }
+
+
   readonly partecipanti = signal<any[]>([]);
+
+  
 
   readonly torneo = computed(() => {
     const id = this.torneoId();
