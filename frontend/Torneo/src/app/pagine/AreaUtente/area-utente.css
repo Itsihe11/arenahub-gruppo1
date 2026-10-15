@@ -20,7 +20,7 @@
   width: 100%;
   min-height: 78px;
   padding: 16px 7%;
-  background: #050f1e;
+  background: white;
   border-bottom: 1px solid #203650;
 }
 
@@ -52,6 +52,19 @@
   font-weight: 900;
 }
 
+.logo-immagine {
+  display: block;
+  height: 44px;
+  width: auto;
+  max-width: 100%;
+}
+
+@media (max-width: 700px) {
+  .logo-immagine {
+    height: 36px;
+  }
+}
+
 .navigazione {
   display: flex;
   gap: 24px;
@@ -59,10 +72,10 @@
 
 .navigazione a,
 .link-login {
-  color: #c0cfe1;
+  color: #050f1e;
   text-decoration: none;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 800;
   transition: color 0.2s ease;
 }
 
@@ -75,31 +88,40 @@
 .azioni-header {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin-left: auto;
+  gap: 24px;
+  flex-wrap: wrap;
 }
 
 .nome-utente-header {
-  color: #e2f1ff;
-  font-size: 13px;
+  color: #050f1e;
+  font-size: 14px;
   font-weight: 700;
 }
 
 .link-esci {
-  background: transparent;
-  border: 1px solid #294765;
-  color: #ffb9c3;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 700;
-  transition: background 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 18px;
+  border: 1px solid #51c8ff;
+  border-radius: 9px;
+  color: #06172a;
+  background-color: #51c8ff;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .link-esci:hover {
-  background: #482333;
-}
+
+  background-color: #8bdcff;
+  border-color: #8bdcff;
+  transform: translateY(-1px);}
 
 /* PAGINA AREA PERSONALE */
 .pagina-area-personale,
@@ -234,17 +256,17 @@ h1 {
   color: #51c8ff;
 }
 
-.badge-stato.iscritto,
-.badge-stato.aperto,
-.badge-esito {
-  background: #123e32;
-  color: #4fe3a5;
-  border: 1px solid #1a6b52;
+.badge-stato.iscritto{
+  background: #1a3855;
+  color: #51c8ff;
+  border: 1px solid #294765;
   padding: 5px 11px;
   border-radius: 6px;
   font-size: 10px;
   font-weight: 800;
 }
+
+
 
 .testo-destra {
   text-align: right;
@@ -346,10 +368,10 @@ h1 {
 .footer {
   width: 100%;
   margin-top: auto;
-  padding: 38px 7% 20px;
-  background: #050f1e;
+  padding: 20px;
   border-top: 1px solid #203650;
-  color: #c0cfe1;
+  background-color: white;
+  color: #050f1e;
 }
 
 .footer-contenuto {
@@ -361,14 +383,15 @@ h1 {
 }
 
 .footer-colonna h2 {
+  margin: 0 0 5px;
+  color: #51c8ff;
   font-size: 13px;
-  color: #fff;
-  margin-bottom: 12px;
+  font-weight: 800;
 }
 
 .footer-colonna a {
   display: block;
-  color: #9fb2c8;
+  color: #050f1e;
   text-decoration: none;
   font-size: 12px;
   margin-top: 8px;
@@ -379,13 +402,16 @@ h1 {
 }
 
 .footer-fondo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
   max-width: 1100px;
-  margin: 30px auto 0;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
+  margin: 0px auto 0;
+  padding-top: 8px;
+  border-top: 1px solid gray;
+  color: #050f1e;
   font-size: 11px;
-  color: #8fa4bb;
-  text-align: center;
 }
 
 /* SEZIONE PRESTAZIONI & RISULTATI */
@@ -426,24 +452,3 @@ h1 {
 }
 
 /* RESPONSIVE */
-@media (max-width: 768px) {
-  .header {
-    flex-wrap: wrap;
-    padding: 14px 5%;
-  }
-
-  .footer-contenuto {
-    grid-template-columns: 1fr;
-    gap: 24px;
-  }
-
-  .sezione-iscrizioni,
-  .sezione-utente {
-    padding: 20px 15px;
-  }
-
-  .celle-azioni {
-    flex-direction: column;
-    align-items: flex-end;
-  }
-}

@@ -21,8 +21,9 @@
   width: 100%;
   min-height: 78px;
   padding: 16px 7%;
-  background-color: #050f1e;
+  background-color: white;
   border-bottom: 1px solid #203650;
+  color: #050f1e;
 }
 
 .header-sinistra {
@@ -57,6 +58,19 @@
   font-weight: 900;
 }
 
+.logo-immagine {
+  display: block;
+  height: 44px;
+  width: auto;
+  max-width: 100%;
+}
+
+@media (max-width: 700px) {
+  .logo-immagine {
+    height: 36px;
+  }
+}
+
 .logo-testo {
   color: #f4f8ff;
   font-size: 20px;
@@ -72,9 +86,9 @@
 }
 
 .navigazione a {
-  color: #c0cfe1;
+  color: #050f1e;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 800;
   text-decoration: none;
   transition: color 0.2s ease;
 }
@@ -90,38 +104,57 @@
   display: flex;
   align-items: center;
   justify-content: flex-end;
-  gap: 20px;
+  gap: 24px;
   margin-left: auto;
   flex-shrink: 0;
 }
 
+.badge-ruolo-admin {
+  padding: 5px 9px;
+  border: 1px solid #51c8ff;
+  border-radius: 6px;
+  color: #51c8ff;
+  background: white;
+  font-size: 10px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+}
+
 .nome-utente-header {
-  color: #e2f1ff;
-  font-size: 13px;
+  color: #050f1e;
+  font-size: 14px;
   font-weight: 700;
 }
 
 .link-esci {
-  background: transparent;
-  border: 1px solid #294765;
-  color: #ffb9c3;
-  padding: 6px 12px;
-  border-radius: 6px;
-  cursor: pointer;
-  font-size: 12px;
-  font-weight: 700;
-  transition: background 0.2s ease;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 18px;
+  border: 1px solid #51c8ff;
+  border-radius: 9px;
+  color: #06172a;
+  background-color: #51c8ff;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .link-esci:hover {
-  background: #482333;
-}
+  background-color: #8bdcff;
+  border-color: #8bdcff;
+  transform: translateY(-1px);}
 
 .link-login,
 .bottone-login {
-  color: #c0cfe1;
+  color: #050f1e;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 800;
   text-decoration: none;
   transition: color 0.2s ease;
 }
@@ -157,6 +190,10 @@
 }
 
 /* CONTENUTO PRINCIPALE / CATALOGO TORNEI */
+
+.main {
+  background-color: rgb(8, 24, 43);
+}
 
 main,
 .contenuto-principale,
@@ -576,10 +613,10 @@ main,
 .footer {
   width: 100%;
   margin-top: auto;
-  padding: 38px 24px 20px;
+  padding: 20px 20px 20px;
   border-top: 1px solid #203650;
-  background-color: #050f1e;
-  color: #c0cfe1;
+  background-color: white;
+  color: #050f1e;
 }
 
 .footer-contenuto {
@@ -589,6 +626,7 @@ main,
   width: 100%;
   max-width: 1100px;
   margin: 0 auto;
+  padding-bottom: 8px;
 }
 
 .footer-colonna {
@@ -601,14 +639,14 @@ main,
 
 .footer-colonna h2 {
   margin: 0 0 5px;
-  color: #f4f8ff;
+  color: #51c8ff;
   font-size: 13px;
   font-weight: 800;
 }
 
 .footer-colonna p {
   margin: 0;
-  color: #9fb2c8;
+  color: #050f1e;
   font-size: 12px;
   line-height: 1.8;
 }
@@ -634,7 +672,7 @@ main,
 }
 
 .footer-colonna > a:not(.logo-footer) {
-  color: #9fb2c8;
+  color: #050f1e;
   font-size: 12px;
   line-height: 1.6;
   text-decoration: none;
@@ -649,13 +687,13 @@ main,
 .footer-fondo {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 16px;
   max-width: 1100px;
-  margin: 30px auto 0;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
-  color: #8fa4bb;
+  margin: 0px auto 0;
+  padding-top: 8px;
+  border-top: 1px solid gray;
+  color: #050f1e;
   font-size: 11px;
 }
 
@@ -665,142 +703,4 @@ main,
   transition: color 0.2s ease;
 }
 
-/* RESPONSIVE */
 
-@media (max-width: 850px) {
-  .footer-contenuto {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 28px;
-  }
-
-  .benvenuto-contenuto {
-    gap: 24px;
-  }
-}
-
-@media (max-width: 700px) {
-  .header {
-    padding: 13px 5%;
-    gap: 12px;
-  }
-
-  .header-sinistra {
-    gap: 16px;
-  }
-
-  .logo {
-    gap: 8px;
-  }
-
-  .logo-icona {
-    width: 34px;
-    height: 34px;
-    font-size: 19px;
-  }
-
-  .logo-testo {
-    font-size: 15px;
-  }
-
-  .navigazione {
-    gap: 14px;
-  }
-
-  .navigazione a,
-  .link-login {
-    font-size: 12px;
-  }
-
-  .azioni-header {
-    gap: 12px;
-  }
-
-  .bottone-registrazione {
-    padding: 9px 11px;
-    font-size: 11px;
-  }
-
-  .benvenuto {
-    padding: 28px 16px;
-  }
-
-  .benvenuto-contenuto {
-    grid-template-columns: 1fr;
-    gap: 28px;
-    padding: 26px 22px;
-  }
-
-  .benvenuto-visual {
-    min-height: 170px;
-  }
-
-  .informazioni {
-    padding: 16px 16px 40px;
-  }
-
-  .informazioni-griglia {
-    grid-template-columns: 1fr;
-  }
-
-  .barra-filtri {
-    flex-direction: column;
-    align-items: stretch;
-  }
-}
-
-@media (max-width: 520px) {
-  .header {
-    flex-wrap: wrap;
-  }
-
-  .header-sinistra {
-    gap: 12px;
-  }
-
-  .azioni-header {
-    gap: 10px;
-  }
-
-  .footer {
-    padding: 30px 20px 18px;
-  }
-
-  .footer-contenuto {
-    grid-template-columns: 1fr;
-    gap: 25px;
-  }
-
-  .footer-fondo {
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 12px;
-    line-height: 1.7;
-  }
-}
-
-@media (max-width: 390px) {
-  .header {
-    padding: 12px 4%;
-  }
-
-  .header-sinistra {
-    gap: 10px;
-  }
-
-  .logo-testo {
-    font-size: 13px;
-  }
-
-  .azioni-header {
-    gap: 8px;
-  }
-
-  .link-login {
-    font-size: 12px;
-  }
-
-  .bottone-registrazione {
-    padding: 9px 10px;
-    font-size: 11px;
-  }
-}

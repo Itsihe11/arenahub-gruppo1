@@ -12,21 +12,26 @@
 
 
 
+
+
 .header {
   display: flex;
-  justify-content: space-between;
   align-items: center;
-  gap: 20px;
-  padding: 20px 6%;
+  justify-content: space-between;
+  gap: 24px;
+  width: 100%;
+  min-height: 78px;
+  padding: 16px 7%;
+  background-color: white;
   border-bottom: 1px solid #203650;
-  background: #08182b;
+  color: #050f1e;
 }
 
 .header-sinistra {
   display: flex;
   align-items: center;
   gap: 36px;
-  flex-wrap: wrap;
+  min-width: 0;
 }
 
 .logo {
@@ -54,6 +59,19 @@
   font-weight: 800;
 }
 
+.logo-immagine {
+  display: block;
+  height: 44px;
+  width: auto;
+  max-width: 100%;
+}
+
+@media (max-width: 700px) {
+  .logo-immagine {
+    height: 36px;
+  }
+}
+
 .logo-testo {
   color: #ffffff;
 }
@@ -67,9 +85,10 @@ nav {
 }
 
 nav a {
-  color: #c2d0e2;
+  color: #050f1e;
   text-decoration: none;
   font-size: 14px;
+  font-weight: 800;
   transition: color 0.2s ease;
 }
 
@@ -81,31 +100,31 @@ nav a.attivo {
 .azioni-header {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 24px;
   flex-wrap: wrap;
 }
 
 .nome-utente-header {
-  color: #dce8f7;
+  color: #050f1e;
   font-size: 14px;
   font-weight: 700;
 }
 
 .badge-ruolo-admin {
   padding: 5px 9px;
-  border: 1px solid rgba(255, 190, 74, 0.35);
+  border: 1px solid #51c8ff;
   border-radius: 6px;
-  color: #ffcb71;
-  background: rgba(190, 125, 22, 0.13);
+  color: #51c8ff;
+  background: white;
   font-size: 10px;
   font-weight: 800;
   letter-spacing: 0.5px;
 }
 
 .link-login {
-  color: #c2d0e2;
+  color: #050f1e;
   font-size: 14px;
-  font-weight: 700;
+  font-weight: 800;
   text-decoration: none;
   transition: color 0.2s ease;
 }
@@ -116,24 +135,31 @@ nav a.attivo {
 
 .bottone-registrazione,
 .link-esci {
-  padding: 10px 17px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 18px;
   border: 1px solid #51c8ff;
-  border-radius: 8px;
-  color: #51c8ff;
-  background: transparent;
-  font-family: inherit;
-  font-size: 14px;
-  font-weight: 700;
+  border-radius: 9px;
+  color: #06172a;
+  background-color: #51c8ff;
+  font-size: 13px;
+  font-weight: 800;
   text-decoration: none;
-  cursor: pointer;
-  transition: background 0.2s ease, color 0.2s ease;
+  white-space: nowrap;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
+
+
 
 .bottone-registrazione:hover,
 .link-esci:hover {
-  color: #06111f;
-  background: #51c8ff;
-}
+  background-color: #8bdcff;
+  border-color: #8bdcff;
+  transform: translateY(-1px);}
 
 /* ---------- PAGINA ---------- */
 
@@ -143,6 +169,8 @@ nav a.attivo {
   min-height: calc(100vh - 160px);
   margin: 0 auto;
   padding: 55px 6%;
+  background-color: rgb(8, 24, 43);
+
 }
 
 .introduzione-catalogo {
@@ -204,7 +232,7 @@ nav a.attivo {
   border: 1px solid #243c56;
   border-radius: 8px;
   color: #9eb1c9;
-  background: #09192c;
+  background: rgb(16, 36, 59);
   font-size: 13px;
 }
 
@@ -223,7 +251,7 @@ nav a.attivo {
   padding: 22px;
   border: 1px solid #243c56;
   border-radius: 14px;
-  background: #09192c;
+  background: rgb(16, 36, 59);
   flex-wrap: wrap;
 }
 
@@ -363,7 +391,7 @@ nav a.attivo {
   overflow: hidden;
   border: 1px solid #243c56;
   border-radius: 14px;
-  background: #0a192b;
+  background: rgb(16, 36, 59);
   transition: transform 0.2s ease, border-color 0.2s ease,
     box-shadow 0.2s ease;
 }
@@ -528,154 +556,96 @@ nav a.attivo {
 /* ---------- FOOTER ---------- */
 
 .footer {
-  padding: 40px 6% 0;
+  width: 100%;
+  margin-top: auto;
+  padding: 20px 20px 20px;
   border-top: 1px solid #203650;
-  color: #7187a1;
-  background: #08182b;
-  font-size: 13px;
+  background-color: white;
+  color: #050f1e;
 }
 
 .footer-contenuto {
   display: grid;
-  grid-template-columns: 1.6fr 1fr 1fr 1.4fr;
+  grid-template-columns: 1.4fr 0.8fr 0.8fr 1fr;
   gap: 32px;
-  padding-bottom: 32px;
+  width: 100%;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding-bottom: 8px;
 }
 
 .footer-colonna {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  align-items: flex-start;
+  gap: 11px;
+  min-width: 0;
 }
 
 .footer-colonna h2 {
-  margin: 0 0 4px;
-  color: #ffffff;
-  font-size: 14px;
-  letter-spacing: 0.5px;
+  margin: 0 0 5px;
+  color: #51c8ff;
+  font-size: 13px;
+  font-weight: 800;
 }
 
 .footer-colonna p {
   margin: 0;
-  color: #7187a1;
-  line-height: 1.6;
+  color: #050f1e;
+  font-size: 12px;
+  line-height: 1.8;
 }
 
-.footer-colonna a {
-  color: #9eb1c9;
+.footer-brand > p {
+  max-width: 260px;
+}
+
+.logo-footer {
+  margin-bottom: 5px;
+}
+
+.logo-footer .logo-icona {
+  width: 34px;
+  height: 34px;
+  border-radius: 9px;
+  color: #06172a;
+  background-color: #51c8ff;
+}
+
+.logo-footer .logo-testo {
+  font-size: 17px;
+}
+
+.footer-colonna > a:not(.logo-footer) {
+  color: #050f1e;
+  font-size: 12px;
+  line-height: 1.6;
   text-decoration: none;
   transition: color 0.2s ease;
 }
 
-.footer-colonna a:hover {
+.footer-colonna > a:not(.logo-footer):hover,
+.footer-fondo a:hover {
   color: #51c8ff;
 }
 
-.footer-brand .logo-footer {
-  margin-bottom: 4px;
-}
-
 .footer-fondo {
-  padding: 18px 0;
-  border-top: 1px solid #203650;
-  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
+  max-width: 1100px;
+  margin: 0px auto 0;
+  padding-top: 8px;
+  border-top: 1px solid gray;
+  color: #050f1e;
+  font-size: 11px;
 }
 
-.footer-fondo p {
-  margin: 0;
-  color: #7187a1;
-  font-size: 12px;
+.footer-fondo a {
+  color: #c0cfe1;
+  text-decoration: none;
+  transition: color 0.2s ease;
 }
-
 /* ---------- RESPONSIVE ---------- */
-
-@media (max-width: 1100px) {
-  .griglia-tornei {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .filtro-ricerca {
-    flex-basis: 100%;
-  }
-
-  .filtro-stato {
-    flex: 1 1 180px;
-    min-width: 0;
-  }
-
-  .footer-contenuto {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-}
-
-@media (max-width: 680px) {
-  .header {
-    flex-direction: column;
-    align-items: flex-start;
-    padding: 20px 5%;
-  }
-
-  .header-sinistra {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 16px;
-  }
-
-  nav,
-  .navigazione {
-    width: 100%;
-    gap: 15px;
-  }
-
-  nav a {
-    font-size: 13px;
-  }
-
-  .pagina-tornei {
-    padding: 35px 5%;
-  }
-
-  .introduzione-catalogo h1 {
-    font-size: 30px;
-  }
-
-  .introduzione-catalogo p {
-    font-size: 14px;
-  }
-
-  .filtri {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 16px;
-    padding: 15px;
-  }
-
-  .filtro-ricerca,
-  .filtro-stato {
-    flex: 1 1 auto;
-    width: 100%;
-    min-width: 0;
-  }
-
-  .bottone-reset {
-    width: 100%;
-  }
-
-  .griglia-tornei {
-    grid-template-columns: 1fr;
-    gap: 18px;
-  }
-
-  .scheda-torneo {
-    padding: 18px;
-  }
-
-  .footer {
-    padding: 30px 5% 0;
-  }
-
-  .footer-contenuto {
-    grid-template-columns: 1fr;
-  }
-}
 

@@ -51,11 +51,10 @@ button:disabled {
   gap: 24px;
   width: 100%;
   min-height: 78px;
-  padding: 16px 5%;
-  background: #050f1e;
+  padding: 16px 7%;
+  background-color: white;
   border-bottom: 1px solid #203650;
-  position: relative;
-  z-index: 10;
+  color: #050f1e;
 }
 
 .header-sinistra {
@@ -88,6 +87,19 @@ button:disabled {
   font-weight: 900;
 }
 
+.logo-immagine {
+  display: block;
+  height: 44px;
+  width: auto;
+  max-width: 100%;
+}
+
+@media (max-width: 700px) {
+  .logo-immagine {
+    height: 36px;
+  }
+}
+
 .navigazione,
 .nav-admin {
   display: flex;
@@ -98,10 +110,10 @@ button:disabled {
 
 .navigazione a,
 .nav-admin a {
-  color: #c0cfe1;
+  color: #050f1e;
   text-decoration: none;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 800;
   white-space: nowrap;
   transition: color 0.2s ease;
 }
@@ -113,45 +125,56 @@ button:disabled {
 }
 
 .azioni-header {
-  display: flex;
+ display: flex;
   align-items: center;
-  justify-content: flex-end;
+  gap: 24px;
   flex-wrap: wrap;
-  gap: 14px;
-  margin-left: auto;
 }
 
 .badge-ruolo-admin {
-  background: #e53935;
-  color: #fff;
+  padding: 5px 9px;
+  border: 1px solid #51c8ff;
+  border-radius: 6px;
+  color: #51c8ff;
+  background: white;
   font-size: 10px;
-  font-weight: 900;
-  padding: 5px 8px;
-  border-radius: 5px;
-  letter-spacing: 1px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
 }
 
 .nome-utente-header,
 .utente-admin {
-  color: #e2f1ff;
-  font-size: 13px;
+  color: #050f1e;
+  font-size: 14px;
   font-weight: 700;
 }
 
 .link-esci,
 .btn-uscita {
-  background: transparent;
-  border: 1px solid #294765;
-  color: #ffb9c3;
-  padding: 8px 14px;
-  border-radius: 7px;
-  font-size: 12px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 11px 18px;
+  border: 1px solid #51c8ff;
+  border-radius: 9px;
+  color: #06172a;
+  background-color: #51c8ff;
+  font-size: 13px;
+  font-weight: 800;
+  text-decoration: none;
+  white-space: nowrap;
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    transform 0.2s ease;
 }
 
 .link-esci:hover,
 .btn-uscita:hover {
-  background: #3a2222;
-  border-color: #784044;
+
+  background-color: #8bdcff;
+  border-color: #8bdcff;
+  transform: translateY(-1px);
 }
 
 /* CONTENUTO DASHBOARD */
@@ -630,109 +653,19 @@ button:disabled {
   margin-top: auto;
   padding: 22px 5%;
   text-align: center;
-  background: #050f1e;
-  border-top: 1px solid #203650;
+  background: white;
+  border-top: 1px solid gray;
 }
 
 .footer-admin p {
   margin: 0;
-  color: #8da2b9;
+  color: #050f1e;
   font-size: 12px;
 }
 
 /* RESPONSIVE */
 
-@media (max-width: 1000px) {
-  .header,
-  .header-admin {
-    padding: 15px 4%;
-    flex-wrap: wrap;
-  }
 
-  .header-sinistra {
-    gap: 20px;
-    flex-wrap: wrap;
-  }
-
-  .navigazione,
-  .nav-admin {
-    gap: 15px;
-  }
-
-  .contenuto-admin {
-    width: 94%;
-  }
-}
-
-@media (max-width: 700px) {
-  .header,
-  .header-admin {
-    align-items: flex-start;
-    gap: 16px;
-  }
-
-  .header-sinistra {
-    width: 100%;
-    align-items: flex-start;
-    flex-direction: column;
-  }
-
-  .navigazione,
-  .nav-admin {
-    width: 100%;
-    gap: 14px;
-  }
-
-  .azioni-header {
-    width: 100%;
-    margin-left: 0;
-    justify-content: flex-start;
-  }
-
-  .contenuto-admin {
-    padding-top: 28px;
-    padding-bottom: 40px;
-  }
-
-  .sezione-admin {
-    padding: 18px;
-    border-radius: 12px;
-  }
-
-  .form-torneo {
-    grid-template-columns: 1fr;
-  }
-
-  .campo-completo {
-    grid-column: auto;
-  }
-
-  .griglia-dati {
-    grid-template-columns: 1fr;
-  }
-
-  .titolo-dettagli,
-  .titolo-sottosezione {
-    align-items: flex-start;
-  }
-
-  .tabella-tornei {
-    min-width: 700px;
-  }
-
-  .azioni-stato {
-    align-items: stretch;
-    flex-direction: column;
-  }
-
-  .azioni-stato button {
-    width: 100%;
-  }
-
-  .campi-risultato {
-    min-width: 160px;
-  }
-}
 .introduzione-con-limite {
   display: flex;
   align-items: flex-start;
@@ -749,6 +682,7 @@ button:disabled {
   padding: 14px 16px;
   border: 1px solid rgba(128, 128, 128, 0.35);
   border-radius: 12px;
+  background-color: rgb(16, 36, 59);
 }
 
 .limite-tornei label {

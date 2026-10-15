@@ -31,7 +31,7 @@ input {
   width: 100%;
   min-height: 78px;
   padding: 16px 7%;
-  background-color: #050f1e;
+  background-color: white;
   border-bottom: 1px solid #203650;
 }
 
@@ -66,6 +66,19 @@ input {
   font-weight: 900;
 }
 
+.logo-immagine {
+  display: block;
+  height: 44px;
+  width: auto;
+  max-width: 100%;
+}
+
+@media (max-width: 700px) {
+  .logo-immagine {
+    height: 36px;
+  }
+}
+
 .logo-testo {
   color: #f4f8ff;
   font-size: 20px;
@@ -82,9 +95,9 @@ input {
 
 .navigazione a,
 .link-home {
-  color: #c0cfe1;
+  color: #050f1e;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 800;
   transition: color 0.2s ease;
 }
 
@@ -357,13 +370,12 @@ form {
 /* FOOTER AUTONOMO */
 
 .footer {
-  flex-shrink: 0;
   width: 100%;
   margin-top: auto;
-  padding: 38px 7% 20px;
+  padding: 20px 20px 20px;
   border-top: 1px solid #203650;
-  background-color: #050f1e;
-  color: #c0cfe1;
+  background-color: white;
+  color: #050f1e;
 }
 
 .footer-contenuto {
@@ -373,12 +385,13 @@ form {
   width: 100%;
   max-width: 1100px;
   margin: 0 auto;
+  padding-bottom: 8px;
 }
 
 .footer-brand p {
   max-width: 260px;
   margin: 10px 0 0;
-  color: #9fb2c8;
+  color: #050f1e;
   font-size: 12px;
   line-height: 1.8;
 }
@@ -409,14 +422,14 @@ form {
 
 .footer-colonna h3 {
   margin: 0 0 5px;
-  color: #f4f8ff;
+  color: #51c8ff;
   font-size: 13px;
   font-weight: 800;
 }
 
 .footer-colonna a,
 .footer-colonna span {
-  color: #9fb2c8;
+  color: #050f1e;
   font-size: 12px;
   line-height: 1.8;
   transition: color 0.2s ease;
@@ -427,15 +440,21 @@ form {
 }
 
 .footer-fondo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 16px;
   max-width: 1100px;
-  margin: 30px auto 0;
-  padding-top: 16px;
-  border-top: 1px solid rgba(255, 255, 255, 0.12);
+  margin: 0px auto 0;
+  padding-top: 8px;
+  border-top: 1px solid gray;
+  color: #050f1e;
+  font-size: 11px;
 }
 
 .footer-fondo p {
   margin: 0;
-  color: #8fa4bb;
+  color: #050f1e;
   text-align: center;
   font-size: 11px;
   line-height: 1.7;
@@ -443,152 +462,3 @@ form {
 
 /* RESPONSIVE */
 
-@media (max-width: 1000px) {
-  .pagina-autenticazione {
-    gap: 35px;
-  }
-
-  .footer-contenuto {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 28px;
-  }
-}
-
-@media (max-width: 800px) {
-  .pagina-autenticazione {
-    grid-template-columns: 1fr;
-    gap: 30px;
-    max-width: 600px;
-    padding: 36px 24px;
-  }
-
-  .intro-autenticazione {
-    max-width: 100%;
-  }
-
-  .intro-autenticazione h1 {
-    font-size: clamp(30px, 6vw, 42px);
-  }
-
-  .scheda-autenticazione {
-    max-width: 520px;
-    justify-self: center;
-  }
-
-  .header {
-    padding-right: 5%;
-    padding-left: 5%;
-  }
-
-  .header-sinistra {
-    gap: 20px;
-  }
-}
-
-@media (max-width: 600px) {
-  .header {
-    gap: 12px;
-    padding: 13px 5%;
-  }
-
-  .header-sinistra {
-    gap: 16px;
-  }
-
-  .logo {
-    gap: 8px;
-  }
-
-  .logo-icona {
-    width: 34px;
-    height: 34px;
-    font-size: 19px;
-  }
-
-  .logo-testo {
-    font-size: 15px;
-  }
-
-  .navigazione {
-    gap: 14px;
-  }
-
-  .navigazione a,
-  .link-home {
-    font-size: 12px;
-  }
-
-  .pagina-autenticazione {
-    padding: 30px 16px;
-  }
-
-  .scheda-autenticazione {
-    padding: 24px 20px;
-  }
-
-  .intestazione-scheda h2 {
-    font-size: 24px;
-  }
-}
-
-@media (max-width: 520px) {
-  .header {
-    flex-wrap: wrap;
-  }
-
-  .header-sinistra {
-    gap: 12px;
-  }
-
-  .link-home {
-    margin-left: auto;
-  }
-
-  .footer {
-    padding: 30px 20px 18px;
-  }
-
-  .footer-contenuto {
-    grid-template-columns: 1fr 1fr;
-    gap: 25px 18px;
-  }
-
-  .footer-brand {
-    grid-column: 1 / -1;
-  }
-
-  .footer-fondo p {
-    font-size: 10px;
-  }
-}
-
-@media (max-width: 390px) {
-  .header {
-    padding-right: 4%;
-    padding-left: 4%;
-  }
-
-  .header-sinistra {
-    gap: 10px;
-  }
-
-  .logo-testo {
-    font-size: 13px;
-  }
-
-  .link-home {
-    font-size: 11px;
-  }
-
-  .scheda-autenticazione {
-    padding: 20px 14px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  *,
-  *::before,
-  *::after {
-    transition: none !important;
-  }
-}
