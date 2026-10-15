@@ -1,5 +1,5 @@
 import { Injectable, inject, signal } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { Partita } from '../interfaces/partita.interface';
@@ -13,24 +13,44 @@ export class PartiteService {
 
   readonly partite = signal<Partita[]>([]);
 
+
+  private creaHeaders(): HttpHeaders {
+    const token = localStorage.getItem('auth_token') || '';
+    const authHeader = token ? (token.startsWith('Bearer ') ? token : `Bearer ${token}`) : '';
+    return new HttpHeaders({
+      'Authorization': authHeader
+    });
+  }
+
   caricaPartiteTorneo(torneoId: number): void {
-    this.http.get<Partita[]>(`${this.apiUrl}/torneo/${torneoId}`).subscribe({
+    const headers = this.creaHeaders();
+
+    this.http.get<Partita[]>(`${this.apiUrl}/torneo/${torneoId}`, { headers }).subscribe({
       next: (data) => this.partite.set(data),
       error: (err) => console.error('Errore caricamento partite:', err)
     });
   }
 
   generaTabellone(torneoId: number, uid: number = 1): Observable<Partita[]> {
-    return this.http.post<Partita[]>(`${this.apiUrl}/genera/${torneoId}?uid=${uid}`, {}).pipe(
+    const headers = this.creaHeaders();
+
+    
+    return this.http.post<Partita[]>(`${this.apiUrl}/genera/${torneoId}`, {}, { headers }).pipe(
       tap(data => this.partite.set(data))
     );
   }
 
-  salvaRisultato(partitaId: number, punteggio1: number, punteggio2: number, stato: string = 'completata', uid?: number): Observable<Partita> {
-    const queryUid = uid ?? 1;
+  salvaRisultato(
+    partitaId: number,
+    punteggio1: number,
+    punteggio2: number,
+    stato: string = 'completata',
+    uid?: number
+  ): Observable<Partita> {
+    const headers = this.creaHeaders();
     const payload = { punteggio1, punteggio2, stato };
-    
-    return this.http.put<Partita>(`${this.apiUrl}/${partitaId}/risultato?uid=${queryUid}`, payload).pipe(
+
+    return this.http.put<Partita>(`${this.apiUrl}/${partitaId}/risultato`, payload, { headers }).pipe(
       tap(partitaAggiornata => {
         this.partite.update(lista =>
           lista.map(p => p.id === partitaAggiornata.id ? partitaAggiornata : p)

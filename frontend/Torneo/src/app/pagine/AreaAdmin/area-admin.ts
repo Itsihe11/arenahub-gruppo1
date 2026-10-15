@@ -6,7 +6,6 @@ import { SlicePipe } from '@angular/common';
 import { AutenticazioneMockService } from '../../services/autenticazione.service';
 import { TorneiService, Torneo } from '../../services/tornei.service';
 import { PartiteService } from '../../services/partita.service';
-import { Utente } from '../../interfaces/utente.interface';
 
 type StatoTorneo = 'aperto' | 'chiuso';
 
@@ -29,9 +28,7 @@ export class AreaAdmin {
 
   readonly torneoSelezionato = signal<Torneo | null>(null);
   readonly modalitaModifica = signal(false);
-
-
-  partecipantiSelezionati: Utente[] = [];
+  readonly partecipantiSelezionati = signal<any[]>([]);
 
   nuovoNome = '';
   nuovoGioco = '';
@@ -78,32 +75,77 @@ export class AreaAdmin {
       dataTorneo: this.nuovaData,
       postiMax: this.nuoviPostiMax,
       descrizione: this.nuovaDescrizione.trim()
+    }).subscribe({
+      next: () => {
+        alert('Torneo creato con successo!');
+        this.nuovoNome = '';
+        this.nuovoGioco = '';
+        this.nuovaData = '';
+        this.nuoviPostiMax = 16;
+        this.nuovaDescrizione = '';
+      },
+      error: (err) => {
+        console.error('Errore durante la creazione del torneo:', err);
+        alert('Impossibile creare il torneo.');
+      }
     });
-
-    this.nuovoNome = '';
-    this.nuovoGioco = '';
-    this.nuovaData = '';
-    this.nuoviPostiMax = 16;
-    this.nuovaDescrizione = '';
   }
 
   selezionaTorneo(torneo: Torneo): void {
     this.torneoSelezionato.set(torneo);
     this.modalitaModifica.set(false);
     this.caricaDatiModifica(torneo);
-    this.partitaService.caricaPartiteTorneo(torneo.id);
 
-    
-    this.partecipantiSelezionati = [];
-    this.autenticazioneService.getPartecipantiTorneo(torneo.id).subscribe({
+    this.partitaService.caricaPartiteTorneo(torneo.id);
+    this.caricaPartecipanti(torneo.id);
+  }
+
+  caricaPartecipanti(torneoId: number): void {
+    this.partecipantiSelezionati.set([]);
+
+    this.autenticazioneService.getPartecipantiTorneo(torneoId).subscribe({
       next: (lista) => {
-        this.partecipantiSelezionati = lista;
+        if (lista && lista.length > 0) {
+          this.partecipantiSelezionati.set(lista);
+        } else {
+          this.estraiPartecipantiDaPartite();
+        }
       },
       error: (err) => {
         console.error('Errore nel caricamento dei partecipanti admin:', err);
-        this.partecipantiSelezionati = [];
+        this.estraiPartecipantiDaPartite();
       }
     });
+  }
+
+  private estraiPartecipantiDaPartite(): void {
+    const mappa = new Map<string | number, any>();
+
+    for (const p of this.partite()) {
+      if (p.giocatore1) {
+        const key = p.giocatore1.id || p.giocatore1.nome;
+        if (key && !mappa.has(key)) {
+          mappa.set(key, {
+            id: p.giocatore1.id ?? key,
+            nome: p.giocatore1.nome,
+            cognome: p.giocatore1.cognome ?? ''
+          });
+        }
+      }
+      if (p.giocatore2) {
+        const key = p.giocatore2.id || p.giocatore2.nome;
+        if (key && !mappa.has(key)) {
+          mappa.set(key, {
+            id: p.giocatore2.id ?? key,
+            nome: p.giocatore2.nome,
+            cognome: p.giocatore2.cognome ?? ''
+           
+          });
+        }
+      }
+    }
+
+    this.partecipantiSelezionati.set(Array.from(mappa.values()));
   }
 
   private caricaDatiModifica(torneo: Torneo): void {
@@ -112,17 +154,12 @@ export class AreaAdmin {
     this.modificaData = torneo.dataTorneo?.slice(0, 10) ?? '';
     this.modificaPostiMax = torneo.postiMax;
     this.modificaDescrizione = torneo.descrizione ?? '';
-
-    this.modificaStato =
-      torneo.stato === 'aperto' ? 'aperto' : 'chiuso';
+    this.modificaStato = torneo.stato === 'aperto' ? 'aperto' : 'chiuso';
   }
 
   attivaModifica(): void {
     const torneo = this.torneoSelezionato();
-
-    if (!torneo) {
-      return;
-    }
+    if (!torneo) return;
 
     this.caricaDatiModifica(torneo);
     this.modalitaModifica.set(true);
@@ -130,9 +167,7 @@ export class AreaAdmin {
 
   annullaModifica(): void {
     this.modalitaModifica.set(false);
-
     const torneo = this.torneoSelezionato();
-
     if (torneo) {
       this.caricaDatiModifica(torneo);
     }
@@ -140,7 +175,6 @@ export class AreaAdmin {
 
   salvaModificheTorneo(): void {
     const torneo = this.torneoSelezionato();
-
     if (!torneo) {
       alert('Seleziona prima un torneo da modificare.');
       return;
@@ -156,41 +190,50 @@ export class AreaAdmin {
       return;
     }
 
-    this.torneiService.modificaTorneo(torneo.id, {
+    const payload = {
       nome: this.modificaNome.trim(),
       gioco: this.modificaGioco.trim(),
       dataTorneo: this.modificaData,
       postiMax: this.modificaPostiMax,
       descrizione: this.modificaDescrizione.trim(),
       stato: this.modificaStato
-    });
+    };
 
-    this.torneoSelezionato.set({
-      ...torneo,
-      nome: this.modificaNome.trim(),
-      gioco: this.modificaGioco.trim(),
-      dataTorneo: this.modificaData,
-      postiMax: this.modificaPostiMax,
-      descrizione: this.modificaDescrizione.trim(),
-      stato: this.modificaStato
+    this.torneiService.modificaTorneo(torneo.id, payload).subscribe({
+      next: (risposta) => {
+        this.torneoSelezionato.set({
+          ...torneo,
+          ...risposta,
+          ...payload
+        });
+        this.modalitaModifica.set(false);
+        alert('Modifiche salvate con successo!');
+      },
+      error: (err) => {
+        console.error('Errore durante la modifica del torneo:', err);
+        alert('Impossibile salvare le modifiche al torneo.');
+      }
     });
-
-    this.modalitaModifica.set(false);
   }
 
   cambiaStato(id: number, nuovoStato: StatoTorneo): void {
-    this.torneiService.cambiaStatoTorneo(id, nuovoStato);
-
-    const selezionato = this.torneoSelezionato();
-
-    if (selezionato?.id === id) {
-      this.torneoSelezionato.set({
-        ...selezionato,
-        stato: nuovoStato
-      });
-
-      this.modificaStato = nuovoStato;
-    }
+    this.torneiService.cambiaStatoTorneo(id, nuovoStato).subscribe({
+      next: () => {
+        const selezionato = this.torneoSelezionato();
+        if (selezionato?.id === id) {
+          this.torneoSelezionato.set({
+            ...selezionato,
+            stato: nuovoStato
+          });
+          this.modificaStato = nuovoStato;
+        }
+        alert(`Stato del torneo cambiato in "${nuovoStato}".`);
+      },
+      error: (err) => {
+        console.error('Errore durante il cambio di stato:', err);
+        alert('Impossibile aggiornare lo stato del torneo.');
+      }
+    });
   }
 
   elimina(id: number): void {
@@ -198,29 +241,30 @@ export class AreaAdmin {
       return;
     }
 
-    this.torneiService.eliminaTorneo(id);
-
-    if (this.torneoSelezionato()?.id === id) {
-      this.torneoSelezionato.set(null);
-      this.modalitaModifica.set(false);
-      this.partitaService.partite.set([]);
-      this.partecipantiSelezionati = [];
-    }
+    this.torneiService.eliminaTorneo(id).subscribe({
+      next: () => {
+        if (this.torneoSelezionato()?.id === id) {
+          this.deselezionaTorneo();
+        }
+        alert('Torneo eliminato con successo!');
+      },
+      error: (err) => {
+        console.error('Errore durante l\'eliminazione:', err);
+        alert('Impossibile eliminare il torneo.');
+      }
+    });
   }
 
   deselezionaTorneo(): void {
     this.torneoSelezionato.set(null);
     this.modalitaModifica.set(false);
     this.partitaService.partite.set([]);
-    this.partecipantiSelezionati = [];
+    this.partecipantiSelezionati.set([]);
   }
 
   generaPartite(): void {
     const torneo = this.torneoSelezionato();
-
-    if (!torneo) {
-      return;
-    }
+    if (!torneo) return;
 
     const uid = this.utenteCorrente()?.id ?? 1;
 
@@ -229,6 +273,7 @@ export class AreaAdmin {
         alert('Tabellone generato con successo!');
         this.torneiService.caricaTornei();
         this.partitaService.caricaPartiteTorneo(torneo.id);
+        setTimeout(() => this.caricaPartecipanti(torneo.id), 300);
       },
       error: err => {
         const messaggio =
@@ -259,34 +304,24 @@ export class AreaAdmin {
       p1 < 0 ||
       p2 < 0
     ) {
-      alert(
-        'Inserisci punteggi validi e non negativi per entrambi i giocatori.'
-      );
+      alert('Inserisci punteggi validi e non negativi per entrambi i giocatori.');
       return;
     }
 
     this.partitaService
-      .salvaRisultato(
-        partitaId,
-        p1,
-        p2,
-        'completata',
-        uidCorrente
-      )
+      .salvaRisultato(partitaId, p1, p2, 'completata', uidCorrente)
       .subscribe({
         next: () => {
           alert('Risultato della partita salvato!');
           this.torneiService.caricaTornei();
 
           const torneo = this.torneoSelezionato();
-
           if (torneo) {
             this.partitaService.caricaPartiteTorneo(torneo.id);
           }
         },
         error: err => {
           console.error('Errore durante il salvataggio:', err);
-
           const messaggio =
             typeof err?.error === 'string'
               ? err.error

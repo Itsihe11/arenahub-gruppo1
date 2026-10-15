@@ -26,30 +26,14 @@ import org.springframework.web.server.ResponseStatusException;
 import com.example.backend.Model.Torneo;
 import com.example.backend.Services.TorneoService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/tornei")
 @CrossOrigin(origins = "http://localhost:4200")
 public class TorneoController {
 	
 	
-	@RestControllerAdvice
-	public class GestoreErrori {
-
-	    @ExceptionHandler(ResponseStatusException.class)
-	    public ResponseEntity<Map<String, String>> status(ResponseStatusException e) {
-	        return ResponseEntity.status(e.getStatusCode()).body(Map.of("errore", e.getReason()));
-	    }
-
-	    @ExceptionHandler({MethodArgumentTypeMismatchException.class})
-	    public ResponseEntity<Map<String, String>> id(Exception e) {
-	        return ResponseEntity.badRequest().body(Map.of("errore", "Id non valido"));
-	    }
-
-	    @ExceptionHandler({HttpMessageNotReadableException.class})
-	    public ResponseEntity<Map<String, String>> body(Exception e) {
-	        return ResponseEntity.badRequest().body(Map.of("errore", "Dati non validi"));
-	    }
-	}
 
     private final TorneoService torneoService;
 
@@ -72,7 +56,7 @@ public class TorneoController {
 
 
     @PostMapping
-    public ResponseEntity<Map<String, Object>> crea(
+    public ResponseEntity<Map<String, Object>> crea(@Valid
             @RequestHeader(value = "Authorization", required = false) String auth,
             @RequestBody Map<String, Object> payload) {
 
@@ -83,7 +67,7 @@ public class TorneoController {
 
 
     @PutMapping("/{id}")
-    public Map<String, Object> modifica(
+    public Map<String, Object> modifica(@Valid
             @RequestHeader(value = "Authorization", required = false) String auth,
             @PathVariable int id,
             @RequestBody Map<String, Object> payload) {

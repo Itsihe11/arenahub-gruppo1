@@ -273,15 +273,15 @@
             }
           </div>
 
-        <div class="sottosezione">
-            <h3>Partecipanti ({{ partecipantiSelezionati.length }})</h3>
+   <div class="sottosezione">
+            <h3>Partecipanti ({{ partecipantiSelezionati().length }})</h3>
 
-            @if (partecipantiSelezionati.length > 0) {
+            @if (partecipantiSelezionati().length > 0) {
               <ul class="lista-partecipanti">
-                @for (partecipante of partecipantiSelezionati; track $index) {
-                  <li style="display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; background: rgba(255,255,255,0.03); margin-bottom: 6px; border-radius: 6px;">
-                    <span>👤 <strong>{{ partecipante.nome || partecipante.email }} {{ partecipante.cognome || '' }}</strong></span>
-                    <span style="color: #94a3b8; font-size: 0.9em;">{{ partecipante.email }}</span>
+                @for (p of partecipantiSelezionati(); track $index) {
+                  <li style="display: flex; justify-content: space-between; align-items: center; padding: 10px 14px; background: rgba(255,255,255,0.04); margin-bottom: 6px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.08);">
+                    <span>👤 <strong>{{ p.nome || p.email || ('Partecipante ' + ($index + 1)) }} {{ p.cognome || '' }}</strong></span>
+                    <span style="color: #94a3b8; font-size: 0.9em;">{{ p.email }}</span>
                   </li>
                 }
               </ul>
@@ -291,7 +291,6 @@
               </p>
             }
           </div>
-
         
           <div class="sottosezione">
             <div class="titolo-sottosezione">

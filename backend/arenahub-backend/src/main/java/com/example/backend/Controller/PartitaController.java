@@ -19,6 +19,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.backend.Services.PartitaServices;
 import com.example.backend.Services.UtenteService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api/partite")
 @CrossOrigin(origins = "http://localhost:4200")
@@ -38,7 +40,7 @@ public class PartitaController {
     }
 
     @PostMapping("/genera/{torneoId}")
-    public ResponseEntity<List<Map<String, Object>>> generaTabellone(
+    public ResponseEntity<List<Map<String, Object>>> generaTabellone(@Valid
             @RequestHeader(value = "Authorization", required = false) String auth,
             @PathVariable Integer torneoId) {
         return ResponseEntity.status(HttpStatus.CREATED)
@@ -46,7 +48,7 @@ public class PartitaController {
     }
 
     @PutMapping("/{id}/risultato")
-    public Map<String, Object> salvaRisultato(
+    public Map<String, Object> salvaRisultato(@Valid
             @RequestHeader(value = "Authorization", required = false) String auth,
             @PathVariable Integer id,
             @RequestBody Map<String, Object> payload) {

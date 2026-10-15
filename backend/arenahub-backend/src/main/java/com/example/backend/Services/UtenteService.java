@@ -6,52 +6,65 @@ import java.util.List;
 import java.util.Map;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.example.backend.Dto.LoginRequest;
+import com.example.backend.Dto.RegistrazioneRequest;
+import com.example.backend.Model.Configurazione;
 import com.example.backend.Model.Utente;
+import com.example.backend.Repository.ConfigurazioneRepository;
+import com.example.backend.Repository.IscrizioneRepository;
 import com.example.backend.Repository.UtenteRepository;
 
 @Service
 public class UtenteService {
 
-    private final UtenteRepository utenti;
+    private static final String CHIAVE_MAX_TORNEI = "max_tornei_attivi_utente";
 
-    public UtenteService(UtenteRepository utenti) {
+    private final UtenteRepository utenti;
+    private final IscrizioneRepository iscrizioneRepository;
+    private final ConfigurazioneRepository configurazioneRepository;
+    private final PasswordEncoder passwordEncoder;
+
+    public UtenteService(
+            UtenteRepository utenti,
+            IscrizioneRepository iscrizioneRepository,
+            ConfigurazioneRepository configurazioneRepository,
+            PasswordEncoder passwordEncoder) {
         this.utenti = utenti;
+        this.iscrizioneRepository = iscrizioneRepository;
+        this.configurazioneRepository = configurazioneRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
-    public Map<String, Object> registra(Map<String, Object> p) {
-        String nome = testo(p, "nome");
-        String cognome = testo(p, "cognome");
-        String email = testo(p, "email");
-        String password = testo(p, "password");
-
-        if (nome == null || cognome == null || email == null || password == null
-                || !email.contains("@") || password.length() < 8)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dati non validi");
-
-        if (utenti.findByEmail(email).isPresent())
+    public Map<String, Object> registra(RegistrazioneRequest req) {
+        if (utenti.findByEmail(req.getEmail()).isPresent()) {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Utente già esistente");
+        }
 
         Utente u = new Utente();                
-        u.setNome(nome);
-        u.setCognome(cognome);
-        u.setEmail(email);
-        u.setPassword(password);
+        u.setNome(req.getNome());
+        u.setCognome(req.getCognome());
+        u.setEmail(req.getEmail());
+        
+      
+        u.setPassword(passwordEncoder.encode(req.getPassword()));
         u.setRuolo("utente");
+        
         return mappa(utenti.save(u), true);
     }
 
-    public Map<String, Object> login(Map<String, Object> p) {
-        String email = testo(p, "email");
-        String password = testo(p, "password");
-        if (email == null || password == null)
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Dati mancanti");
-
-        Utente u = utenti.findByEmail(email)
-                .filter(x -> x.getPassword().equals(password))
+    public Map<String, Object> login(LoginRequest req) {
+        Utente u = utenti.findByEmail(req.getEmail())
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenziali non valide"));
+
+        
+        if (!passwordEncoder.matches(req.getPassword(), u.getPassword())) {
+            throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Credenziali non valide");
+        }
 
         Map<String, Object> r = new LinkedHashMap<>();
         r.put("token", String.valueOf(u.getId()));    
@@ -79,6 +92,12 @@ public class UtenteService {
         }
     }
 
+    public Utente trovaDaHeader(String authHeader) {
+        Integer id = idDaHeader(authHeader);
+        if (id == null) return null;
+        return utenti.findById(id).orElse(null);
+    }
+
     public Utente utenteCorrente(Integer id) {
         if (id == null) throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "Non autenticato");
         return utenti.findById(id)
@@ -86,7 +105,7 @@ public class UtenteService {
     }
 
     public void richiediAdmin(Integer id) {
-        if (!"admin".equals(utenteCorrente(id).getRuolo()))
+        if (!"admin".equalsIgnoreCase(utenteCorrente(id).getRuolo()))
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Accesso negato");
     }
 
@@ -100,8 +119,34 @@ public class UtenteService {
         return m;
     }
 
-    private String testo(Map<String, Object> p, String chiave) {
-        Object v = p == null ? null : p.get(chiave);
-        return (v == null || v.toString().isBlank()) ? null : v.toString().trim();
+    public int getMaxTorneiAttivi() {
+        return configurazioneRepository.findById(CHIAVE_MAX_TORNEI)
+                .map(c -> {
+                    try {
+                        return Integer.parseInt(c.getValore());
+                    } catch (NumberFormatException e) {
+                        return 3;
+                    }
+                })
+                .orElse(3);
+    }
+
+    @Transactional
+    public void setMaxTorneiAttivi(int max) {
+        Configurazione config = configurazioneRepository.findById(CHIAVE_MAX_TORNEI)
+                .orElse(new Configurazione(CHIAVE_MAX_TORNEI, String.valueOf(max), "Numero massimo di tornei contemporanei"));
+
+        config.setValore(String.valueOf(max));
+        configurazioneRepository.saveAndFlush(config);
+    }
+
+    public boolean isAdmin(String authHeader) {
+        Utente u = trovaDaHeader(authHeader);
+        return u != null && "admin".equalsIgnoreCase(u.getRuolo());
+    }
+
+    public int getTorneiAttiviConteggiati(Integer utenteId) {
+        if (utenteId == null) return 0;
+        return iscrizioneRepository.countByUtenteIdAndTorneoStatoAperto(utenteId);
     }
 }

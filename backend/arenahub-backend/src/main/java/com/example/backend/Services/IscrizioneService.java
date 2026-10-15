@@ -35,8 +35,8 @@ public class IscrizioneService {
 
     @Transactional
     public Map<String, Object> iscrivi(Integer uid, int torneoId) {
-        Utente u = utenti.utenteCorrente(uid);                       
-        Torneo t = torneoService.trova(torneoId);                    
+        Utente u = utenti.utenteCorrente(uid);                        
+        Torneo t = torneoService.trova(torneoId);                     
 
         if (!"aperto".equalsIgnoreCase(t.getStato()))
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Iscrizioni chiuse");
@@ -44,6 +44,16 @@ public class IscrizioneService {
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Posti esauriti");
         if (iscrizioni.existsByTorneoIdAndUtenteId(torneoId, u.getId()))
             throw new ResponseStatusException(HttpStatus.CONFLICT, "Già iscritto");
+
+        
+        int torneiAttivi = utenti.getTorneiAttiviConteggiati(u.getId());
+        int limiteMassimo = utenti.getMaxTorneiAttivi();
+        if (torneiAttivi >= limiteMassimo) {
+            throw new ResponseStatusException(
+                HttpStatus.BAD_REQUEST, 
+                "Hai raggiunto il limite massimo di " + limiteMassimo + " tornei attivi a cui puoi iscriverti."
+            );
+        }
 
         Iscrizione i = new Iscrizione();
         i.setTorneo(t);
@@ -62,8 +72,8 @@ public class IscrizioneService {
 
     @Transactional
     public Map<String, Object> annulla(Integer uid, int torneoId) {
-        Utente u = utenti.utenteCorrente(uid);                       
-        Torneo t = torneoService.trova(torneoId);                    
+        Utente u = utenti.utenteCorrente(uid);                        
+        Torneo t = torneoService.trova(torneoId);                     
 
         boolean giaIniziato = t.getDataTorneo() != null
                 && t.getDataTorneo().isBefore(LocalDate.now());
@@ -76,12 +86,12 @@ public class IscrizioneService {
         Map<String, Object> r = new LinkedHashMap<>();
         r.put("idTorneo", torneoId);
         r.put("idUtente", u.getId());
-        r.put("torneo", riepilogo(t));                               
+        r.put("torneo", riepilogo(t));                                
         return r;
     }
 
     public List<Map<String, Object>> mieIscrizioni(Integer uid) {
-        Utente u = utenti.utenteCorrente(uid);                       
+        Utente u = utenti.utenteCorrente(uid);                        
         List<Map<String, Object>> risultato = new ArrayList<>();
         for (Iscrizione i : iscrizioni.findByUtenteId(u.getId())) {
             Map<String, Object> m = new LinkedHashMap<>(torneoService.conIscritti(i.getTorneo()));
@@ -92,7 +102,7 @@ public class IscrizioneService {
     }
 
     public Map<String, Object> partecipanti(int torneoId) {
-        Torneo t = torneoService.trova(torneoId);                   
+        Torneo t = torneoService.trova(torneoId);                    
         List<Map<String, Object>> lista = new ArrayList<>();
         for (Iscrizione i : iscrizioni.findByTorneoIdOrdinate(torneoId)) {
             Map<String, Object> p = new LinkedHashMap<>();

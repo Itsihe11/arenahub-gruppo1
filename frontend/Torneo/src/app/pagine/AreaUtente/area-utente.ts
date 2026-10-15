@@ -21,10 +21,12 @@ export class AreaUtente implements OnInit {
   readonly tuttiTornei = this.torneiService.tornei;
 
   ngOnInit(): void {
-   
+    // 1. Carica la lista generale dei tornei dal backend
     this.torneiService.caricaTornei();
-  }
 
+    // 2. Sincronizza le iscrizioni dell'utente loggato direttamente dal DB
+    this.autenticazioneService.caricaIscrizioniUtente().subscribe();
+  }
 
   readonly mieiTornei = computed(() => {
     const utente = this.utenteCorrente();
@@ -34,15 +36,16 @@ export class AreaUtente implements OnInit {
 
     return this.tuttiTornei().filter(torneo => {
       const tId = Number(torneo.id);
+      
       const iscrittoTraPartecipanti = (torneo.partecipantiIds ?? [])
         .map(id => Number(id))
         .includes(utente.id);
+
       const iscrittoNelProfilo = iscrizioniUtente.includes(tId);
 
       return iscrittoTraPartecipanti || iscrittoNelProfilo;
     });
   });
-
 
   readonly torneiAttiviCount = computed(() =>
     this.mieiTornei().filter(torneo => torneo.stato === 'aperto').length
@@ -67,13 +70,13 @@ export class AreaUtente implements OnInit {
         'Sei sicuro di voler annullare la tua iscrizione a questo torneo?'
       )
     ) {
-      
       this.autenticazioneService
         .aggiornaIscrizioniTornei(torneoId, false)
         .subscribe({
           next: (successo) => {
             if (successo) {
-            
+              this.torneiService.caricaTornei();
+              this.autenticazioneService.caricaIscrizioniUtente().subscribe();
               alert('Iscrizione annullata con successo.');
             } else {
               alert('Si è verificato un errore durante l\'annullamento.');
@@ -81,7 +84,8 @@ export class AreaUtente implements OnInit {
           },
           error: (err) => {
             console.error('Errore durante l\'annullamento:', err);
-            alert('Errore di connessione al server.');
+            const messaggio = err?.error?.message || err?.error?.reason || err?.error?.errore || 'Errore di connessione al server.';
+            alert(messaggio);
           }
         });
     }

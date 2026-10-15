@@ -1,7 +1,8 @@
 import { Injectable, signal, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { AutenticazioneMockService } from './autenticazione.service';
 import { Observable } from 'rxjs';
+import { tap } from 'rxjs/operators';
 
 export interface Torneo {
   id: number;
@@ -11,7 +12,7 @@ export interface Torneo {
   dataTorneo: string;
   postiMax: number;
   iscritti: number;
-  stato: 'aperto' | 'chiuso';
+  stato: 'aperto' | 'chiuso' | string;
   partecipantiIds?: number[];
   classificaFinale?: {
     utenteId: number;
@@ -20,14 +21,14 @@ export interface Torneo {
   }[];
 }
 
+export interface MaxTorneiResponse {
+  maxTorneiAttivi: number;
+}
 
-
-/**
- * Struttura prevista per il limite globale di tornei per giocatore.
- * Da adattare alla risposta effettiva del backend.
- */
-export interface LimiteTornei {
-  limite: number;
+export interface StatoIscrizioneResponse {
+  torneiAttiviConteggiati: number;
+  limiteMassimo: number;
+  canRegister: boolean;
 }
 
 @Injectable({
@@ -36,19 +37,12 @@ export interface LimiteTornei {
 export class TorneiService {
   private readonly http = inject(HttpClient);
   private readonly authService = inject(AutenticazioneMockService);
+  
   private readonly apiUrl = 'http://localhost:8080/api/tornei';
-
-  /**
-   * TODO: sostituire con l'endpoint definitivo fornito dal team backend.
-   */
-  private readonly limiteUrl = 'http://localhost:8080/api/impostazioni/limite-tornei';
+  private readonly adminMaxTorneiUrl = 'http://localhost:8080/api/admin/maxTornei';
+  private readonly meStatoIscrizioneUrl = 'http://localhost:8080/api/utente/me/statoIscrizione';
 
   readonly tornei = signal<Torneo[]>([]);
-
-  /**
-   * Limite globale di tornei attivi per giocatore.
-   * null = non ancora caricato (o endpoint non disponibile).
-   */
   readonly limiteTorneiPerGiocatore = signal<number | null>(null);
 
   constructor() {
@@ -56,9 +50,19 @@ export class TorneiService {
     this.caricaLimite();
   }
 
+  private creaHeaders(): HttpHeaders {
+    const token = localStorage.getItem('auth_token') || '';
+    const authHeader = token ? (token.startsWith('Bearer ') ? token : `Bearer ${token}`) : '';
+    return new HttpHeaders({
+      'Authorization': authHeader,
+      'Content-Type': 'application/json'
+    });
+  }
+
   caricaTornei(): void {
-    this.http.get<Torneo[]>(this.apiUrl).subscribe({
-      next: (data) => this.tornei.set(data),
+    const headers = this.creaHeaders();
+    this.http.get<Torneo[]>(this.apiUrl, { headers }).subscribe({
+      next: (data) => this.tornei.set(data || []),
       error: (err) => console.error('Errore nel caricamento dei tornei dal backend:', err)
     });
   }
@@ -69,74 +73,69 @@ export class TorneiService {
 
   creaTorneo(
     nuovo: Omit<Torneo, 'id' | 'iscritti' | 'stato' | 'partecipantiIds' | 'classificaFinale'>
-  ): void {
+  ): Observable<Torneo> {
+    const headers = this.creaHeaders();
     const torneoPayload = {
       ...nuovo,
       stato: 'aperto'
     };
 
-    this.http.post<Torneo>(this.apiUrl, torneoPayload).subscribe({
-      next: () => this.caricaTornei(),
-      error: (err) => console.error('Errore durante la creazione del torneo:', err)
-    });
+    return this.http.post<Torneo>(this.apiUrl, torneoPayload, { headers }).pipe(
+      tap(() => this.caricaTornei())
+    );
   }
 
-  cambiaStatoTorneo(id: number, nuovoStato: 'aperto' | 'chiuso'): void {
+  cambiaStatoTorneo(id: number, nuovoStato: 'aperto' | 'chiuso'): Observable<Torneo> {
+    const headers = this.creaHeaders();
     const torneoCorrente = this.getTorneoById(id);
-    if (!torneoCorrente) return;
 
-    const torneoAggiornato = { ...torneoCorrente, stato: nuovoStato };
+    const payload = torneoCorrente
+      ? { ...torneoCorrente, stato: nuovoStato }
+      : { stato: nuovoStato };
 
-    this.http.put<Torneo>(`${this.apiUrl}/${id}`, torneoAggiornato).subscribe({
-      next: () => this.caricaTornei(),
-      error: (err) => console.error('Errore durante l\'aggiornamento dello stato:', err)
-    });
+    return this.http.put<Torneo>(`${this.apiUrl}/${id}`, payload, { headers }).pipe(
+      tap(() => this.caricaTornei())
+    );
   }
 
-  eliminaTorneo(id: number): void {
-    this.http.delete<void>(`${this.apiUrl}/${id}`).subscribe({
-      next: () => {
+  modificaTorneo(id: number, dati: Partial<Torneo>): Observable<Torneo> {
+    const headers = this.creaHeaders();
+
+    return this.http.put<Torneo>(`${this.apiUrl}/${id}`, dati, { headers }).pipe(
+      tap(() => this.caricaTornei())
+    );
+  }
+
+  eliminaTorneo(id: number): Observable<void> {
+    const headers = this.creaHeaders();
+    return this.http.delete<void>(`${this.apiUrl}/${id}`, { headers }).pipe(
+      tap(() => {
         this.caricaTornei();
         this.authService.aggiornaIscrizioniTornei(id, false);
-      },
-      error: (err) => console.error('Errore durante l\'eliminazione del torneo:', err)
-    });
+      })
+    );
   }
 
-  modificaTorneo(id: number, dati: Partial<Torneo>): void {
-    const uid = this.authService.utenteCorrente()?.id;
 
-    if (uid == null) {
-      console.error('Impossibile modificare il torneo: amministratore non identificato.');
-      return;
-    }
-
-    this.http.put<Torneo>(`${this.apiUrl}/${id}?uid=${uid}`, dati).subscribe({
-      next: () => {
-        this.caricaTornei();
-      },
-      error: (err) => console.error('Errore durante la modifica del torneo:', err)
-    });
-  }
-
-  iscriviUtente(torneoId: number, utenteId: number): void {
-    this.http.post<void>('http://localhost:8080/api/iscrizioni', { torneoId, utenteId }).subscribe({
-      next: () => {
+  iscriviUtente(torneoId: number, utenteId: number): Observable<void> {
+    const headers = this.creaHeaders();
+    return this.http.post<void>(`http://localhost:8080/api/tornei/${torneoId}/iscrizione`, {}, { headers }).pipe(
+      tap(() => {
         this.caricaTornei();
         this.aggiornaIscrizioneUtente(utenteId, torneoId, true);
-      },
-      error: (err) => console.error('Errore durante l\'iscrizione:', err)
-    });
+      })
+    );
   }
 
-  disiscriviUtente(torneoId: number, utenteId: number): void {
-    this.http.delete<void>(`http://localhost:8080/api/iscrizioni?torneoId=${torneoId}&utenteId=${utenteId}`).subscribe({
-      next: () => {
+  
+  disiscriviUtente(torneoId: number, utenteId: number): Observable<void> {
+    const headers = this.creaHeaders();
+    return this.http.delete<void>(`http://localhost:8080/api/tornei/${torneoId}/iscrizione`, { headers }).pipe(
+      tap(() => {
         this.caricaTornei();
         this.aggiornaIscrizioneUtente(utenteId, torneoId, false);
-      },
-      error: (err) => console.error('Errore durante la disiscrizione:', err)
-    });
+      })
+    );
   }
 
   salvaRisultatoGiocatore(
@@ -144,42 +143,37 @@ export class TorneiService {
     utenteId: number,
     posizione: number,
     punteggio: number
-  ): void {
+  ): Observable<void> {
+    const headers = this.creaHeaders();
     const payload = { torneoId, utenteId, posizione, punteggio };
 
-    this.http.post<void>('http://localhost:8080/api/partite/risultato', payload).subscribe({
-      next: () => this.caricaTornei(),
-      error: (err) => console.error('Errore durante il salvataggio del risultato:', err)
-    });
+    return this.http.post<void>('http://localhost:8080/api/partite/risultato', payload, { headers }).pipe(
+      tap(() => this.caricaTornei())
+    );
   }
 
-  // ===== LIMITE GLOBALE TORNEI PER GIOCATORE =====
-
-  /**
-   * Legge il limite dal backend e lo salva nel signal.
-   * Se l'endpoint non esiste ancora, logga l'errore e lascia il valore a null.
-   */
   caricaLimite(): void {
-    this.http.get<LimiteTornei>(this.limiteUrl).subscribe({
-      next: (data) => this.limiteTorneiPerGiocatore.set(data.limite),
-      error: (err) => console.warn('Limite tornei non disponibile (endpoint non ancora pronto?):', err)
+    const headers = this.creaHeaders();
+    this.http.get<MaxTorneiResponse>(this.adminMaxTorneiUrl, { headers }).subscribe({
+      next: (data) => this.limiteTorneiPerGiocatore.set(data.maxTorneiAttivi),
+      error: (err) => console.warn('Limite tornei non disponibile:', err)
     });
   }
 
-  /**
-   * Salva il nuovo limite sul backend.
-   * Restituisce un Observable così il componente può mostrare
-   * un messaggio di successo o di errore.
-   * Il backend dovrà accettare PUT con payload { limite: number }.
-   */
-  salvaLimite(limite: number): Observable<LimiteTornei> {
-    return this.http.put<LimiteTornei>(this.limiteUrl, { limite });
+  salvaLimite(limite: number): Observable<MaxTorneiResponse> {
+    const headers = this.creaHeaders();
+    return this.http.put<MaxTorneiResponse>(
+      this.adminMaxTorneiUrl,
+      { maxTorneiAttivi: limite },
+      { headers }
+    );
   }
 
-  /**
-   * Da chiamare dal componente dopo un salvataggio riuscito,
-   * per aggiornare subito il valore mostrato.
-   */
+  getStatoIscrizioneUtente(): Observable<StatoIscrizioneResponse> {
+    const headers = this.creaHeaders();
+    return this.http.get<StatoIscrizioneResponse>(this.meStatoIscrizioneUrl, { headers });
+  }
+
   impostaLimiteLocale(limite: number): void {
     this.limiteTorneiPerGiocatore.set(limite);
   }

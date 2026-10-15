@@ -1,7 +1,6 @@
 package com.example.backend.Repository;
 
 import java.util.List;
-
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -34,15 +33,17 @@ public interface IscrizioneRepository extends JpaRepository<Iscrizione, Integer>
     @Query("SELECT i.torneo.id, COUNT(i) FROM Iscrizione i GROUP BY i.torneo.id")
     List<Object[]> countIscrittiPerTorneo();
     
-	@Transactional
-	@Modifying
-	@Query("DELETE FROM Iscrizione i WHERE i.torneo.id = :torneoId")
-	void deleteByTorneoId(@Param("torneoId") int torneoId);
-	
-	@Query("SELECT i FROM Iscrizione i WHERE i.torneo.id = :torneoId ORDER BY i.data, i.id")
-	List<Iscrizione> findByTorneoIdOrdinate(@Param("torneoId") int torneoId);
-	
-	
-	
-	
+    @Transactional
+    @Modifying
+    @Query("DELETE FROM Iscrizione i WHERE i.torneo.id = :torneoId")
+    void deleteByTorneoId(@Param("torneoId") int torneoId);
+    
+    @Query("SELECT i FROM Iscrizione i WHERE i.torneo.id = :torneoId ORDER BY i.data, i.id")
+    List<Iscrizione> findByTorneoIdOrdinate(@Param("torneoId") int torneoId);
+
+
+    @Query("SELECT COUNT(i) FROM Iscrizione i WHERE i.utente.id = :utenteId AND LOWER(TRIM(i.torneo.stato)) = 'aperto'")
+    int countByUtenteIdAndTorneoStatoAperto(@Param("utenteId") int utenteId);
+    
+    
 }

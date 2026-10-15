@@ -240,12 +240,32 @@ export class AutenticazioneMockService {
 
     return this.http.get<any>(`${this.apiUrl}/tornei/${id}/partecipanti`, { headers }).pipe(
       map(risposta => {
-        
+        let listaGrezza: any[] = [];
+
+     
         if (Array.isArray(risposta)) {
-          return risposta;
+          listaGrezza = risposta;
+        } else if (risposta && typeof risposta === 'object') {
+          listaGrezza = (
+            risposta.partecipanti ||
+            risposta.iscritti ||
+            risposta.utenti ||
+            risposta.lista ||
+            risposta.data ||
+            []
+          );
         }
-      
-        return risposta?.partecipanti || risposta?.iscritti || risposta?.utenti || [];
+
+        
+        return listaGrezza.map(item => {
+          const u = item.utente ?? item.user ?? item;
+          return {
+            id: Number(u.id ?? item.idUtente ?? item.utenteId ?? item.id),
+            nome: u.nome ?? u.nomeUtente ?? u.first_name ?? item.nomeUtente ?? item.nome ?? '',
+            cognome: u.cognome ?? u.last_name ?? item.cognome ?? '',
+            email: u.email ?? item.email ?? ''
+          };
+        });
       }),
       catchError(err => {
         console.error('Errore nel caricamento dei partecipanti:', err);
@@ -253,5 +273,27 @@ export class AutenticazioneMockService {
       })
     );
   }
+
+  caricaIscrizioniUtente(): Observable<number[]> {
+  const u = this.utenteCorrente();
+  if (!u) return of([]);
+
+  const headers = this.creaHeaders();
+  return this.http.get<any[]>('http://localhost:8080/api/utenti/me/iscrizioni', { headers }).pipe(
+    map(iscrizioni => iscrizioni.map(i => Number(i.id))),
+    tap(ids => {
+      const utenteAggiornato = this.normalizzaUtente({
+        ...u,
+        torneiIscrittiIds: ids
+      });
+      this.utenteCorrente.set(utenteAggiornato);
+      localStorage.setItem(this.chiaveUtenteLoggato, JSON.stringify(utenteAggiornato));
+    }),
+    catchError(err => {
+      console.error('Errore nel recupero iscrizioni utente dal backend:', err);
+      return of(u.torneiIscrittiIds || []);
+    })
+  );
+}
   
 }

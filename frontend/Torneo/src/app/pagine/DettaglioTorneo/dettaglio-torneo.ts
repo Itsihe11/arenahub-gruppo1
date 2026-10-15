@@ -35,7 +35,6 @@ export class DettaglioTorneo {
   readonly torneoId = signal<number | null>(null);
   readonly partite = this.partitaService.partite;
 
- 
   readonly partecipanti = signal<any[]>([]);
 
   readonly torneo = computed(() => {
@@ -48,13 +47,18 @@ export class DettaglioTorneo {
     return this.torneiService.tornei().find(t => t.id === id);
   });
 
-  readonly giaIscritto = computed(() => {
+readonly giaIscritto = computed(() => {
     const torneo = this.torneo();
     const utente = this.utenteCorrente();
+    const listaPartecipanti = this.partecipanti(); 
 
     if (!torneo || !utente) {
       return false;
     }
+
+    const iscrittoTraPartecipantiLocali = listaPartecipanti.some(
+      p => p.idUtente === utente.id || p.id === utente.id
+    );
 
     const iscrittoNelProfilo =
       utente.torneiIscrittiIds?.includes(torneo.id) ?? false;
@@ -62,7 +66,7 @@ export class DettaglioTorneo {
     const iscrittoTraPartecipanti =
       torneo.partecipantiIds?.includes(utente.id) ?? false;
 
-    return iscrittoNelProfilo || iscrittoTraPartecipanti;
+    return iscrittoNelProfilo || iscrittoTraPartecipanti || iscrittoTraPartecipantiLocali;
   });
 
   readonly partitePerTurno = computed(() => {
@@ -150,7 +154,6 @@ export class DettaglioTorneo {
       if (idParam !== null && Number.isInteger(id) && id > 0) {
         this.torneoId.set(id);
         this.partitaService.caricaPartiteTorneo(id);
-        
         this.caricaPartecipanti(id);
       } else {
         this.torneoId.set(null);
@@ -158,7 +161,6 @@ export class DettaglioTorneo {
     });
   }
 
-  
   caricaPartecipanti(id: number): void {
     this.autenticazioneService.getPartecipantiTorneo(id).subscribe({
       next: (lista) => {
@@ -200,20 +202,40 @@ export class DettaglioTorneo {
       return;
     }
 
-    this.autenticazioneService.aggiornaIscrizioniTornei(torneo.id, true).subscribe({
-      next: (successo) => {
-        if (successo) {
-          this.torneiService.caricaTornei();
-         
-          this.caricaPartecipanti(torneo.id);
-          alert('Iscrizione completata con successo!');
-        } else {
-          alert('Impossibile completare l\'iscrizione.');
+
+    this.torneiService.getStatoIscrizioneUtente().subscribe({
+      next: (stato) => {
+        if (!stato.canRegister) {
+          alert(`Hai raggiunto il limite massimo di ${stato.limiteMassimo} tornei attivi!`);
+          return;
         }
+
+        this.torneiService.iscriviUtente(torneo.id, utente.id).subscribe({
+          next: () => {
+            this.torneiService.caricaTornei();
+            this.caricaPartecipanti(torneo.id);
+            alert('Iscrizione completata con successo!');
+          },
+          error: (err) => {
+            console.error('Errore durante l\'iscrizione:', err);
+            const messaggio = err?.error?.message || err?.error?.reason || err?.error?.errore || 'Si è verificato un errore durante l\'iscrizione.';
+            alert(messaggio);
+          }
+        });
       },
-      error: (err) => {
-        console.error('Errore durante l\'iscrizione:', err);
-        alert('Si è verificato un errore durante l\'iscrizione.');
+      error: () => {
+        
+        this.torneiService.iscriviUtente(torneo.id, utente.id).subscribe({
+          next: () => {
+            this.torneiService.caricaTornei();
+            this.caricaPartecipanti(torneo.id);
+            alert('Iscrizione completata con successo!');
+          },
+          error: (err) => {
+            const messaggio = err?.error?.message || err?.error?.reason || err?.error?.errore || 'Impossibile completare l\'iscrizione.';
+            alert(messaggio);
+          }
+        });
       }
     });
   }
@@ -237,20 +259,20 @@ export class DettaglioTorneo {
     }
 
     if (confirm('Sei sicuro di voler annullare la tua iscrizione?')) {
-      this.autenticazioneService.aggiornaIscrizioniTornei(torneo.id, false).subscribe({
-        next: (successo) => {
-          if (successo) {
-            this.torneiService.caricaTornei();
-           
-            this.caricaPartecipanti(torneo.id);
-            alert('Iscrizione annullata.');
-          } else {
-            alert('Impossibile annullare l\'iscrizione.');
-          }
+      this.torneiService.disiscriviUtente(torneo.id, utente.id).subscribe({
+        next: () => {
+          this.torneiService.caricaTornei();
+          this.caricaPartecipanti(torneo.id);
+          alert('Iscrizione annullata.');
         },
         error: (err) => {
           console.error('Errore durante la disiscrizione:', err);
-          alert('Si è verificato un errore durante l\'annullamento.');
+          const messaggio =
+            err?.error?.message ||
+            err?.error?.reason ||
+            err?.error?.errore ||
+            'Si è verificato un errore durante l\'annullamento.';
+          alert(messaggio);
         }
       });
     }

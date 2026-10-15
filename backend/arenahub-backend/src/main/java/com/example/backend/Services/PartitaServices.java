@@ -124,7 +124,7 @@ public class PartitaServices {
         boolean completato = ultimoTurno.stream()
                 .allMatch(m -> "completata".equals(m.getStato()) && m.getVincitore() != null);
         if (completato && ultimoTurno.size() == 1) {
-            torneo.setStato("concluso");
+            torneo.setStato("chiuso");
             torneoRepo.save(torneo);
         }
 

@@ -17,6 +17,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.example.backend.Services.IscrizioneService;
 import com.example.backend.Services.UtenteService;
 
+import jakarta.validation.Valid;
+
 @RestController
 @RequestMapping("/api")
 @CrossOrigin(origins = "http://localhost:4200")
@@ -31,7 +33,7 @@ public class IscrizioneController {
     }
 
     @PostMapping("/tornei/{id}/iscrizione")
-    public ResponseEntity<Map<String, Object>> iscrivi(
+    public ResponseEntity<Map<String, Object>> iscrivi(@Valid
             @RequestHeader(value = "Authorization", required = false) String auth,
             @PathVariable int id) {
         return ResponseEntity.status(HttpStatus.CREATED)
