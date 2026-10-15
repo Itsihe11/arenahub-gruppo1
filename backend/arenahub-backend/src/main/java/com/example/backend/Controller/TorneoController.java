@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.backend.Services.TorneoService;
+import com.example.backend.Services.UtenteService;
 
 import jakarta.validation.Valid;
 
@@ -27,9 +28,11 @@ import jakarta.validation.Valid;
 public class TorneoController {
 
 	private final TorneoService torneoService;
+	private final UtenteService utenteService;
 
-	public TorneoController(TorneoService torneoService) {
+	public TorneoController(TorneoService torneoService, UtenteService utenteService) {
 		this.torneoService = torneoService;
+		this.utenteService = utenteService;
 	}
 
 	@GetMapping
@@ -66,13 +69,7 @@ public class TorneoController {
 	}
 
 	private Integer uid(String auth) {
-		if (auth == null || !auth.startsWith("Bearer "))
-			return null;
-		try {
-			return Integer.parseInt(auth.substring(7).trim());
-		} catch (NumberFormatException e) {
-			return null;
-		}
+	    return utenteService.idDaHeader(auth);
 	}
 
 }

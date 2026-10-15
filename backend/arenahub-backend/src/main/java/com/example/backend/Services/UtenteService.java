@@ -18,6 +18,13 @@ import com.example.backend.Model.Utente;
 import com.example.backend.Repository.ConfigurazioneRepository;
 import com.example.backend.Repository.IscrizioneRepository;
 import com.example.backend.Repository.UtenteRepository;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.util.Base64;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import org.springframework.beans.factory.annotation.Value;
+
 
 @Service
 public class UtenteService {
@@ -28,6 +35,24 @@ public class UtenteService {
     private final IscrizioneRepository iscrizioneRepository;
     private final ConfigurazioneRepository configurazioneRepository;
     private final PasswordEncoder passwordEncoder;
+    
+    @Value("${app.token.secret:cambia-questo-segreto-di-almeno-32-caratteri}")
+    private String segreto;
+
+    private String firma(String dati) {
+        try {
+            Mac mac = Mac.getInstance("HmacSHA256");
+            mac.init(new SecretKeySpec(segreto.getBytes(StandardCharsets.UTF_8), "HmacSHA256"));
+            return Base64.getUrlEncoder().withoutPadding()
+                    .encodeToString(mac.doFinal(dati.getBytes(StandardCharsets.UTF_8)));
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private String creaToken(Integer id) {
+        return id + "." + firma(String.valueOf(id));
+    }
 
     public UtenteService(
             UtenteRepository utenti,
@@ -67,7 +92,7 @@ public class UtenteService {
         }
 
         Map<String, Object> r = new LinkedHashMap<>();
-        r.put("token", String.valueOf(u.getId()));    
+        r.put("token", creaToken(u.getId()));
         r.put("utente", mappa(u, false));
         return r;
     }
@@ -85,8 +110,14 @@ public class UtenteService {
 
     public Integer idDaHeader(String auth) {
         if (auth == null || !auth.startsWith("Bearer ")) return null;
+        String[] parti = auth.substring(7).trim().split("\\.");
+        if (parti.length != 2) return null;
+        boolean valido = MessageDigest.isEqual(
+                firma(parti[0]).getBytes(StandardCharsets.UTF_8),
+                parti[1].getBytes(StandardCharsets.UTF_8));
+        if (!valido) return null;
         try {
-            return Integer.parseInt(auth.substring(7).trim());
+            return Integer.parseInt(parti[0]);
         } catch (NumberFormatException e) {
             return null;
         }
