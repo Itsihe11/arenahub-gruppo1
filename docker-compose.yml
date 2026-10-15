@@ -1,0 +1,30 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend/arenahub-backend
+      dockerfile: Dockerfile
+    image: mio-backend-springboot
+    container_name: arenahub-backend
+    ports:
+      - "8081:8081"
+    networks:
+      - arenahub-net
+
+  frontend:
+    build:
+      context: ./frontend/Torneo
+      dockerfile: Dockerfile
+    image: arenahub-frontend
+    container_name: arenahub-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    networks:
+      - arenahub-net
+
+networks:
+  arenahub-net:
+    driver: bridge
