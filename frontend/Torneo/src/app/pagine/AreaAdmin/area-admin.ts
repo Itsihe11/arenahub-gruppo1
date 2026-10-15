@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal } from '@angular/core';
+import { Component, effect, inject, signal , OnInit} from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SlicePipe } from '@angular/common';
@@ -16,7 +16,7 @@ type StatoTorneo = 'aperto' | 'chiuso';
   templateUrl: './area-admin.html',
   styleUrl: './area-admin.css'
 })
-export class AreaAdmin {
+export class AreaAdmin implements OnInit {
   private readonly autenticazioneService = inject(AutenticazioneMockService);
   private readonly torneiService = inject(TorneiService);
   private readonly partitaService = inject(PartiteService);
@@ -57,7 +57,11 @@ export class AreaAdmin {
       }
     });
   }
-
+  ngOnInit(): void {
+    this.torneiService.caricaTornei();
+    this.torneiService.caricaLimite();
+  }
+  
   creaTorneo(): void {
     if (
       !this.nuovoNome.trim() ||
