@@ -73,6 +73,16 @@
       }
 
       <div class="campo">
+        <label for="cognome">Cognome</label>
+        <input id="cognome" name="cognome" type="text" [(ngModel)]="cognome" #cognomeCtrl="ngModel" placeholder="Il tuo cognome"
+          autocomplete="family-name" required>
+
+        @if (cognomeCtrl.invalid && cognomeCtrl.touched) {
+        <span class="errore-campo">Inserisci il tuo cognome.</span>
+        }
+      </div>
+
+      <div class="campo">
         <label for="email">Indirizzo email</label>
         <input id="email" name="email" type="email" [(ngModel)]="email" #emailCtrl="ngModel"
           placeholder="nome@esempio.it" autocomplete="email" required email>

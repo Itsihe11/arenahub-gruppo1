@@ -56,7 +56,7 @@ export class Autenticazione implements OnInit {
 
       this.autenticazioneService.registra(
         this.nome,
-        this.cognome || '',
+        this.cognome,
         this.email,
         this.password
       ).subscribe(esito => {
