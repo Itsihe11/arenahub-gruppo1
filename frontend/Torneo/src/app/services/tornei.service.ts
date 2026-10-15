@@ -188,9 +188,15 @@ creaTorneo(dati: {
     this.limiteTorneiPerGiocatore.set(limite);
   }
 
-  private aggiornaIscrizioneUtente(utenteId: number, torneoId: number, iscrivi: boolean): void {
-    const utente = this.authService.utenteCorrente();
-    if (!utente || utente.id !== utenteId) return;
-    this.authService.aggiornaIscrizioniTornei(torneoId, iscrivi);
-  }
+private aggiornaIscrizioneUtente(utenteId: number, torneoId: number, iscrivi: boolean): void {
+  const utente = this.authService.utenteCorrente();
+  if (!utente || utente.id !== utenteId) return;
+  
+  
+  this.authService.aggiornaIscrizioniLocali(torneoId, iscrivi);
+  
+  
+  this.authService.sincronizzaUtenteEIscrizioni();
+}
+  
 }

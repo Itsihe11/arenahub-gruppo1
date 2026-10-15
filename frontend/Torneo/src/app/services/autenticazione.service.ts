@@ -292,4 +292,23 @@ export class AutenticazioneMockService {
       })
     );
   }
+  
+aggiornaIscrizioniLocali(torneoId: number, iscrivi: boolean): void {
+  const utente = this.utenteCorrente();
+  if (!utente) return;
+
+  const targetId = Number(torneoId);
+  const idsAttuali = (utente.torneiIscrittiIds ?? []).map(id => Number(id));
+  const nuoviIds = iscrivi
+    ? Array.from(new Set([...idsAttuali, targetId]))
+    : idsAttuali.filter(id => id !== targetId);
+
+  const utenteAggiornato = this.normalizzaUtente({
+    ...utente,
+    torneiIscrittiIds: nuoviIds
+  });
+
+  this.utenteCorrente.set(utenteAggiornato);
+  localStorage.setItem(this.chiaveUtenteLoggato, JSON.stringify(utenteAggiornato));
+}
 }

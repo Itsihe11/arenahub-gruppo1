@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal , OnInit} from '@angular/core';
+import { Component, effect, inject, signal, OnInit, ChangeDetectorRef } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { SlicePipe } from '@angular/common';
@@ -21,6 +21,7 @@ export class AreaAdmin implements OnInit {
   private readonly torneiService = inject(TorneiService);
   private readonly partitaService = inject(PartiteService);
   private readonly router = inject(Router);
+  private readonly cdr = inject(ChangeDetectorRef);
 
   readonly utenteCorrente = this.autenticazioneService.utenteCorrente;
   readonly tuttiTornei = this.torneiService.tornei;
@@ -54,8 +55,11 @@ export class AreaAdmin implements OnInit {
       const limite = this.limiteCorrente();
       if (limite !== null) {
         this.limiteInput = limite;
+        this.cdr.detectChanges(); 
       }
     });
+    this.torneiService.caricaLimite();
+  
   }
   ngOnInit(): void {
     this.torneiService.caricaTornei();
